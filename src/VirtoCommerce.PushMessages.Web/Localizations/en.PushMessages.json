@@ -1,0 +1,28 @@
+{
+  "PushMessages": {
+    "blades": {
+      "hello-world": {
+        "title": "Hello world blade"
+      }
+    }
+  },
+  "permissions": {
+    "PushMessages:access": "Open PushMessages menu",
+    "PushMessages:create": "Create PushMessages related data",
+    "PushMessages:read": "View PushMessages related data",
+    "PushMessages:update": "Update PushMessages related data",
+    "PushMessages:delete": "Delete PushMessages related data"
+  },
+  "settings": {
+    "PushMessages": {
+      "PushMessagesEnabled": {
+        "title": "PushMessages Enabled",
+        "description": "PushMessages Enabled setting"
+      },
+      "PushMessagesPassword": {
+        "title": "PushMessages Password",
+        "description": "PushMessages Password setting"
+      }
+    }
+  }
+}
