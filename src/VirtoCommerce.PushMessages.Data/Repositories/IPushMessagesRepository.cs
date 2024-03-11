@@ -8,6 +8,11 @@ namespace VirtoCommerce.PushMessages.Data.Repositories;
 
 public interface IPushMessagesRepository : IRepository
 {
-    public IQueryable<PushMessageEntity> PushMessages { get; }
-    Task<IList<PushMessageEntity>> GetPushMessagesByIdsAsync(IList<string> ids, string responseGroup);
+    public IQueryable<PushMessageEntity> Messages { get; }
+
+    public IQueryable<PushMessageMemberEntity> Members { get; }
+
+    public IQueryable<PushMessageRecipientEntity> Recipients { get; }
+
+    Task<IList<PushMessageEntity>> GetMessagesByIdsAsync(IList<string> ids, string responseGroup);
 }

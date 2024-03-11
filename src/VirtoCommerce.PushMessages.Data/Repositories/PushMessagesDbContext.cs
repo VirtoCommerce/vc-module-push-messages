@@ -24,6 +24,24 @@ public class PushMessagesDbContext : DbContextWithTriggers
         modelBuilder.Entity<PushMessageEntity>().ToTable("PushMessage").HasKey(x => x.Id);
         modelBuilder.Entity<PushMessageEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
 
+        modelBuilder.Entity<PushMessageMemberEntity>().ToTable("PushMessageMember").HasKey(x => x.Id);
+        modelBuilder.Entity<PushMessageMemberEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+        modelBuilder.Entity<PushMessageMemberEntity>().HasOne(x => x.Message).WithMany(x => x.Members)
+            .HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Cascade).IsRequired();
+        modelBuilder.Entity<PushMessageMemberEntity>()
+            .HasIndex(x => new { x.MessageId, x.MemberId })
+            .IsUnique()
+            .HasDatabaseName("IX_PushMessageMember_MessageId_MemberId");
+
+        modelBuilder.Entity<PushMessageRecipientEntity>().ToTable("PushMessageRecipient").HasKey(x => x.Id);
+        modelBuilder.Entity<PushMessageRecipientEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+        modelBuilder.Entity<PushMessageRecipientEntity>().HasOne(x => x.Message).WithMany(x => x.Recipients)
+            .HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Cascade).IsRequired();
+        modelBuilder.Entity<PushMessageRecipientEntity>()
+            .HasIndex(x => new { x.MessageId, x.UserId })
+            .IsUnique()
+            .HasDatabaseName("IX_PushMessageRecipient_MessageId_UserId");
+
         switch (Database.ProviderName)
         {
             case "Pomelo.EntityFrameworkCore.MySql":
