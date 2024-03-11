@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,9 +7,11 @@ using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core;
-using VirtoCommerce.PushMessages.Data.PostgreSql;
+using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.MySql;
+using VirtoCommerce.PushMessages.Data.PostgreSql;
 using VirtoCommerce.PushMessages.Data.Repositories;
+using VirtoCommerce.PushMessages.Data.Services;
 using VirtoCommerce.PushMessages.Data.SqlServer;
 
 namespace VirtoCommerce.PushMessages.Web;
@@ -39,12 +42,11 @@ public class Module : IModule, IHasConfiguration
             }
         });
 
-        // Override models
-        //AbstractTypeFactory<OriginalModel>.OverrideType<OriginalModel, ExtendedModel>().MapToType<ExtendedEntity>();
-        //AbstractTypeFactory<OriginalEntity>.OverrideType<OriginalEntity, ExtendedEntity>();
+        serviceCollection.AddTransient<IPushMessagesRepository, PushMessagesRepository>();
+        serviceCollection.AddTransient<Func<IPushMessagesRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetRequiredService<IPushMessagesRepository>());
 
-        // Register services
-        //serviceCollection.AddTransient<IMyService, MyService>();
+        serviceCollection.AddTransient<IPushMessageService, PushMessageService>();
+        serviceCollection.AddTransient<IPushMessageSearchService, PushMessageSearchService>();
     }
 
     public void PostInitialize(IApplicationBuilder appBuilder)

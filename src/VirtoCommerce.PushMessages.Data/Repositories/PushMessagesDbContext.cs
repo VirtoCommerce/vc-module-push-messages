@@ -1,6 +1,7 @@
 using System.Reflection;
 using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
+using VirtoCommerce.PushMessages.Data.Models;
 
 namespace VirtoCommerce.PushMessages.Data.Repositories;
 
@@ -20,8 +21,8 @@ public class PushMessagesDbContext : DbContextWithTriggers
     {
         base.OnModelCreating(modelBuilder);
 
-        //modelBuilder.Entity<PushMessagesEntity>().ToTable("PushMessages").HasKey(x => x.Id);
-        //modelBuilder.Entity<PushMessagesEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+        modelBuilder.Entity<PushMessageEntity>().ToTable("PushMessage").HasKey(x => x.Id);
+        modelBuilder.Entity<PushMessageEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
 
         switch (Database.ProviderName)
         {
