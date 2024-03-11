@@ -22,10 +22,10 @@ export const details: DynamicDetailsSchema = {
       component: "vc-form",
       children: [
         {
-          id: "itemName",
-          component: "vc-input",
-          label: "Name",
-          property: "name",
+          id: "shortMessage",
+          component: "vc-editor",
+          label: "Short message",
+          property: "shortMessage",
         },
         {
           id: "itemCreatedDate",

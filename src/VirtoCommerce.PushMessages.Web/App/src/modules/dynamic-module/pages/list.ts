@@ -18,10 +18,10 @@ export const grid: DynamicGridSchema = {
       },
     ],
     menuItem: {
-      title: 'DYNAMICMODULE.MENU.TITLE',
+      title: "DYNAMICMODULE.MENU.TITLE",
       icon: "fas fa-file-alt",
       priority: 1,
-    }
+    },
   },
   content: [
     {
@@ -43,14 +43,8 @@ export const grid: DynamicGridSchema = {
       multiselect: true,
       columns: [
         {
-          id: "imgSrc",
-          title: "Pic",
-          type: "image",
-          alwaysVisible: true,
-        },
-        {
-          id: "name",
-          title: "Name",
+          id: "shortMessage",
+          title: "Short message",
           alwaysVisible: true,
         },
         {

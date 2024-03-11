@@ -1,22 +1,37 @@
 import { computed, ref, Ref } from "vue";
-import { DynamicBladeList, ListBaseBladeScope, useBladeNavigation, useListFactory } from "@vc-shell/framework";
-import { loadMockItemsList } from "../../../mocks";
+import {
+  DynamicBladeList,
+  ListBaseBladeScope,
+  useApiClient,
+  useBladeNavigation,
+  useListFactory,
+} from "@vc-shell/framework";
+
+import {
+  IPushMessageSearchCriteria,
+  PushMessage,
+  PushMessageClient,
+  PushMessageSearchCriteria,
+} from "../../../../api_client/virtocommerce.pushmessages";
+
+const { getApiClient } = useApiClient(PushMessageClient);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DynamicItemsScope extends ListBaseBladeScope {}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default (args: {
   props: InstanceType<typeof DynamicBladeList>["$props"];
   emit: InstanceType<typeof DynamicBladeList>["$emit"];
   mounted: Ref<boolean>;
 }) => {
-  const factory = useListFactory({
-    load: async () => {
-      return await loadMockItemsList();
+  const factory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
+    load: async (query) => {
+      return (await getApiClient()).search({
+        take: 20,
+        ...(query || {}),
+      } as PushMessageSearchCriteria);
     },
-    remove: () => {
-      throw new Error("Function not implemented.");
-    }
   });
 
   const { load, remove, items, pagination, loading, query } = factory();

@@ -1,6 +1,15 @@
 import { computed, ref, Ref } from "vue";
-import { DetailsBaseBladeScope, DynamicBladeForm, IBladeToolbar, useDetailsFactory } from "@vc-shell/framework";
-import { loadMockItem, type MockedItem } from "../../../mocks";
+import {
+  DetailsBaseBladeScope,
+  DynamicBladeForm,
+  IBladeToolbar,
+  useApiClient,
+  useDetailsFactory,
+} from "@vc-shell/framework";
+
+import { IPushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
+
+const { getApiClient } = useApiClient(PushMessageClient);
 
 export interface DynamicItemScope extends DetailsBaseBladeScope {
   toolbarOverrides: {
@@ -13,9 +22,11 @@ export default (args: {
   emit: InstanceType<typeof DynamicBladeForm>["$emit"];
   mounted: Ref<boolean>;
 }) => {
-  const factory = useDetailsFactory<MockedItem>({
+  const factory = useDetailsFactory<IPushMessage>({
     load: async (payload) => {
-      return await loadMockItem(payload);
+      if (payload?.id) {
+        return (await getApiClient()).get(payload.id, "WithMembers");
+      }
     },
     saveChanges: () => {
       throw new Error("Function not implemented.");
@@ -40,7 +51,7 @@ export default (args: {
   });
 
   const bladeTitle = computed(() => {
-    return args.props.param ? item.value?.name : "Dynamic item details";
+    return "Push message details";
   });
 
   return {
