@@ -12,6 +12,14 @@
   <title>VirtoCommerce PushMessages module</title>
   <description>VirtoCommerce PushMessages module</description>
 
+  <apps>
+    <app id="push-messages">
+      <title>Push Messages</title>
+      <description>Push Messages</description>
+      <iconUrl>/apps/push-messages/img/icons/safari-pinned-tab.svg</iconUrl>
+    </app>
+  </apps>
+
   <authors>
     <author>Virto Commerce</author>
   </authors>
