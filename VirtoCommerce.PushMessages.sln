@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
@@ -31,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 		VirtoCommerce.PushMessages.sln.DotSettings = VirtoCommerce.PushMessages.sln.DotSettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtoCommerce.PushMessages.ExperienceApi", "src\VirtoCommerce.PushMessages.ExperienceApi\VirtoCommerce.PushMessages.ExperienceApi.csproj", "{CB4ACA02-AB48-4BA0-B363-50C3FD6D7C9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +67,10 @@ Global
 		{2AA0CB53-41C4-4470-9957-04D9E7A2DA9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AA0CB53-41C4-4470-9957-04D9E7A2DA9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AA0CB53-41C4-4470-9957-04D9E7A2DA9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB4ACA02-AB48-4BA0-B363-50C3FD6D7C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB4ACA02-AB48-4BA0-B363-50C3FD6D7C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB4ACA02-AB48-4BA0-B363-50C3FD6D7C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB4ACA02-AB48-4BA0-B363-50C3FD6D7C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +83,7 @@ Global
 		{0D05A182-F070-41AD-AF80-16C2C32D3FB6} = {992AC75C-0ADD-485F-A467-CB6019023867}
 		{05690526-7B91-4257-A49E-210B4719C33C} = {992AC75C-0ADD-485F-A467-CB6019023867}
 		{2AA0CB53-41C4-4470-9957-04D9E7A2DA9D} = {E5D2BDCE-2C91-490D-9549-763E2CBEF237}
+		{CB4ACA02-AB48-4BA0-B363-50C3FD6D7C9F} = {992AC75C-0ADD-485F-A467-CB6019023867}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {27AFA340-969C-462C-9288-803ED0C14A5B}

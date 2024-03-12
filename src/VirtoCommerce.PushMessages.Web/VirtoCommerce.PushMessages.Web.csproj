@@ -6,6 +6,7 @@
   <PropertyGroup>
     <!-- Project is not a test project -->
     <SonarQubeTestProject>false</SonarQubeTestProject>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Core\VirtoCommerce.PushMessages.Core.csproj" />
@@ -13,5 +14,6 @@
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Data.MySql\VirtoCommerce.PushMessages.Data.MySql.csproj" />
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Data.PostgreSql\VirtoCommerce.PushMessages.Data.PostgreSql.csproj" />
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Data.SqlServer\VirtoCommerce.PushMessages.Data.SqlServer.csproj" />
+    <ProjectReference Include="..\VirtoCommerce.PushMessages.ExperienceApi\VirtoCommerce.PushMessages.ExperienceApi.csproj" />
   </ItemGroup>
 </Project>

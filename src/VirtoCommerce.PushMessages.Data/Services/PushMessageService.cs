@@ -22,6 +22,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 {
     private readonly Func<IPushMessagesRepository> _repositoryFactory;
     private readonly IMemberService _memberService;
+    private readonly IEventPublisher _eventPublisher;
 
     public PushMessageService(
         Func<IPushMessagesRepository> repositoryFactory,
@@ -31,7 +32,43 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         : base(repositoryFactory, platformMemoryCache, eventPublisher)
     {
         _repositoryFactory = repositoryFactory;
+        _eventPublisher = eventPublisher;
         _memberService = memberService;
+    }
+
+    public async Task<IList<PushMessageCombined>> GetRecipientsMessages(IList<PushMessage> messages, bool? isRead)
+    {
+        ArgumentNullException.ThrowIfNull(messages);
+
+        using var repository = _repositoryFactory();
+
+        var messageIds = messages.Select(x => x.Id);
+        var recipientsByMessagesQuery = repository.Recipients.Where(x => messageIds.Contains(x.MessageId));
+
+        if (isRead.HasValue)
+        {
+            recipientsByMessagesQuery = recipientsByMessagesQuery.Where(x => x.IsRead == isRead.Value);
+        }
+
+        var recipientsByMessages = await recipientsByMessagesQuery.GroupBy(x => x.MessageId)
+           .Select(x => new { MessageId = x.Key, Items = x.ToList() })
+           .ToListAsync();
+
+        var result = new List<PushMessageCombined>();
+
+        foreach (var recipientsByMessage in recipientsByMessages)
+        {
+            var message = messages.FirstOrDefault(x => x.Id == recipientsByMessage.MessageId);
+            if (message != null)
+            {
+                var messageCombined = AbstractTypeFactory<PushMessageCombined>.TryCreateInstance();
+                messageCombined.Message = message;
+                messageCombined.Recipients = recipientsByMessage.Items.Select(x => x.ToModel(AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance())).ToList();
+                result.Add(messageCombined);
+            }
+        }
+
+        return result;
     }
 
     public virtual async Task<PushMessageRecipient> UpdateRecipientAsync(PushMessageRecipient recipient)
@@ -71,21 +108,37 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
     {
         using var repository = _repositoryFactory();
 
+        var messagesWithRecipients = new List<PushMessageCombined>();
         foreach (var changedEntry in changedEntries.Where(x => x.EntryState is EntryState.Added or EntryState.Modified))
         {
-            await AddNewRecipients(changedEntry, repository);
+            var recipients = await AddNewRecipients(changedEntry, repository);
+
+            var pushMessageCombined = AbstractTypeFactory<PushMessageCombined>.TryCreateInstance();
+            pushMessageCombined.Message = changedEntry.NewEntry;
+            pushMessageCombined.Recipients = recipients;
+            messagesWithRecipients.Add(pushMessageCombined);
         }
 
         await repository.UnitOfWork.CommitAsync();
+
+        var entries = new List<GenericChangedEntry<PushMessageCombined>>();
+        foreach (var messageWithRecipients in messagesWithRecipients)
+        {
+            var entry = new GenericChangedEntry<PushMessageCombined>(messageWithRecipients, EntryState.Added);
+            entries.Add(entry);
+        }
+        await _eventPublisher.Publish(new PushMessageSendingEvent(entries));
     }
 
-    private async Task AddNewRecipients(GenericChangedEntry<PushMessage> changedEntry, IPushMessagesRepository repository)
+    private async Task<List<PushMessageRecipient>> AddNewRecipients(GenericChangedEntry<PushMessage> changedEntry, IPushMessagesRepository repository)
     {
+        var result = new List<PushMessageRecipient>();
+
         var newMemberIds = changedEntry.NewEntry.MemberIds;
 
         if (newMemberIds.Count == 0)
         {
-            return;
+            return result;
         }
 
         var members = await _memberService.GetByIdsAsync(newMemberIds.ToArray(), MemberResponseGroup.WithSecurityAccounts.ToString());
@@ -100,7 +153,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 
         if (userIds.Count == 0)
         {
-            return;
+            return result;
         }
 
         var messageId = changedEntry.NewEntry.Id;
@@ -115,7 +168,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 
         if (newUserIds.Count == 0)
         {
-            return;
+            return result;
         }
 
         foreach (var newUserId in newUserIds)
@@ -125,6 +178,14 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
             entity.UserId = newUserId;
 
             repository.Add(entity);
+
+            var recipient = AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance();
+            recipient.MessageId = messageId;
+            recipient.UserId = newUserId;
+
+            result.Add(recipient);
         }
+
+        return result;
     }
 }
