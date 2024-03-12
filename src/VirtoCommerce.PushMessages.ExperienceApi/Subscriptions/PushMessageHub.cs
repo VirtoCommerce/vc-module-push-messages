@@ -10,13 +10,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Subscriptions
     {
         private readonly ISubject<ExpPushMessage> _messageStream = new ReplaySubject<ExpPushMessage>(0);
 
-        public Task<IObservable<ExpPushMessage>> MessagesAsync()
-        {
-            var observable = _messageStream.AsObservable();
-            return Task.FromResult(observable);
-        }
-
-        public Task<IObservable<ExpPushMessage>> MessagesByUserIdAsync(string userId)
+        public Task<IObservable<ExpPushMessage>> MessagesAsync(string userId)
         {
             var observable = _messageStream.AsObservable();
 

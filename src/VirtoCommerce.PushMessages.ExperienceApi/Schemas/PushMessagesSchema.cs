@@ -4,6 +4,7 @@ using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Subscription;
 using GraphQL.Types;
+using VirtoCommerce.ExperienceApiModule.Core.Extensions;
 using VirtoCommerce.ExperienceApiModule.Core.Helpers;
 using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
 using VirtoCommerce.PushMessages.ExperienceApi.Models;
@@ -25,15 +26,6 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
                 AsyncSubscriber = new AsyncEventStreamResolver<ExpPushMessage>(Subscribe)
             };
             schema.Subscription.AddField(messageAddedEventStreamFieldType);
-
-            //var messageAddedToUserEventStreamFieldType = new EventStreamFieldType
-            //{
-            //    Name = "pushNotificationCreatedForUser",
-            //    Type = typeof(PushMessageType),
-            //    Resolver = new FuncFieldResolver<PushMessage>(ResolveMessage),
-            //    AsyncSubscriber = new AsyncEventStreamResolver<PushMessage>(SubscribeToUser)
-            //};
-            //schema.Subscription.AddField(messageAddedToUserEventStreamFieldType);
         }
 
         private ExpPushMessage ResolveMessage(IResolveFieldContext context)
@@ -43,16 +35,11 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
 
         private Task<IObservable<ExpPushMessage>> Subscribe(IResolveEventStreamContext context)
         {
-            return _eventBroker.MessagesAsync();
+            var currentUserId = context.GetCurrentUserId();
+
+            var result = _eventBroker.MessagesAsync(currentUserId);
+
+            return result;
         }
-
-        //private Task<IObservable<PushMessage>> SubscribeToUser(IResolveEventStreamContext context)
-        //{
-        //    var currentUserId = context.GetCurrentUserId();
-
-        //    var result = _eventBroker.MessagesByUserIdAsync(currentUserId);
-
-        //    return result;
-        //}
     }
 }

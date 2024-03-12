@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -37,9 +37,9 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Subscriptions
             return message;
         }
 
-        public Task<IObservable<ExpPushMessage>> MessagesAsync()
+        public Task<IObservable<ExpPushMessage>> MessagesAsync(string userId)
         {
-            return _eventBroker.MessagesAsync();
+            return _eventBroker.MessagesAsync(userId);
         }
 
         protected virtual void OnMessage(RedisChannel channel, RedisValue redisValue)
