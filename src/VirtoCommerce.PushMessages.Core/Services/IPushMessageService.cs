@@ -7,7 +7,7 @@ namespace VirtoCommerce.PushMessages.Core.Services;
 
 public interface IPushMessageService : ICrudService<PushMessage>
 {
-    Task<IList<PushMessageCombined>> GetRecipientsMessages(IList<PushMessage> messageIds, bool? isRead);
+    Task<IList<PushMessageCombined>> GetRecipientsMessages(IList<PushMessage> messages, bool? isRead);
 
     Task<PushMessageRecipient> UpdateRecipientAsync(PushMessageRecipient recipient);
 }

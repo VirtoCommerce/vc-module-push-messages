@@ -38,8 +38,6 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 
     public async Task<IList<PushMessageCombined>> GetRecipientsMessages(IList<PushMessage> messages, bool? isRead)
     {
-        ArgumentNullException.ThrowIfNull(messages);
-
         using var repository = _repositoryFactory();
 
         var messageIds = messages.Select(x => x.Id);
@@ -73,8 +71,6 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 
     public virtual async Task<PushMessageRecipient> UpdateRecipientAsync(PushMessageRecipient recipient)
     {
-        ArgumentNullException.ThrowIfNull(recipient);
-
         using var repository = _repositoryFactory();
 
         var entity = await repository.Recipients

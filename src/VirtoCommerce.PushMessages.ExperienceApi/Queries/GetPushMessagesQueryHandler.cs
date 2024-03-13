@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -44,11 +43,11 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
             }
             while (searchResult.Results.Count == take);
 
-            var messagesComnined = await _pushMessageService.GetRecipientsMessages(pushMessages, request.UnreadOnly ? false : null);
+            var messagesCombined = await _pushMessageService.GetRecipientsMessages(pushMessages, request.UnreadOnly ? false : null);
 
             var result = new ExpPushMessagesResponse();
 
-            foreach (var messageCombined in messagesComnined)
+            foreach (var messageCombined in messagesCombined)
             {
                 foreach (var recipient in messageCombined.Recipients)
                 {

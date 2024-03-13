@@ -8,7 +8,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Subscriptions
 {
     public class PushMessageHub : IPushMessageHub
     {
-        private readonly ISubject<ExpPushMessage> _messageStream = new ReplaySubject<ExpPushMessage>(0);
+        private readonly ReplaySubject<ExpPushMessage> _messageStream = new(0);
 
         public Task<IObservable<ExpPushMessage>> MessagesAsync(string userId)
         {

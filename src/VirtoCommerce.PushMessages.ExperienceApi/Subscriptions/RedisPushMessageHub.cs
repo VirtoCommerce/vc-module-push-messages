@@ -8,22 +8,16 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Subscriptions
 {
     public class RedisPushMessageHub : IPushMessageHub
     {
-        private readonly PushMessageHub _eventBroker;
-
-        private const string ChannelName = "EventBroker";
-
-        private static readonly RedisChannel _reddisChannel = RedisChannel.Literal(ChannelName);
-
-        private readonly object _lock = new object();
-
+        private const string _channelName = "EventBroker";
+        private static readonly RedisChannel _redisChannel = RedisChannel.Literal(_channelName);
+        private readonly object _lock = new();
         private bool _isSubscribed;
 
-        private readonly IConnectionMultiplexer _connection;
         private readonly ISubscriber _subscriber;
+        private readonly PushMessageHub _eventBroker;
 
-        public RedisPushMessageHub(IConnectionMultiplexer connection, ISubscriber subscriber, PushMessageHub eventBroker)
+        public RedisPushMessageHub(ISubscriber subscriber, PushMessageHub eventBroker)
         {
-            _connection = connection;
             _subscriber = subscriber;
             _eventBroker = eventBroker;
         }
@@ -32,7 +26,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Subscriptions
         {
             EnsureRedisServerConnection();
 
-            await _subscriber.PublishAsync(_reddisChannel, JsonConvert.SerializeObject(message), CommandFlags.FireAndForget);
+            await _subscriber.PublishAsync(_redisChannel, JsonConvert.SerializeObject(message), CommandFlags.FireAndForget);
 
             return message;
         }
@@ -60,14 +54,12 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Subscriptions
                 {
                     if (!_isSubscribed)
                     {
-                        _subscriber.Subscribe(_reddisChannel, OnMessage, CommandFlags.FireAndForget);
+                        _subscriber.Subscribe(_redisChannel, OnMessage, CommandFlags.FireAndForget);
 
                         _isSubscribed = true;
                     }
                 }
             }
-
         }
-
     }
 }
