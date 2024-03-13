@@ -7,7 +7,7 @@
   <platformVersion>3.812.0</platformVersion>
   <dependencies>
     <dependency id="VirtoCommerce.Customer" version="3.803.0" />
-    <dependency id="VirtoCommerce.ExperienceApi" version="3.812.0" />
+    <dependency id="VirtoCommerce.ExperienceApi" version="3.812.0-alpha.1375-vcst-624" />
   </dependencies>
 
   <title>VirtoCommerce PushMessages module</title>
