@@ -2,13 +2,14 @@ import { DynamicGridSchema } from "@vc-shell/framework";
 
 export const grid: DynamicGridSchema = {
   settings: {
-    url: "/dynamic-module-list",
-    id: "DynamicItems",
-    titleTemplate: "Dynamic module blade",
-    localizationPrefix: "DynamicModule",
+    url: "/push-messages",
+    id: "PushMessageList",
+    titleTemplate: "PUSH_MESSAGES.PAGES.LIST.TITLE",
+    localizationPrefix: "PUSH_MESSAGES",
     isWorkspace: true,
     composable: "useList",
     component: "DynamicBladeList",
+    //permissions: "PushMessages:read",
     toolbar: [
       {
         id: "refresh",
@@ -16,9 +17,15 @@ export const grid: DynamicGridSchema = {
         title: "Refresh",
         method: "refresh",
       },
+      {
+        id: "add",
+        icon: "fas fa-plus",
+        title: "New",
+        method: "openAddBlade",
+      },
     ],
     menuItem: {
-      title: "DYNAMICMODULE.MENU.TITLE",
+      title: "PUSH_MESSAGES.MENU.TITLE",
       icon: "fas fa-file-alt",
       priority: 1,
     },
@@ -27,6 +34,7 @@ export const grid: DynamicGridSchema = {
     {
       id: "itemsGrid",
       component: "vc-table",
+      multiselect: true,
       actions: [
         {
           id: "deleteAction",
@@ -37,14 +45,10 @@ export const grid: DynamicGridSchema = {
           method: "deleteItem",
         },
       ],
-      mobileTemplate: {
-        component: "DynamicItemsMobileGridView",
-      },
-      multiselect: true,
       columns: [
         {
           id: "shortMessage",
-          title: "Short message",
+          title: "Short message2",
           alwaysVisible: true,
         },
         {

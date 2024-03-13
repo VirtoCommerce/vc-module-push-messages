@@ -45,6 +45,58 @@ export class PushMessageClient extends AuthApiBase {
      * @param body (optional) 
      * @return Success
      */
+    searchRecipients(body?: PushMessageRecipientSearchCriteria | undefined): Promise<PushMessageRecipientSearchResult> {
+        let url_ = this.baseUrl + "/api/push-message/search-recipients";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processSearchRecipients(_response);
+        });
+    }
+
+    protected processSearchRecipients(response: Response): Promise<PushMessageRecipientSearchResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PushMessageRecipientSearchResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PushMessageRecipientSearchResult>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
     search(body?: PushMessageSearchCriteria | undefined): Promise<PushMessageSearchResult> {
         let url_ = this.baseUrl + "/api/push-message/search";
         url_ = url_.replace(/[?&]$/, "");
@@ -303,6 +355,7 @@ export class PushMessageClient extends AuthApiBase {
 
 export class PushMessage implements IPushMessage {
     shortMessage?: string | undefined;
+    memberId?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -322,6 +375,7 @@ export class PushMessage implements IPushMessage {
     init(_data?: any) {
         if (_data) {
             this.shortMessage = _data["shortMessage"];
+            this.memberId = _data["memberId"];
             if (Array.isArray(_data["memberIds"])) {
                 this.memberIds = [] as any;
                 for (let item of _data["memberIds"])
@@ -345,6 +399,7 @@ export class PushMessage implements IPushMessage {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["shortMessage"] = this.shortMessage;
+        data["memberId"] = this.memberId;
         if (Array.isArray(this.memberIds)) {
             data["memberIds"] = [];
             for (let item of this.memberIds)
@@ -361,12 +416,237 @@ export class PushMessage implements IPushMessage {
 
 export interface IPushMessage {
     shortMessage?: string | undefined;
+    memberId?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
     createdBy?: string | undefined;
     modifiedBy?: string | undefined;
     id?: string | undefined;
+}
+
+export class PushMessageRecipient implements IPushMessageRecipient {
+    messageId?: string | undefined;
+    userId?: string | undefined;
+    isRead?: boolean;
+    createdDate?: Date;
+    modifiedDate?: Date | undefined;
+    createdBy?: string | undefined;
+    modifiedBy?: string | undefined;
+    id?: string | undefined;
+
+    constructor(data?: IPushMessageRecipient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.messageId = _data["messageId"];
+            this.userId = _data["userId"];
+            this.isRead = _data["isRead"];
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+            this.modifiedDate = _data["modifiedDate"] ? new Date(_data["modifiedDate"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.modifiedBy = _data["modifiedBy"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): PushMessageRecipient {
+        data = typeof data === 'object' ? data : {};
+        let result = new PushMessageRecipient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["messageId"] = this.messageId;
+        data["userId"] = this.userId;
+        data["isRead"] = this.isRead;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        data["modifiedDate"] = this.modifiedDate ? this.modifiedDate.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["modifiedBy"] = this.modifiedBy;
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IPushMessageRecipient {
+    messageId?: string | undefined;
+    userId?: string | undefined;
+    isRead?: boolean;
+    createdDate?: Date;
+    modifiedDate?: Date | undefined;
+    createdBy?: string | undefined;
+    modifiedBy?: string | undefined;
+    id?: string | undefined;
+}
+
+export class PushMessageRecipientSearchCriteria implements IPushMessageRecipientSearchCriteria {
+    messageId?: string | undefined;
+    responseGroup?: string | undefined;
+    /** Search object type */
+    objectType?: string | undefined;
+    objectTypes?: string[] | undefined;
+    objectIds?: string[] | undefined;
+    /** Search phrase */
+    keyword?: string | undefined;
+    /** Property is left for backward compatibility */
+    searchPhrase?: string | undefined;
+    /** Search phrase language */
+    languageCode?: string | undefined;
+    sort?: string | undefined;
+    readonly sortInfos?: SortInfo[] | undefined;
+    skip?: number;
+    take?: number;
+
+    constructor(data?: IPushMessageRecipientSearchCriteria) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.messageId = _data["messageId"];
+            this.responseGroup = _data["responseGroup"];
+            this.objectType = _data["objectType"];
+            if (Array.isArray(_data["objectTypes"])) {
+                this.objectTypes = [] as any;
+                for (let item of _data["objectTypes"])
+                    this.objectTypes!.push(item);
+            }
+            if (Array.isArray(_data["objectIds"])) {
+                this.objectIds = [] as any;
+                for (let item of _data["objectIds"])
+                    this.objectIds!.push(item);
+            }
+            this.keyword = _data["keyword"];
+            this.searchPhrase = _data["searchPhrase"];
+            this.languageCode = _data["languageCode"];
+            this.sort = _data["sort"];
+            if (Array.isArray(_data["sortInfos"])) {
+                (<any>this).sortInfos = [] as any;
+                for (let item of _data["sortInfos"])
+                    (<any>this).sortInfos!.push(SortInfo.fromJS(item));
+            }
+            this.skip = _data["skip"];
+            this.take = _data["take"];
+        }
+    }
+
+    static fromJS(data: any): PushMessageRecipientSearchCriteria {
+        data = typeof data === 'object' ? data : {};
+        let result = new PushMessageRecipientSearchCriteria();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["messageId"] = this.messageId;
+        data["responseGroup"] = this.responseGroup;
+        data["objectType"] = this.objectType;
+        if (Array.isArray(this.objectTypes)) {
+            data["objectTypes"] = [];
+            for (let item of this.objectTypes)
+                data["objectTypes"].push(item);
+        }
+        if (Array.isArray(this.objectIds)) {
+            data["objectIds"] = [];
+            for (let item of this.objectIds)
+                data["objectIds"].push(item);
+        }
+        data["keyword"] = this.keyword;
+        data["searchPhrase"] = this.searchPhrase;
+        data["languageCode"] = this.languageCode;
+        data["sort"] = this.sort;
+        if (Array.isArray(this.sortInfos)) {
+            data["sortInfos"] = [];
+            for (let item of this.sortInfos)
+                data["sortInfos"].push(item.toJSON());
+        }
+        data["skip"] = this.skip;
+        data["take"] = this.take;
+        return data;
+    }
+}
+
+export interface IPushMessageRecipientSearchCriteria {
+    messageId?: string | undefined;
+    responseGroup?: string | undefined;
+    /** Search object type */
+    objectType?: string | undefined;
+    objectTypes?: string[] | undefined;
+    objectIds?: string[] | undefined;
+    /** Search phrase */
+    keyword?: string | undefined;
+    /** Property is left for backward compatibility */
+    searchPhrase?: string | undefined;
+    /** Search phrase language */
+    languageCode?: string | undefined;
+    sort?: string | undefined;
+    sortInfos?: SortInfo[] | undefined;
+    skip?: number;
+    take?: number;
+}
+
+export class PushMessageRecipientSearchResult implements IPushMessageRecipientSearchResult {
+    totalCount?: number;
+    results?: PushMessageRecipient[] | undefined;
+
+    constructor(data?: IPushMessageRecipientSearchResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalCount = _data["totalCount"];
+            if (Array.isArray(_data["results"])) {
+                this.results = [] as any;
+                for (let item of _data["results"])
+                    this.results!.push(PushMessageRecipient.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PushMessageRecipientSearchResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new PushMessageRecipientSearchResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalCount"] = this.totalCount;
+        if (Array.isArray(this.results)) {
+            data["results"] = [];
+            for (let item of this.results)
+                data["results"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IPushMessageRecipientSearchResult {
+    totalCount?: number;
+    results?: PushMessageRecipient[] | undefined;
 }
 
 export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {

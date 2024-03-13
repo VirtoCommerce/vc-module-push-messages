@@ -26,6 +26,7 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
 
         model.ShortMessage = ShortMessage;
         model.MemberIds = Members.OrderBy(x => x.MemberId).Select(x => x.MemberId).ToList();
+        model.MemberId = model.MemberIds.FirstOrDefault();
 
         return model;
     }
@@ -47,11 +48,12 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
             Members = [];
             foreach (var memberId in model.MemberIds)
             {
-                var memberEntity = AbstractTypeFactory<PushMessageMemberEntity>.TryCreateInstance();
-                memberEntity.MemberId = memberId;
-                memberEntity.MessageId = model.Id;
-                Members.Add(memberEntity);
+                Members.Add(CreateMemberEntity(model.Id, memberId));
             }
+        }
+        else if (model.MemberId != null)
+        {
+            Members = [CreateMemberEntity(model.Id, model.MemberId)];
         }
 
         return this;
@@ -66,5 +68,14 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
             var comparer = AnonymousComparer.Create((PushMessageMemberEntity x) => x.MemberId);
             Members.Patch(target.Members, comparer, (sourceEntity, targetEntity) => targetEntity.MemberId = sourceEntity.MemberId);
         }
+    }
+
+
+    private static PushMessageMemberEntity CreateMemberEntity(string messageId, string memberId)
+    {
+        var memberEntity = AbstractTypeFactory<PushMessageMemberEntity>.TryCreateInstance();
+        memberEntity.MessageId = messageId;
+        memberEntity.MemberId = memberId;
+        return memberEntity;
     }
 }

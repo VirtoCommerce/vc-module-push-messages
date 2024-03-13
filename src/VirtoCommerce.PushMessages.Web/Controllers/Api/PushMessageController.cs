@@ -23,6 +23,24 @@ public class PushMessageController : Controller
         _searchService = searchService;
     }
 
+    [HttpPost("search-recipients")]
+    [Authorize(ModuleConstants.Security.Permissions.Read)]
+    public async Task<ActionResult<PushMessageRecipientSearchResult>> SearchRecipients([FromBody] PushMessageRecipientSearchCriteria criteria)
+    {
+        await Task.CompletedTask;
+        var result = new PushMessageRecipientSearchResult
+        {
+            Results =
+            [
+                new PushMessageRecipient { MessageId = criteria.MessageId, UserId = "1", IsRead = false, },
+                new PushMessageRecipient { MessageId = criteria.MessageId, UserId = "2", IsRead = true, },
+            ],
+            TotalCount = 2,
+        };
+
+        return Ok(result);
+    }
+
     [HttpPost("search")]
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessageSearchResult>> Search([FromBody] PushMessageSearchCriteria criteria)

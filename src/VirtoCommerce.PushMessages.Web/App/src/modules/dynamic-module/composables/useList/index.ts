@@ -17,7 +17,7 @@ import {
 const { getApiClient } = useApiClient(PushMessageClient);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface DynamicItemsScope extends ListBaseBladeScope {}
+export interface PushMessageListScope extends ListBaseBladeScope {}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default (args: {
@@ -28,8 +28,8 @@ export default (args: {
   const factory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
     load: async (query) => {
       return (await getApiClient()).search({
-        take: 20,
         ...(query || {}),
+        take: 20,
       } as PushMessageSearchCriteria);
     },
   });
@@ -39,12 +39,12 @@ export default (args: {
 
   async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
     await openBlade({
-      blade: resolveBladeByName("DynamicItem"),
+      blade: resolveBladeByName("PushMessageDetails"),
       ...data,
     });
   }
 
-  const scope = ref<DynamicItemsScope>({
+  const scope = ref<PushMessageListScope>({
     openDetailsBlade,
     deleteItem: () => {
       alert("Delete item");

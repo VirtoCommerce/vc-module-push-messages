@@ -1,4 +1,4 @@
-import { computed, ref, Ref } from "vue";
+import { computed, reactive, ref, Ref, watch } from "vue";
 import {
   DetailsBaseBladeScope,
   DynamicBladeForm,
@@ -7,13 +7,15 @@ import {
   useDetailsFactory,
 } from "@vc-shell/framework";
 
-import { IPushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
+import { CustomerModuleClient, MembersSearchCriteria } from "../../../../api_client/virtocommerce.customer";
+import { PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
 
-const { getApiClient } = useApiClient(PushMessageClient);
+const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
+const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient);
 
-export interface DynamicItemScope extends DetailsBaseBladeScope {
+export interface PushMessageDetailsScope extends DetailsBaseBladeScope {
   toolbarOverrides: {
-    refresh: IBladeToolbar;
+    saveChanges: IBladeToolbar;
   };
 }
 
@@ -22,37 +24,54 @@ export default (args: {
   emit: InstanceType<typeof DynamicBladeForm>["$emit"];
   mounted: Ref<boolean>;
 }) => {
-  const factory = useDetailsFactory<IPushMessage>({
-    load: async (payload) => {
-      if (payload?.id) {
-        return (await getApiClient()).get(payload.id, "WithMembers");
+  const detailsFactory = useDetailsFactory<PushMessage>({
+    load: async (message) => {
+      if (message?.id) {
+        return (await getPushMessageApiClient()).get(message.id, "WithMembers");
       }
     },
-    saveChanges: () => {
-      throw new Error("Function not implemented.");
+    saveChanges: async (message) => {
+      (await getPushMessageApiClient()).create(message);
     },
     remove: () => {
       throw new Error("Function not implemented.");
     },
   });
 
-  const { load, saveChanges, remove, loading, item, validationState } = factory();
+  const { load, saveChanges, remove, loading, item, validationState } = detailsFactory();
 
-  const scope = ref<DynamicItemScope>({
+  const scope = ref<PushMessageDetailsScope>({
     toolbarOverrides: {
-      refresh: {
-        async clickHandler() {
-          if (args.props.param) {
-            await load({ id: args.props.param });
-          }
-        },
+      saveChanges: {
+        isVisible: computed(() => !args.props.param),
       },
+    },
+    loadMembers: async (keyword?: string, skip?: number, ids?: string[]) => {
+      return (await getCustomerApiClient()).searchContacts({
+        keyword: keyword,
+        objectIds: ids,
+        sort: "name",
+        skip: skip,
+        take: ids?.length ?? 20,
+      } as MembersSearchCriteria);
     },
   });
 
   const bladeTitle = computed(() => {
     return "Push message details";
   });
+
+  watch(
+    () => args?.mounted.value,
+    async () => {
+      if (!args.props.param) {
+        item.value = reactive(new PushMessage());
+        item.value.shortMessage = "";
+        item.value.memberId = "";
+        validationState.value.resetModified(item.value, true);
+      }
+    },
+  );
 
   return {
     load,

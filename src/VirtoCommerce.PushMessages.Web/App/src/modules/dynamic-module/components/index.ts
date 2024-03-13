@@ -1,3 +1,1 @@
-import DynamicItemsMobileGridView from "./DynamicItemsMobileGridView.vue";
-
-export { DynamicItemsMobileGridView };
+export * from "./widgets";

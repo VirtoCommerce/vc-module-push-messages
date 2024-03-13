@@ -1,11 +1,11 @@
 {
-  "DYNAMICMODULE": {
+  "PUSH_MESSAGES": {
     "MENU": {
-      "TITLE": "Dynamic Module"
+      "TITLE": "Push Messages"
     },
     "PAGES": {
       "LIST": {
-        "TITLE": "Module blade",
+        "TITLE": "Push Messages",
         "TOOLBAR": {
           "REFRESH": "Refresh",
           "ADD": "Add",
@@ -40,6 +40,17 @@
         "EMPTY": {
           "NO_ITEMS": "There are no items yet"
         }
+      },
+      "DETAILS": {
+        "TOOLBAR": {
+          "SAVE": "Save"
+        },
+        "WIDGETS": {
+          "RECIPIENTS": "Recipients"
+        }
+      },
+      "RECIPIENTS": {
+        "TITLE": "Recipients"
       },
       "ALERTS": {
         "CLOSE_CONFIRMATION": "You have unsaved changes\nClose anyway?"
