@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ExperienceApiModule.Core.BaseQueries;
 using VirtoCommerce.ExperienceApiModule.Core.Extensions;
+using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
 {
@@ -17,10 +18,13 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
         {
         }
 
-        protected override Task BeforeMediatorSend(IResolveFieldContext<object> context, MarkAllPushMessagesReadCommand request)
+        protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, MarkAllPushMessagesReadCommand request)
         {
+            await Authorize(context, null, new PushMessagesAuthorizationRequirement());
+
             request.UserId = context.GetCurrentUserId();
-            return base.BeforeMediatorSend(context, request);
+
+            await base.BeforeMediatorSend(context, request);
         }
     }
 }

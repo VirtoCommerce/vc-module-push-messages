@@ -1,6 +1,7 @@
 using System;
 using GraphQL.Server;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,7 @@ using VirtoCommerce.PushMessages.Data.Repositories;
 using VirtoCommerce.PushMessages.Data.Services;
 using VirtoCommerce.PushMessages.Data.SqlServer;
 using VirtoCommerce.PushMessages.ExperienceApi;
+using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Extensions;
 using VirtoCommerce.PushMessages.ExperienceApi.Handlers;
 
@@ -66,6 +68,7 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddSchemaBuilders(assemblyMarker);
         serviceCollection.AddDistributedMessageService(Configuration);
         serviceCollection.AddTransient<PushMessageSendingEventHandler>();
+        serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();
     }
 
     public void PostInitialize(IApplicationBuilder appBuilder)

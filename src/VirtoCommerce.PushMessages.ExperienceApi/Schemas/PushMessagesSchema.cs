@@ -4,17 +4,21 @@ using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Subscription;
 using GraphQL.Types;
+using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ExperienceApiModule.Core.Extensions;
 using VirtoCommerce.ExperienceApiModule.Core.Helpers;
 using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
+using VirtoCommerce.ExperienceApiModule.Core.Infrastructure.Authorization;
+using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Models;
 using VirtoCommerce.PushMessages.ExperienceApi.Subscriptions;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
 {
-    public class PushMessagesSchema(IPushMessageHub eventBroker) : ISchemaBuilder
+    public class PushMessagesSchema(IPushMessageHub eventBroker, IAuthorizationService authorizationService) : ISchemaBuilder
     {
         private readonly IPushMessageHub _eventBroker = eventBroker;
+        readonly IAuthorizationService _authorizationService = authorizationService;
 
         public void Build(ISchema schema)
         {
@@ -33,13 +37,16 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
             return context.Source as ExpPushMessage;
         }
 
-        private Task<IObservable<ExpPushMessage>> Subscribe(IResolveEventStreamContext context)
+        private async Task<IObservable<ExpPushMessage>> Subscribe(IResolveEventStreamContext context)
         {
+            var authorizationResult = await _authorizationService.AuthorizeAsync(context.GetCurrentPrincipal(), null, new PushMessagesAuthorizationRequirement());
+            if (!authorizationResult.Succeeded)
+            {
+                throw AuthorizationError.AnonymousAccessDenied();
+            }
+
             var currentUserId = context.GetCurrentUserId();
-
-            var result = _eventBroker.MessagesAsync(currentUserId);
-
-            return result;
+            return await _eventBroker.MessagesAsync(currentUserId);
         }
     }
 }
