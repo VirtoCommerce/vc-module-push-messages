@@ -2,7 +2,7 @@ import { DynamicDetailsSchema } from "@vc-shell/framework";
 
 export const details: DynamicDetailsSchema = {
   settings: {
-    url: "/dynamic-module-details",
+    url: "/details",
     id: "PushMessageDetails",
     localizationPrefix: "PUSH_MESSAGES",
     composable: "useDetails",
@@ -14,12 +14,6 @@ export const details: DynamicDetailsSchema = {
         title: "PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE",
         method: "saveChanges",
       },
-      {
-        id: "refresh",
-        icon: "fas fa-sync-alt",
-        title: "Refresh",
-        method: "refresh",
-      },
     ],
   },
   content: [
@@ -30,8 +24,9 @@ export const details: DynamicDetailsSchema = {
         {
           id: "shortMessage",
           component: "vc-input",
-          label: "Short message",
+          label: "Message",
           property: "shortMessage",
+          rules: { required: true },
         },
         {
           id: "memberIds",
@@ -45,6 +40,7 @@ export const details: DynamicDetailsSchema = {
           optionValue: "id",
           optionLabel: "name",
           optionsMethod: "loadMembers",
+          rules: { required: true },
         },
       ],
     },

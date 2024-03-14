@@ -8,7 +8,7 @@
         "TITLE": "Push Messages",
         "TOOLBAR": {
           "REFRESH": "Refresh",
-          "ADD": "Add",
+          "NEW": "New",
           "DELETE": "Delete selected"
         },
         "SEARCH": {
@@ -17,8 +17,7 @@
         "TABLE": {
           "TOTALS": "Count:",
           "HEADER": {
-            "PRODUCT_IMAGE": "Pic",
-            "PRODUCT_NAME": "Name",
+            "MESSAGE": "Message",
             "CREATED_DATE": "Created"
           },
           "EMPTY": {
@@ -30,12 +29,8 @@
             "ACTION": "Reset search"
           },
           "ACTIONS": {
-            "UNPUBLISH": "Unpublish",
-            "PUBLISH": "Publish"
+            "DELETE": "Delete"
           }
-        },
-        "MOBILE": {
-          "CREATED": "Created"
         },
         "EMPTY": {
           "NO_ITEMS": "There are no items yet"
@@ -46,11 +41,19 @@
           "SAVE": "Save"
         },
         "WIDGETS": {
-          "RECIPIENTS": "Recipients"
+          "RECIPIENTS": "Status"
         }
       },
       "RECIPIENTS": {
-        "TITLE": "Recipients"
+        "TITLE": "Status",
+        "TABLE": {
+          "TOTALS": "Count:",
+          "HEADER": {
+            "ID": "Id",
+            "NAME": "Name",
+            "READ": "Read"
+          }
+        }
       },
       "ALERTS": {
         "CLOSE_CONFIRMATION": "You have unsaved changes\nClose anyway?"

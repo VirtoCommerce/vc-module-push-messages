@@ -1,3 +1,3 @@
-export { default as useList } from "./useList";
-export { default as useDetails } from "./useDetails";
-export { default as recipientList } from "./recipientList";
+export { default as useList } from "./useMessageList";
+export { default as useDetails } from "./useMessageDetails";
+export { default as useRecipientList } from "./useRecipientList";

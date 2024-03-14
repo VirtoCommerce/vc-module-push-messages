@@ -31,7 +31,7 @@ export default (args: {
       }
     },
     saveChanges: async (message) => {
-      (await getPushMessageApiClient()).create(message);
+      return (await getPushMessageApiClient()).create(message);
     },
     remove: () => {
       throw new Error("Function not implemented.");
@@ -44,6 +44,7 @@ export default (args: {
     toolbarOverrides: {
       saveChanges: {
         isVisible: computed(() => !args.props.param),
+        disabled: computed(() => validationState.value.disabled),
       },
     },
     loadMembers: async (keyword?: string, skip?: number, ids?: string[]) => {

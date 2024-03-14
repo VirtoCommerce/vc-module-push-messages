@@ -1,9 +1,10 @@
 <template>
   <VcWidget
+    v-if="modelValue.item?.id"
     v-loading="loading"
     :value="count"
     :title="$t('PUSH_MESSAGES.PAGES.DETAILS.WIDGETS.RECIPIENTS')"
-    icon="fas fa-tags"
+    icon="fas fa-user-check"
     @click="clickHandler"
   >
   </VcWidget>

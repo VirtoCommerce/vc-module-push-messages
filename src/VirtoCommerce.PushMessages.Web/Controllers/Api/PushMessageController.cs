@@ -52,15 +52,7 @@ public class PushMessageController : Controller
 
     [HttpPost]
     [Authorize(ModuleConstants.Security.Permissions.Create)]
-    public Task<ActionResult<PushMessage>> Create([FromBody] PushMessage model)
-    {
-        model.Id = null;
-        return Update(model);
-    }
-
-    [HttpPut]
-    [Authorize(ModuleConstants.Security.Permissions.Update)]
-    public async Task<ActionResult<PushMessage>> Update([FromBody] PushMessage model)
+    public async Task<ActionResult<PushMessage>> Create([FromBody] PushMessage model)
     {
         model.Id = null;
         await _crudService.SaveChangesAsync([model]);

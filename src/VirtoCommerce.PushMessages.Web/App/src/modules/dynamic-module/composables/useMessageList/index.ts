@@ -1,11 +1,5 @@
-import { computed, ref, Ref } from "vue";
-import {
-  DynamicBladeList,
-  ListBaseBladeScope,
-  useApiClient,
-  useBladeNavigation,
-  useListFactory,
-} from "@vc-shell/framework";
+import { computed, ref } from "vue";
+import { ListBaseBladeScope, useApiClient, useBladeNavigation, useListFactory } from "@vc-shell/framework";
 
 import {
   IPushMessageSearchCriteria,
@@ -19,22 +13,15 @@ const { getApiClient } = useApiClient(PushMessageClient);
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PushMessageListScope extends ListBaseBladeScope {}
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default (args: {
-  props: InstanceType<typeof DynamicBladeList>["$props"];
-  emit: InstanceType<typeof DynamicBladeList>["$emit"];
-  mounted: Ref<boolean>;
-}) => {
-  const factory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
+export default () => {
+  const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
     load: async (query) => {
-      return (await getApiClient()).search({
-        ...(query || {}),
-        take: 20,
-      } as PushMessageSearchCriteria);
+      const criteria = { ...(query || {}) } as PushMessageSearchCriteria;
+      return (await getApiClient()).search(criteria);
     },
   });
 
-  const { load, remove, items, pagination, loading, query } = factory();
+  const { load, remove, items, pagination, loading, query } = listFactory({ pageSize: 20 });
   const { openBlade, resolveBladeByName } = useBladeNavigation();
 
   async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {

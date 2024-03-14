@@ -2,7 +2,7 @@ import { DynamicGridSchema } from "@vc-shell/framework";
 
 export const grid: DynamicGridSchema = {
   settings: {
-    url: "/push-messages",
+    url: "/messages",
     id: "PushMessageList",
     titleTemplate: "PUSH_MESSAGES.PAGES.LIST.TITLE",
     localizationPrefix: "PUSH_MESSAGES",
@@ -14,19 +14,19 @@ export const grid: DynamicGridSchema = {
       {
         id: "refresh",
         icon: "fas fa-sync-alt",
-        title: "Refresh",
+        title: "PUSH_MESSAGES.PAGES.LIST.TOOLBAR.REFRESH",
         method: "refresh",
       },
       {
         id: "add",
         icon: "fas fa-plus",
-        title: "New",
+        title: "PUSH_MESSAGES.PAGES.LIST.TOOLBAR.NEW",
         method: "openAddBlade",
       },
     ],
     menuItem: {
       title: "PUSH_MESSAGES.MENU.TITLE",
-      icon: "fas fa-file-alt",
+      icon: "fas fa-message",
       priority: 1,
     },
   },
@@ -39,7 +39,7 @@ export const grid: DynamicGridSchema = {
         {
           id: "deleteAction",
           icon: "fas fa-trash",
-          title: "Delete",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE",
           type: "danger",
           position: "left",
           method: "deleteItem",
@@ -47,15 +47,16 @@ export const grid: DynamicGridSchema = {
       ],
       columns: [
         {
-          id: "shortMessage",
-          title: "Short message2",
-          alwaysVisible: true,
+          id: "createdDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
+          sortable: true,
+          type: "date-time",
+          width: 40,
         },
         {
-          id: "createdDate",
-          title: "Created date",
-          sortable: true,
-          type: "date-ago",
+          id: "shortMessage",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MESSAGE",
+          alwaysVisible: true,
         },
       ],
     },

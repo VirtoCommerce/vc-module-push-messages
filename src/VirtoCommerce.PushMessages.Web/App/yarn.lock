@@ -2707,22 +2707,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vc-shell/config-generator@npm:^1.0.179":
-  version: 1.0.179
-  resolution: "@vc-shell/config-generator@npm:1.0.179"
+"@vc-shell/config-generator@npm:^1.0.181":
+  version: 1.0.181
+  resolution: "@vc-shell/config-generator@npm:1.0.181"
   dependencies:
     "@vitejs/plugin-vue": "npm:^5.0.3"
     vite: "npm:^5.0.11"
     vite-plugin-checker: "npm:^0.6.2"
     vite-plugin-mkcert: "npm:^1.17.1"
     vue: "npm:^3.4.15"
-  checksum: e7d328694f45f34c43af1885d40dec6b97f6723eb611db43ee0658915b3da3e2c3876d31104d91e70b9baeca5ade843c625dc07727418eb98e7fb88b121c47f5
+  checksum: fdbaf33583014b7423e105663dada4447788282789c672976d6ac63d2296acb4c8bea06a091d8eb595f206a93f7dff3f9ffb094ad0ee6f9480500f2b5505bd5e
   languageName: node
   linkType: hard
 
-"@vc-shell/framework@npm:^1.0.179":
-  version: 1.0.179
-  resolution: "@vc-shell/framework@npm:1.0.179"
+"@vc-shell/framework@npm:^1.0.181":
+  version: 1.0.181
+  resolution: "@vc-shell/framework@npm:1.0.181"
   dependencies:
     "@floating-ui/vue": "npm:^1.0.6"
     "@headlessui/vue": "npm:^1.7.19"
@@ -2747,7 +2747,7 @@ __metadata:
     vue-router: "npm:^4.2.5"
     vue3-touch-events: "npm:^4.1.8"
     whatwg-fetch: "npm:^3.6.19"
-  checksum: 783b9a58e91a743befbe5155006a3d9ab6d59fb595e6df659f7cd4e2551b15940ab5c0211c7ec1105c4f0eb94ec96e8e1263cbc3fd0e308793bff24e743dc820
+  checksum: ac4313ca08ca7c0c573100fce358bdacc0e3c0265acfc32e1531e6baa940e680c7519f8b2594b39afd6b46ce0e4d0b0f08cccfe93b1d107a48d545b1a7d84392
   languageName: node
   linkType: hard
 
@@ -7620,8 +7620,8 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.16.0"
     "@typescript-eslint/parser": "npm:^6.16.0"
     "@vc-shell/api-client-generator": "npm:^1.0.178"
-    "@vc-shell/config-generator": "npm:^1.0.179"
-    "@vc-shell/framework": "npm:^1.0.179"
+    "@vc-shell/config-generator": "npm:^1.0.181"
+    "@vc-shell/framework": "npm:^1.0.181"
     "@vc-shell/release-config": "npm:^1.0.178"
     "@vc-shell/ts-config": "npm:^1.0.178"
     "@vitejs/plugin-vue": "npm:^5.0.3"

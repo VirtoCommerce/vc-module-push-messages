@@ -2,11 +2,11 @@ import { DynamicGridSchema } from "@vc-shell/framework";
 
 export const grid: DynamicGridSchema = {
   settings: {
-    url: "/push-message-recipients",
+    url: "/recipients",
     id: "PushMessageRecipientList",
     titleTemplate: "PUSH_MESSAGES.PAGES.RECIPIENTS.TITLE",
     localizationPrefix: "PUSH_MESSAGES",
-    composable: "recipientList",
+    composable: "useRecipientList",
     component: "DynamicBladeList",
   },
   content: [
@@ -16,12 +16,17 @@ export const grid: DynamicGridSchema = {
       columns: [
         {
           id: "userId",
-          title: "Id",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.ID",
+          sortable: true,
+        },
+        {
+          id: "userName",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.NAME",
           sortable: true,
         },
         {
           id: "isRead",
-          title: "Read",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.READ",
           sortable: true,
         },
       ],
