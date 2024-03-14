@@ -355,7 +355,6 @@ export class PushMessageClient extends AuthApiBase {
 
 export class PushMessage implements IPushMessage {
     shortMessage?: string | undefined;
-    memberId?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -375,7 +374,6 @@ export class PushMessage implements IPushMessage {
     init(_data?: any) {
         if (_data) {
             this.shortMessage = _data["shortMessage"];
-            this.memberId = _data["memberId"];
             if (Array.isArray(_data["memberIds"])) {
                 this.memberIds = [] as any;
                 for (let item of _data["memberIds"])
@@ -399,7 +397,6 @@ export class PushMessage implements IPushMessage {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["shortMessage"] = this.shortMessage;
-        data["memberId"] = this.memberId;
         if (Array.isArray(this.memberIds)) {
             data["memberIds"] = [];
             for (let item of this.memberIds)
@@ -416,7 +413,6 @@ export class PushMessage implements IPushMessage {
 
 export interface IPushMessage {
     shortMessage?: string | undefined;
-    memberId?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;

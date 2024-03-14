@@ -26,7 +26,6 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
 
         model.ShortMessage = ShortMessage;
         model.MemberIds = Members.OrderBy(x => x.MemberId).Select(x => x.MemberId).ToList();
-        model.MemberId = model.MemberIds.FirstOrDefault();
 
         return model;
     }
@@ -50,10 +49,6 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
             {
                 Members.Add(CreateMemberEntity(model.Id, memberId));
             }
-        }
-        else if (model.MemberId != null)
-        {
-            Members = [CreateMemberEntity(model.Id, model.MemberId)];
         }
 
         return this;

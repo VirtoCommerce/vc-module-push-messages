@@ -66,8 +66,6 @@ export default (args: {
     async () => {
       if (!args.props.param) {
         item.value = reactive(new PushMessage());
-        item.value.shortMessage = "";
-        item.value.memberId = "";
         validationState.value.resetModified(item.value, true);
       }
     },
