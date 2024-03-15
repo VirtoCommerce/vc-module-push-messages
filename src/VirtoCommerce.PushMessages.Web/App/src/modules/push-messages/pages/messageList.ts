@@ -51,12 +51,11 @@ export const grid: DynamicGridSchema = {
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
           sortable: true,
           type: "date-time",
-          width: 40,
+          width: "14em",
         },
         {
           id: "shortMessage",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MESSAGE",
-          alwaysVisible: true,
         },
       ],
     },

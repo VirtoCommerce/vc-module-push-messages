@@ -51,6 +51,7 @@ export default (args: {
       return (await getCustomerApiClient()).searchContacts({
         keyword: keyword,
         objectIds: ids,
+        deepSearch: true,
         sort: "name",
         skip: skip,
         take: ids?.length ?? 20,

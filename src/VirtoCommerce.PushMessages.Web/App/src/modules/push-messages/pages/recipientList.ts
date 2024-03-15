@@ -28,6 +28,7 @@ export const grid: DynamicGridSchema = {
           id: "isRead",
           title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.READ",
           sortable: true,
+          width: "6em",
         },
       ],
     },
