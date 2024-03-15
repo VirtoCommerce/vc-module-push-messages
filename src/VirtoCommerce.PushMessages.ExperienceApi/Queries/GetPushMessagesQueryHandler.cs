@@ -57,6 +57,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
                         ShortMessage = messageCombined.Message.ShortMessage,
                         CreatedDate = messageCombined.Message.CreatedDate,
                         UserId = recipient.UserId,
+                        IsRead = recipient.IsRead,
                     };
 
                     result.Items.Add(expPushMessage);
