@@ -435,6 +435,8 @@ export interface IPushMessageRecipient {
 
 export class PushMessageRecipientSearchCriteria implements IPushMessageRecipientSearchCriteria {
     messageId?: string | undefined;
+    userId?: string | undefined;
+    isRead?: boolean | undefined;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;
@@ -463,6 +465,8 @@ export class PushMessageRecipientSearchCriteria implements IPushMessageRecipient
     init(_data?: any) {
         if (_data) {
             this.messageId = _data["messageId"];
+            this.userId = _data["userId"];
+            this.isRead = _data["isRead"];
             this.responseGroup = _data["responseGroup"];
             this.objectType = _data["objectType"];
             if (Array.isArray(_data["objectTypes"])) {
@@ -499,6 +503,8 @@ export class PushMessageRecipientSearchCriteria implements IPushMessageRecipient
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["messageId"] = this.messageId;
+        data["userId"] = this.userId;
+        data["isRead"] = this.isRead;
         data["responseGroup"] = this.responseGroup;
         data["objectType"] = this.objectType;
         if (Array.isArray(this.objectTypes)) {
@@ -528,6 +534,8 @@ export class PushMessageRecipientSearchCriteria implements IPushMessageRecipient
 
 export interface IPushMessageRecipientSearchCriteria {
     messageId?: string | undefined;
+    userId?: string | undefined;
+    isRead?: boolean | undefined;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;

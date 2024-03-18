@@ -41,8 +41,12 @@ onMounted(async () => {
 });
 
 async function populateCounter() {
+  const messageId = props.modelValue?.item?.id;
+  if (!messageId) {
+    return;
+  }
   const criteria = new PushMessageRecipientSearchCriteria();
-  criteria.messageId = props.modelValue?.item?.id;
+  criteria.messageId = messageId;
   criteria.take = 0;
   count.value = (await getCount(criteria)) ?? 0;
 }

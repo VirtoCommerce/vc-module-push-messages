@@ -47,4 +47,16 @@ public class PushMessagesRepository : DbContextRepositoryBase<PushMessagesDbCont
 
         return messages;
     }
+
+    public virtual async Task<IList<PushMessageRecipientEntity>> GetRecipientsByIdsAsync(IList<string> ids, string responseGroup)
+    {
+        if (ids.IsNullOrEmpty())
+        {
+            return [];
+        }
+
+        return ids.Count == 1
+            ? await Recipients.Where(x => x.Id == ids.First()).ToListAsync()
+            : await Recipients.Where(x => ids.Contains(x.Id)).ToListAsync();
+    }
 }

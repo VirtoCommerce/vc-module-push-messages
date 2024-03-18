@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.PushMessages.Core.Models;
 
 namespace VirtoCommerce.PushMessages.Data.Models;
 
-public class PushMessageRecipientEntity : AuditableEntity
+public class PushMessageRecipientEntity : AuditableEntity, IDataEntity<PushMessageRecipientEntity, PushMessageRecipient>
 {
-
     [StringLength(128)]
     public string MessageId { get; set; }
 
@@ -30,5 +30,27 @@ public class PushMessageRecipientEntity : AuditableEntity
         model.IsRead = IsRead;
 
         return model;
+    }
+
+    public virtual PushMessageRecipientEntity FromModel(PushMessageRecipient model, PrimaryKeyResolvingMap pkMap)
+    {
+        pkMap.AddPair(model, this);
+
+        Id = model.Id;
+        CreatedBy = model.CreatedBy;
+        CreatedDate = model.CreatedDate;
+        ModifiedBy = model.ModifiedBy;
+        ModifiedDate = model.ModifiedDate;
+
+        MessageId = model.MessageId;
+        UserId = model.UserId;
+        IsRead = model.IsRead;
+
+        return this;
+    }
+
+    public virtual void Patch(PushMessageRecipientEntity target)
+    {
+        target.IsRead = IsRead;
     }
 }

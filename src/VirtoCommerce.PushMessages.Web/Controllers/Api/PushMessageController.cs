@@ -12,31 +12,25 @@ namespace VirtoCommerce.PushMessages.Web.Controllers.Api;
 [Route("api/push-message")]
 public class PushMessageController : Controller
 {
-    private readonly IPushMessageService _crudService;
-    private readonly IPushMessageSearchService _searchService;
+    private readonly IPushMessageService _messageService;
+    private readonly IPushMessageSearchService _messageSearchService;
+    private readonly IPushMessageRecipientSearchService _recipientSearchService;
 
     public PushMessageController(
-        IPushMessageService crudService,
-        IPushMessageSearchService searchService)
+        IPushMessageService messageService,
+        IPushMessageSearchService messageSearchService,
+        IPushMessageRecipientSearchService recipientSearchService)
     {
-        _crudService = crudService;
-        _searchService = searchService;
+        _messageService = messageService;
+        _messageSearchService = messageSearchService;
+        _recipientSearchService = recipientSearchService;
     }
 
     [HttpPost("search-recipients")]
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessageRecipientSearchResult>> SearchRecipients([FromBody] PushMessageRecipientSearchCriteria criteria)
     {
-        await Task.CompletedTask;
-        var result = new PushMessageRecipientSearchResult
-        {
-            Results =
-            [
-                new PushMessageRecipient { MessageId = criteria.MessageId, UserId = "1", IsRead = false, },
-                new PushMessageRecipient { MessageId = criteria.MessageId, UserId = "2", IsRead = true, },
-            ],
-            TotalCount = 2,
-        };
+        var result = await _recipientSearchService.SearchAsync(criteria);
 
         return Ok(result);
     }
@@ -45,7 +39,7 @@ public class PushMessageController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessageSearchResult>> Search([FromBody] PushMessageSearchCriteria criteria)
     {
-        var result = await _searchService.SearchAsync(criteria);
+        var result = await _messageSearchService.SearchAsync(criteria);
 
         return Ok(result);
     }
@@ -55,7 +49,7 @@ public class PushMessageController : Controller
     public async Task<ActionResult<PushMessage>> Create([FromBody] PushMessage model)
     {
         model.Id = null;
-        await _crudService.SaveChangesAsync([model]);
+        await _messageService.SaveChangesAsync([model]);
         return Ok(model);
     }
 
@@ -63,7 +57,7 @@ public class PushMessageController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessage>> Get([FromRoute] string id, [FromQuery] string responseGroup = null)
     {
-        var retVal = await _crudService.GetNoCloneAsync(id, responseGroup);
+        var retVal = await _messageService.GetNoCloneAsync(id, responseGroup);
         return Ok(retVal);
     }
 
@@ -72,7 +66,7 @@ public class PushMessageController : Controller
     [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
     public async Task<ActionResult> Delete([FromQuery] string[] ids)
     {
-        await _crudService.DeleteAsync(ids);
+        await _messageService.DeleteAsync(ids);
         return NoContent();
     }
 }

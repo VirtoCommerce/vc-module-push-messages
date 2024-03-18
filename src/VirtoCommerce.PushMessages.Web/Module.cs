@@ -59,6 +59,9 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddTransient<IPushMessageService, PushMessageService>();
         serviceCollection.AddTransient<IPushMessageSearchService, PushMessageSearchService>();
 
+        serviceCollection.AddTransient<IPushMessageRecipientService, PushMessageRecipientService>();
+        serviceCollection.AddTransient<IPushMessageRecipientSearchService, PushMessageRecipientSearchService>();
+
         // GraphQL
         var assemblyMarker = typeof(AssemblyMarker);
         var graphQlBuilder = new CustomGraphQLBuilder(serviceCollection);
