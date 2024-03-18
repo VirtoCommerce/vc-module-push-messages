@@ -29,6 +29,8 @@ public class PushMessageRecipientEntity : AuditableEntity, IDataEntity<PushMessa
         model.UserId = UserId;
         model.IsRead = IsRead;
 
+        model.Message = Message?.ToModel(AbstractTypeFactory<PushMessage>.TryCreateInstance());
+
         return model;
     }
 

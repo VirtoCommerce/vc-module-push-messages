@@ -10,43 +10,43 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
 {
     public class ClearAllPushMessagesCommandHandler : IRequestHandler<ClearAllPushMessageCommand, bool>
     {
-        private readonly IPushMessageService _pushMessageService;
-        private readonly IPushMessageSearchService _pushMessageSearchService;
+        private readonly IPushMessageRecipientService _recipientService;
+        private readonly IPushMessageRecipientSearchService _recipientSearchService;
 
-        public ClearAllPushMessagesCommandHandler(IPushMessageService pushMessageService, IPushMessageSearchService pushMessageSearchService)
+        public ClearAllPushMessagesCommandHandler(
+            IPushMessageRecipientService recipientService,
+            IPushMessageRecipientSearchService recipientSearchService)
         {
-            _pushMessageService = pushMessageService;
-            _pushMessageSearchService = pushMessageSearchService;
+            _recipientService = recipientService;
+            _recipientSearchService = recipientSearchService;
         }
 
         public async Task<bool> Handle(ClearAllPushMessageCommand request, CancellationToken cancellationToken)
         {
-            var skip = 0;
-            var take = 50;
-            PushMessageSearchResult searchResult;
-
             var searchCriteria = GetSearchCriteria(request);
+            PushMessageRecipientSearchResult searchResult;
 
             do
             {
-                searchCriteria.Take = take;
-                searchCriteria.Skip = skip;
+                searchResult = await _recipientSearchService.SearchAsync(searchCriteria);
 
-                searchResult = await _pushMessageSearchService.SearchAsync(searchCriteria);
-
-                await _pushMessageService.DeleteAsync(searchResult.Results.Select(x => x.Id).ToArray());
-
-                skip += take;
+                if (searchResult.Results.Count > 0)
+                {
+                    var ids = searchResult.Results.Select(x => x.Id).ToList();
+                    await _recipientService.DeleteAsync(ids);
+                }
             }
-            while (searchResult.Results.Count == take);
+            while (searchResult.Results.Count > searchResult.TotalCount);
 
             return true;
         }
 
-        private static PushMessageSearchCriteria GetSearchCriteria(PushMessagesCommand request)
+        private static PushMessageRecipientSearchCriteria GetSearchCriteria(PushMessagesCommand request)
         {
-            var criteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
+            var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
+            criteria.Take = 50;
+
             return criteria;
         }
     }

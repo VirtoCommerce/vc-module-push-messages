@@ -4,7 +4,7 @@
   <version>3.800.0</version>
   <version-tag></version-tag>
 
-  <platformVersion>3.812.0</platformVersion>
+  <platformVersion>3.814.0</platformVersion>
   <dependencies>
     <dependency id="VirtoCommerce.Customer" version="3.803.0" />
     <dependency id="VirtoCommerce.ExperienceApi" version="3.812.0-alpha.1375-vcst-624" />

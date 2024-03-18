@@ -373,6 +373,7 @@ export class PushMessageRecipient implements IPushMessageRecipient {
     messageId?: string | undefined;
     userId?: string | undefined;
     isRead?: boolean;
+    message?: PushMessage | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
     createdBy?: string | undefined;
@@ -393,6 +394,7 @@ export class PushMessageRecipient implements IPushMessageRecipient {
             this.messageId = _data["messageId"];
             this.userId = _data["userId"];
             this.isRead = _data["isRead"];
+            this.message = _data["message"] ? PushMessage.fromJS(_data["message"]) : <any>undefined;
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
             this.modifiedDate = _data["modifiedDate"] ? new Date(_data["modifiedDate"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
@@ -413,6 +415,7 @@ export class PushMessageRecipient implements IPushMessageRecipient {
         data["messageId"] = this.messageId;
         data["userId"] = this.userId;
         data["isRead"] = this.isRead;
+        data["message"] = this.message ? this.message.toJSON() : <any>undefined;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
         data["modifiedDate"] = this.modifiedDate ? this.modifiedDate.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
@@ -426,6 +429,7 @@ export interface IPushMessageRecipient {
     messageId?: string | undefined;
     userId?: string | undefined;
     isRead?: boolean;
+    message?: PushMessage | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
     createdBy?: string | undefined;
@@ -602,8 +606,6 @@ export interface IPushMessageRecipientSearchResult {
 }
 
 export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
-    userId?: string | undefined;
-    isRead?: boolean | undefined;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;
@@ -631,8 +633,6 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
-            this.isRead = _data["isRead"];
             this.responseGroup = _data["responseGroup"];
             this.objectType = _data["objectType"];
             if (Array.isArray(_data["objectTypes"])) {
@@ -668,8 +668,6 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["isRead"] = this.isRead;
         data["responseGroup"] = this.responseGroup;
         data["objectType"] = this.objectType;
         if (Array.isArray(this.objectTypes)) {
@@ -698,8 +696,6 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 }
 
 export interface IPushMessageSearchCriteria {
-    userId?: string | undefined;
-    isRead?: boolean | undefined;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;

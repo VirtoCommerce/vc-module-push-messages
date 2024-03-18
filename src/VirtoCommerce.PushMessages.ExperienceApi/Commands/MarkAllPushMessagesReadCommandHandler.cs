@@ -9,51 +9,48 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
 {
     public class MarkAllPushMessagesReadCommandHandler : IRequestHandler<MarkAllPushMessagesReadCommand, bool>
     {
-        private readonly IPushMessageService _pushMessageService;
-        private readonly IPushMessageSearchService _pushMessageSearchService;
+        private readonly IPushMessageRecipientService _recipientService;
+        private readonly IPushMessageRecipientSearchService _recipientSearchService;
 
-        public MarkAllPushMessagesReadCommandHandler(IPushMessageService pushMessageService, IPushMessageSearchService pushMessageSearchService)
+        public MarkAllPushMessagesReadCommandHandler(
+            IPushMessageRecipientService recipientService,
+            IPushMessageRecipientSearchService recipientSearchService)
         {
-            _pushMessageService = pushMessageService;
-            _pushMessageSearchService = pushMessageSearchService;
+            _recipientService = recipientService;
+            _recipientSearchService = recipientSearchService;
         }
 
         public async Task<bool> Handle(MarkAllPushMessagesReadCommand request, CancellationToken cancellationToken)
         {
-            var skip = 0;
-            var take = 50;
-            PushMessageSearchResult searchResult;
-
             var searchCriteria = GetSearchCriteria(request);
+            PushMessageRecipientSearchResult searchResult;
 
             do
             {
-                searchCriteria.Take = take;
-                searchCriteria.Skip = skip;
+                searchResult = await _recipientSearchService.SearchAsync(searchCriteria);
 
-                searchResult = await _pushMessageSearchService.SearchAsync(searchCriteria);
-
-                foreach (var pushMessage in searchResult.Results)
+                if (searchResult.Results.Count > 0)
                 {
-                    var recipient = AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance();
-                    recipient.MessageId = pushMessage.Id;
-                    recipient.UserId = request.UserId;
-                    recipient.IsRead = true;
+                    foreach (var recipient in searchResult.Results)
+                    {
+                        recipient.IsRead = true;
+                    }
 
-                    await _pushMessageService.UpdateRecipientAsync(recipient);
+                    await _recipientService.SaveChangesAsync(searchResult.Results);
                 }
-
-                skip += take;
             }
-            while (searchResult.Results.Count == take);
+            while (searchResult.Results.Count > searchResult.TotalCount);
 
             return true;
         }
 
-        private static PushMessageSearchCriteria GetSearchCriteria(PushMessagesCommand request)
+        private static PushMessageRecipientSearchCriteria GetSearchCriteria(MarkAllPushMessagesReadCommand request)
         {
-            var criteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
+            var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
+            criteria.IsRead = false;
+            criteria.Take = 50;
+
             return criteria;
         }
     }

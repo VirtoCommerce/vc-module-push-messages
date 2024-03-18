@@ -12,68 +12,48 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
 {
     public class GetPushMessagesQueryHandler : IQueryHandler<GetPushMessagesQuery, ExpPushMessagesResponse>
     {
-        private readonly IPushMessageSearchService _pushMessageSearchService;
-        private readonly IPushMessageService _pushMessageService;
+        private readonly IPushMessageRecipientSearchService _recipientSearchService;
 
-        public GetPushMessagesQueryHandler(IPushMessageSearchService pushMessageSearchService, IPushMessageService pushMessageService)
+        public GetPushMessagesQueryHandler(IPushMessageRecipientSearchService recipientSearchService)
         {
-            _pushMessageSearchService = pushMessageSearchService;
-            _pushMessageService = pushMessageService;
+            _recipientSearchService = recipientSearchService;
         }
 
         public async Task<ExpPushMessagesResponse> Handle(GetPushMessagesQuery request, CancellationToken cancellationToken)
         {
-            var pushMessages = new List<PushMessage>();
-
-            var skip = 0;
-            var take = 50;
-            PushMessageSearchResult searchResult;
-
-            var searchCriteria = GetSearchCriteria(request);
-
-            do
-            {
-                searchCriteria.Take = take;
-                searchCriteria.Skip = skip;
-
-                searchResult = await _pushMessageSearchService.SearchAsync(searchCriteria);
-
-                pushMessages.AddRange(searchResult.Results);
-                skip += take;
-            }
-            while (searchResult.Results.Count == take);
-
-            var messagesCombined = await _pushMessageService.GetRecipientsMessages(pushMessages, request.UnreadOnly ? false : null);
-
-            var result = new ExpPushMessagesResponse();
-
-            foreach (var messageCombined in messagesCombined)
-            {
-                foreach (var recipient in messageCombined.Recipients)
-                {
-                    var expPushMessage = new ExpPushMessage
-                    {
-                        Id = messageCombined.Message.Id,
-                        ShortMessage = messageCombined.Message.ShortMessage,
-                        CreatedDate = messageCombined.Message.CreatedDate,
-                        UserId = recipient.UserId,
-                        IsRead = recipient.IsRead,
-                    };
-
-                    result.Items.Add(expPushMessage);
-                }
-            }
-
-            result.UnreadCount = result.Items.Count(x => x.Status == "Unread");
+            var result = AbstractTypeFactory<ExpPushMessagesResponse>.TryCreateInstance();
+            result.Items = await SearchMessages(request);
+            result.UnreadCount = result.Items.Count(x => !x.IsRead);
 
             return result;
         }
 
-        private static PushMessageSearchCriteria GetSearchCriteria(GetPushMessagesQuery request)
+        private async Task<List<ExpPushMessage>> SearchMessages(GetPushMessagesQuery request)
         {
-            var criteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
+            var criteria = GetSearchCriteria(request);
+            var messages = await _recipientSearchService.SearchAllNoCloneAsync(criteria);
+
+            return messages
+                .Select(x =>
+                    new ExpPushMessage
+                    {
+                        Id = x.Message.Id,
+                        ShortMessage = x.Message.ShortMessage,
+                        CreatedDate = x.Message.CreatedDate,
+                        UserId = x.UserId,
+                        IsRead = x.IsRead,
+                    })
+                .ToList();
+        }
+
+        private static PushMessageRecipientSearchCriteria GetSearchCriteria(GetPushMessagesQuery request)
+        {
+            var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
             criteria.IsRead = request.UnreadOnly ? false : null;
+            criteria.Take = 50;
+            criteria.ResponseGroup = PushMessageRecipientResponseGroup.WithMessages.ToString();
+
             return criteria;
         }
     }

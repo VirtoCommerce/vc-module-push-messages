@@ -9,6 +9,8 @@ public class PushMessageRecipient : AuditableEntity, ICloneable
     public string UserId { get; set; }
     public bool IsRead { get; set; }
 
+    public PushMessage Message { get; set; }
+
     public object Clone()
     {
         return MemberwiseClone();

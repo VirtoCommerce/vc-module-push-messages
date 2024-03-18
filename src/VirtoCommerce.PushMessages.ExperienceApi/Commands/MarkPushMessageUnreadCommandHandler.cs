@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -9,21 +10,33 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
 {
     public class MarkPushMessageUnreadCommandHandler : IRequestHandler<MarkPushMessageUnreadCommand, bool>
     {
-        private readonly IPushMessageService _pushMessageService;
+        private readonly IPushMessageRecipientService _recipientService;
+        private readonly IPushMessageRecipientSearchService _recipientSearchService;
 
-        public MarkPushMessageUnreadCommandHandler(IPushMessageService pushMessageService)
+        public MarkPushMessageUnreadCommandHandler(
+            IPushMessageRecipientService recipientService,
+            IPushMessageRecipientSearchService recipientSearchService)
         {
-            _pushMessageService = pushMessageService;
+            _recipientService = recipientService;
+            _recipientSearchService = recipientSearchService;
         }
 
         public async Task<bool> Handle(MarkPushMessageUnreadCommand request, CancellationToken cancellationToken)
         {
-            var recipient = AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance();
-            recipient.MessageId = request.MessageId;
-            recipient.UserId = request.UserId;
-            recipient.IsRead = false;
+            var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
+            criteria.MessageId = request.MessageId;
+            criteria.UserId = request.UserId;
+            criteria.IsRead = true;
+            criteria.Take = 1;
 
-            await _pushMessageService.UpdateRecipientAsync(recipient);
+            var searchResult = await _recipientSearchService.SearchAsync(criteria);
+
+            var recipient = searchResult.Results.FirstOrDefault();
+            if (recipient != null)
+            {
+                recipient.IsRead = false;
+                await _recipientService.SaveChangesAsync([recipient]);
+            }
 
             return true;
         }

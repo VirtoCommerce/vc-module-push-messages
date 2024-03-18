@@ -27,14 +27,6 @@ public class PushMessageSearchService : SearchService<PushMessageSearchCriteria,
     protected override IQueryable<PushMessageEntity> BuildQuery(IRepository repository, PushMessageSearchCriteria criteria)
     {
         var query = ((IPushMessagesRepository)repository).Messages;
-
-        if (criteria.UserId != null)
-        {
-            query = criteria.IsRead == null
-                ? query.Where(x => x.Recipients.Any(r => r.UserId == criteria.UserId))
-                : query.Where(x => x.Recipients.Any(r => r.UserId == criteria.UserId && r.IsRead == criteria.IsRead.Value));
-        }
-
         return query;
     }
 

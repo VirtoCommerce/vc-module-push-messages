@@ -6,6 +6,6 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Models
     {
         public int UnreadCount { get; set; }
 
-        public List<ExpPushMessage> Items { get; set; } = [];
+        public IList<ExpPushMessage> Items { get; set; } = [];
     }
 }

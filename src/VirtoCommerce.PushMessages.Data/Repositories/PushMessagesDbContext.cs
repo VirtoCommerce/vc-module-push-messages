@@ -1,11 +1,11 @@
 using System.Reflection;
-using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
+using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.PushMessages.Data.Models;
 
 namespace VirtoCommerce.PushMessages.Data.Repositories;
 
-public class PushMessagesDbContext : DbContextWithTriggers
+public class PushMessagesDbContext : DbContextBase
 {
     public PushMessagesDbContext(DbContextOptions<PushMessagesDbContext> options)
         : base(options)

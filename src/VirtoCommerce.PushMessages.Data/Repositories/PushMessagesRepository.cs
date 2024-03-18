@@ -55,8 +55,21 @@ public class PushMessagesRepository : DbContextRepositoryBase<PushMessagesDbCont
             return [];
         }
 
-        return ids.Count == 1
+        var recipients = ids.Count == 1
             ? await Recipients.Where(x => x.Id == ids.First()).ToListAsync()
             : await Recipients.Where(x => ids.Contains(x.Id)).ToListAsync();
+
+        if (recipients.Count > 0)
+        {
+            var responseGroupEnum = EnumUtility.SafeParseFlags(responseGroup, PushMessageRecipientResponseGroup.None);
+
+            if (responseGroupEnum.HasFlag(PushMessageRecipientResponseGroup.WithMessages))
+            {
+                var messageIds = recipients.Select(x => x.MessageId).ToList();
+                await Messages.Where(x => messageIds.Contains(x.Id)).LoadAsync();
+            }
+        }
+
+        return recipients;
     }
 }

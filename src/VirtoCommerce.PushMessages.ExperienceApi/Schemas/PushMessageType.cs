@@ -8,9 +8,9 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
         public PushMessageType()
         {
             Field(x => x.Id, nullable: false);
-            Field(x => x.Status, nullable: false);
             Field(x => x.ShortMessage, nullable: false);
             Field(x => x.CreatedDate, nullable: false);
+            Field(x => x.IsRead, nullable: false);
         }
     }
 }
