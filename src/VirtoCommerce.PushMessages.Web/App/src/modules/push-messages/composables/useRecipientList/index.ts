@@ -18,11 +18,15 @@ export default (args: {
     load: async (query) => {
       const criteria = { ...(query || {}) } as PushMessageRecipientSearchCriteria;
       criteria.messageId = args.props.options.messageId;
+      criteria.withHidden = true;
       return (await getApiClient()).searchRecipients(criteria);
     },
   });
 
-  const { load, remove, items, pagination, loading, query } = listFactory({ pageSize: 20 });
+  const { load, remove, items, pagination, loading, query } = listFactory({
+    sort: "MemberName;UserName",
+    pageSize: 20,
+  });
 
   return {
     items,

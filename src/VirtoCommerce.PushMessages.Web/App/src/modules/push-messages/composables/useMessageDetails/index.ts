@@ -52,7 +52,7 @@ export default (args: {
         keyword: keyword,
         objectIds: ids,
         deepSearch: true,
-        sort: "name",
+        sort: "Name",
         skip: skip,
         take: ids?.length ?? 20,
       } as MembersSearchCriteria);

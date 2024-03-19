@@ -66,41 +66,42 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 
     private async Task<List<PushMessageRecipient>> CreateRecipients(PushMessage message)
     {
-        var result = new List<PushMessageRecipient>();
-
-        var newMemberIds = message.MemberIds;
-
-        if (newMemberIds.Count == 0)
+        if (message.MemberIds.Count == 0)
         {
-            return result;
+            return [];
         }
 
-        var members = await _memberService.GetByIdsAsync(newMemberIds.ToArray(), MemberResponseGroup.WithSecurityAccounts.ToString());
+        var members = await _memberService.GetByIdsAsync(message.MemberIds.ToArray(), MemberResponseGroup.WithSecurityAccounts.ToString());
 
         // TODO: Get organization members
-
-        var userIds = members.
-            OfType<IHasSecurityAccounts>()
-            .SelectMany(x => x.SecurityAccounts.Select(y => y.Id))
-            .Distinct()
+        var recipients = members
+            .SelectMany(x => BuildRecipients(message, x))
             .ToList();
 
-        if (userIds.Count == 0)
+        if (recipients.Count > 0)
         {
-            return result;
+            await _recipientService.SaveChangesAsync(recipients);
         }
 
-        foreach (var userId in userIds)
-        {
-            var recipient = AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance();
-            recipient.MessageId = message.Id;
-            recipient.UserId = userId;
+        return recipients;
+    }
 
-            result.Add(recipient);
-        }
+    private static IEnumerable<PushMessageRecipient> BuildRecipients(PushMessage message, Member member)
+    {
+        return member is IHasSecurityAccounts hasSecurityAccounts
+            ? hasSecurityAccounts.SecurityAccounts.Select(x => BuildRecipient(message, member, x))
+            : [];
+    }
 
-        await _recipientService.SaveChangesAsync(result);
+    private static PushMessageRecipient BuildRecipient(PushMessage message, Member member, ApplicationUser user)
+    {
+        var recipient = AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance();
+        recipient.MessageId = message.Id;
+        recipient.MemberId = member.Id;
+        recipient.MemberName = member.Name;
+        recipient.UserId = user.Id;
+        recipient.UserName = user.UserName;
 
-        return result;
+        return recipient;
     }
 }

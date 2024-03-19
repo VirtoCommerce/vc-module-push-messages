@@ -47,6 +47,7 @@ async function populateCounter() {
   }
   const criteria = new PushMessageRecipientSearchCriteria();
   criteria.messageId = messageId;
+  criteria.withHidden = true;
   criteria.take = 0;
   count.value = (await getCount(criteria)) ?? 0;
 }

@@ -371,8 +371,12 @@ export interface IPushMessage {
 
 export class PushMessageRecipient implements IPushMessageRecipient {
     messageId?: string | undefined;
+    memberId?: string | undefined;
+    memberName?: string | undefined;
     userId?: string | undefined;
+    userName?: string | undefined;
     isRead?: boolean;
+    isHidden?: boolean;
     message?: PushMessage | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -392,8 +396,12 @@ export class PushMessageRecipient implements IPushMessageRecipient {
     init(_data?: any) {
         if (_data) {
             this.messageId = _data["messageId"];
+            this.memberId = _data["memberId"];
+            this.memberName = _data["memberName"];
             this.userId = _data["userId"];
+            this.userName = _data["userName"];
             this.isRead = _data["isRead"];
+            this.isHidden = _data["isHidden"];
             this.message = _data["message"] ? PushMessage.fromJS(_data["message"]) : <any>undefined;
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
             this.modifiedDate = _data["modifiedDate"] ? new Date(_data["modifiedDate"].toString()) : <any>undefined;
@@ -413,8 +421,12 @@ export class PushMessageRecipient implements IPushMessageRecipient {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["messageId"] = this.messageId;
+        data["memberId"] = this.memberId;
+        data["memberName"] = this.memberName;
         data["userId"] = this.userId;
+        data["userName"] = this.userName;
         data["isRead"] = this.isRead;
+        data["isHidden"] = this.isHidden;
         data["message"] = this.message ? this.message.toJSON() : <any>undefined;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
         data["modifiedDate"] = this.modifiedDate ? this.modifiedDate.toISOString() : <any>undefined;
@@ -427,8 +439,12 @@ export class PushMessageRecipient implements IPushMessageRecipient {
 
 export interface IPushMessageRecipient {
     messageId?: string | undefined;
+    memberId?: string | undefined;
+    memberName?: string | undefined;
     userId?: string | undefined;
+    userName?: string | undefined;
     isRead?: boolean;
+    isHidden?: boolean;
     message?: PushMessage | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -441,6 +457,7 @@ export class PushMessageRecipientSearchCriteria implements IPushMessageRecipient
     messageId?: string | undefined;
     userId?: string | undefined;
     isRead?: boolean | undefined;
+    withHidden?: boolean;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;
@@ -471,6 +488,7 @@ export class PushMessageRecipientSearchCriteria implements IPushMessageRecipient
             this.messageId = _data["messageId"];
             this.userId = _data["userId"];
             this.isRead = _data["isRead"];
+            this.withHidden = _data["withHidden"];
             this.responseGroup = _data["responseGroup"];
             this.objectType = _data["objectType"];
             if (Array.isArray(_data["objectTypes"])) {
@@ -509,6 +527,7 @@ export class PushMessageRecipientSearchCriteria implements IPushMessageRecipient
         data["messageId"] = this.messageId;
         data["userId"] = this.userId;
         data["isRead"] = this.isRead;
+        data["withHidden"] = this.withHidden;
         data["responseGroup"] = this.responseGroup;
         data["objectType"] = this.objectType;
         if (Array.isArray(this.objectTypes)) {
@@ -540,6 +559,7 @@ export interface IPushMessageRecipientSearchCriteria {
     messageId?: string | undefined;
     userId?: string | undefined;
     isRead?: boolean | undefined;
+    withHidden?: boolean;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;

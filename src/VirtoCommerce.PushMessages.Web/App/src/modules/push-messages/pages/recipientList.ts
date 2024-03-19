@@ -15,13 +15,13 @@ export const grid: DynamicGridSchema = {
       component: "vc-table",
       columns: [
         {
-          id: "userId",
-          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.ID",
+          id: "memberName",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_NAME",
           sortable: true,
         },
         {
           id: "userName",
-          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.NAME",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.USER_NAME",
           sortable: true,
         },
         {

@@ -28,6 +28,11 @@ public class PushMessageRecipientSearchService : SearchService<PushMessageRecipi
     {
         var query = ((IPushMessagesRepository)repository).Recipients;
 
+        if (!criteria.WithHidden)
+        {
+            query = query.Where(x => !x.IsHidden);
+        }
+
         if (criteria.MessageId != null)
         {
             query = query.Where(x => x.MessageId == criteria.MessageId);

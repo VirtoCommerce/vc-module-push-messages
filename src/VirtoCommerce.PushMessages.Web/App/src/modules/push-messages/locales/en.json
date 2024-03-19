@@ -49,8 +49,8 @@
         "TABLE": {
           "TOTALS": "Count:",
           "HEADER": {
-            "ID": "Id",
-            "NAME": "Name",
+            "MEMBER_NAME": "Member name",
+            "USER_NAME": "User name",
             "READ": "Read"
           }
         }

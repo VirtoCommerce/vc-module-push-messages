@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -32,8 +31,12 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
 
                 if (searchResult.Results.Count > 0)
                 {
-                    var ids = searchResult.Results.Select(x => x.Id).ToList();
-                    await _recipientService.DeleteAsync(ids);
+                    foreach (var recipient in searchResult.Results)
+                    {
+                        recipient.IsHidden = true;
+                    }
+
+                    await _recipientService.SaveChangesAsync(searchResult.Results);
                 }
             }
             while (searchResult.Results.Count > searchResult.TotalCount);
@@ -45,6 +48,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
         {
             var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
+            criteria.WithHidden = false;
             criteria.Take = 50;
 
             return criteria;
