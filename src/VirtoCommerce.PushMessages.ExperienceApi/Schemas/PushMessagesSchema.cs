@@ -25,7 +25,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
             var messageAddedEventStreamFieldType = new EventStreamFieldType
             {
                 Name = "pushMessageCreated",
-                Type = GraphTypeExtenstionHelper.GetActualType<PushMessageType>(),
+                Type = GraphTypeExtenstionHelper.GetActualType<NonNullGraphType<PushMessageType>>(),
                 Resolver = new FuncFieldResolver<ExpPushMessage>(ResolveMessage),
                 AsyncSubscriber = new AsyncEventStreamResolver<ExpPushMessage>(Subscribe)
             };
