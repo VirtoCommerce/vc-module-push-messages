@@ -39,7 +39,8 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
                     await _recipientService.SaveChangesAsync(searchResult.Results);
                 }
             }
-            while (searchResult.Results.Count > searchResult.TotalCount);
+            while (searchResult.Results.Count == searchCriteria.Take &&
+                   searchResult.Results.Count != searchResult.TotalCount);
 
             return true;
         }
