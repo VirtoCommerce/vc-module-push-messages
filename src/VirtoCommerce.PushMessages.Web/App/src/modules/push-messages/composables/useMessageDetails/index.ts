@@ -48,11 +48,12 @@ export default (args: {
       },
     },
     loadMembers: async (keyword?: string, skip?: number, ids?: string[]) => {
-      return (await getCustomerApiClient()).searchContacts({
+      return (await getCustomerApiClient()).searchMember({
         keyword: keyword,
         objectIds: ids,
         deepSearch: true,
-        sort: "Name",
+        objectType: "Member",
+        sort: "MemberType:desc;Name",
         skip: skip,
         take: ids?.length ?? 20,
       } as MembersSearchCriteria);
