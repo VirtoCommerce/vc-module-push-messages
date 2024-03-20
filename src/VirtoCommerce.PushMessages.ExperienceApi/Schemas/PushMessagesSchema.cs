@@ -15,11 +15,9 @@ using VirtoCommerce.PushMessages.ExperienceApi.Subscriptions;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
 {
-    public class PushMessagesSchema(IPushMessageHub eventBroker, IAuthorizationService authorizationService) : ISchemaBuilder
+    public class PushMessagesSchema(IPushMessageHub eventBroker, IAuthorizationService authorizationService)
+        : ISchemaBuilder
     {
-        private readonly IPushMessageHub _eventBroker = eventBroker;
-        readonly IAuthorizationService _authorizationService = authorizationService;
-
         public void Build(ISchema schema)
         {
             var messageAddedEventStreamFieldType = new EventStreamFieldType
@@ -39,14 +37,14 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
 
         private async Task<IObservable<ExpPushMessage>> Subscribe(IResolveEventStreamContext context)
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(context.GetCurrentPrincipal(), null, new PushMessagesAuthorizationRequirement());
+            var authorizationResult = await authorizationService.AuthorizeAsync(context.GetCurrentPrincipal(), null, new PushMessagesAuthorizationRequirement());
             if (!authorizationResult.Succeeded)
             {
                 throw AuthorizationError.AnonymousAccessDenied();
             }
 
             var currentUserId = context.GetCurrentUserId();
-            return await _eventBroker.MessagesAsync(currentUserId);
+            return await eventBroker.MessagesAsync(currentUserId);
         }
     }
 }

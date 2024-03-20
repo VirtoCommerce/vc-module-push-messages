@@ -11,10 +11,8 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Extensions
             var redisConnectionString = configuration.GetConnectionString("RedisConnectionString");
             if (!string.IsNullOrEmpty(redisConnectionString))
             {
-                //services.AddSingleton<PushMessageHub>();
-                //services.AddSingleton<IPushMessageHub, RedisPushMessageHub>();
-
-                services.AddSingleton<IPushMessageHub, PushMessageHub>();
+                services.AddSingleton<PushMessageHub>();
+                services.AddSingleton<IPushMessageHub, RedisPushMessageHub>();
             }
             else
             {
