@@ -23,7 +23,7 @@ export const details: DynamicDetailsSchema = {
       children: [
         {
           id: "shortMessage",
-          component: "vc-input",
+          component: "vc-editor",
           label: "Message",
           property: "shortMessage",
           rules: { required: true },
