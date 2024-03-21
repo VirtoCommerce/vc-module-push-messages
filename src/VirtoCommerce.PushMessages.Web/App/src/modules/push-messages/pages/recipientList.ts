@@ -16,9 +16,23 @@ export const grid: DynamicGridSchema = {
       component: "vc-table",
       columns: [
         {
+          id: "memberId",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_ID",
+          sortable: true,
+          width: "21em",
+          visible: false,
+        },
+        {
           id: "memberName",
           title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_NAME",
           sortable: true,
+        },
+        {
+          id: "userId",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.USER_ID",
+          sortable: true,
+          width: "21em",
+          visible: false,
         },
         {
           id: "userName",
@@ -27,9 +41,16 @@ export const grid: DynamicGridSchema = {
         },
         {
           id: "isRead",
-          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.READ",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.IS_READ",
           sortable: true,
           width: "6em",
+        },
+        {
+          id: "isHidden",
+          title: "PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.IS_HIDDEN",
+          sortable: true,
+          width: "6em",
+          visible: false,
         },
       ],
     },

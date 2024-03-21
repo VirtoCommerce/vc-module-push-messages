@@ -36,6 +36,13 @@ export const grid: DynamicGridSchema = {
       component: "vc-table",
       columns: [
         {
+          id: "id",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.ID",
+          sortable: true,
+          width: "21em",
+          visible: false,
+        },
+        {
           id: "createdDate",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
           sortable: true,
@@ -44,8 +51,15 @@ export const grid: DynamicGridSchema = {
           alwaysVisible: true,
         },
         {
+          id: "createdBy",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_BY",
+          sortable: true,
+          width: "14em",
+          visible: false,
+        },
+        {
           id: "shortMessage",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MESSAGE",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.SHORT_MESSAGE",
           alwaysVisible: true,
         },
       ],

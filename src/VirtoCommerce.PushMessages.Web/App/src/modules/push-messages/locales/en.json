@@ -17,8 +17,10 @@
         "TABLE": {
           "TOTALS": "Count:",
           "HEADER": {
-            "MESSAGE": "Message",
-            "CREATED_DATE": "Created"
+            "ID": "ID",
+            "CREATED_DATE": "Date",
+            "CREATED_BY": "Author",
+            "SHORT_MESSAGE": "Message"
           },
           "EMPTY": {
             "TITLE": "There are no content yet",
@@ -49,9 +51,12 @@
         "TABLE": {
           "TOTALS": "Count:",
           "HEADER": {
+            "MEMBER_ID": "Member ID",
             "MEMBER_NAME": "Member name",
+            "USER_ID": "User ID",
             "USER_NAME": "User name",
-            "READ": "Read"
+            "IS_READ": "Read",
+            "IS_HIDDEN": "Hidden"
           }
         }
       },
