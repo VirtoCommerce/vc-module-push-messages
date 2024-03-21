@@ -27,6 +27,7 @@ export const details: DynamicDetailsSchema = {
           label: "Message",
           property: "shortMessage",
           rules: { required: true },
+          disabled: { method: "isReadOnly" },
         },
         {
           id: "memberIds",
@@ -41,6 +42,7 @@ export const details: DynamicDetailsSchema = {
           optionLabel: "name",
           optionsMethod: "loadMembers",
           rules: { required: true },
+          disabled: { method: "isReadOnly" },
         },
       ],
     },

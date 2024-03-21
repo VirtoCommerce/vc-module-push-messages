@@ -58,6 +58,9 @@ export default (args: {
         take: ids?.length ?? 20,
       } as MembersSearchCriteria);
     },
+    isReadOnly: () => {
+      return args.props.param;
+    },
   });
 
   const bladeTitle = computed(() => {
