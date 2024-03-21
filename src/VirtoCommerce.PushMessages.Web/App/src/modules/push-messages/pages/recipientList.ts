@@ -8,6 +8,7 @@ export const grid: DynamicGridSchema = {
     localizationPrefix: "PUSH_MESSAGES",
     composable: "useRecipientList",
     component: "DynamicBladeList",
+    routable: false,
   },
   content: [
     {

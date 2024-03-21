@@ -4,6 +4,7 @@
     :logo="uiSettings.logo"
     :title="uiSettings.title"
     :version="version"
+    :disable-menu="true"
   >
   </VcApp>
 </template>

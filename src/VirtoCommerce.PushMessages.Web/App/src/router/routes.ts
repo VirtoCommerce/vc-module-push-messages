@@ -6,7 +6,6 @@ import whiteLogoImage from "/assets/logo-white.svg";
 // eslint-disable-next-line import/no-unresolved
 import bgImage from "/assets/background.jpg";
 import { useLogin } from "../composables";
-import Dashboard from "../pages/Dashboard.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -16,14 +15,13 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       root: true,
     },
-    children: [
-      {
-        name: "Dashboard",
-        path: "",
-        alias: "/",
-        component: Dashboard,
-      },
-    ],
+    children: [],
+    redirect: (to) => {
+      if (to.name === "App") {
+        return { path: "/messages", params: to.params };
+      }
+      return to.path;
+    },
   },
   {
     name: "Login",
