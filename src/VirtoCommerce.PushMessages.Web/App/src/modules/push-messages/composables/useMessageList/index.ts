@@ -10,7 +10,6 @@ import {
 
 const { getApiClient } = useApiClient(PushMessageClient);
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PushMessageListScope extends ListBaseBladeScope {}
 
 export default () => {
@@ -21,7 +20,7 @@ export default () => {
     },
   });
 
-  const { load, remove, items, pagination, loading, query } = listFactory({ pageSize: 20 });
+  const { load, items, pagination, loading, query } = listFactory({ pageSize: 20 });
   const { openBlade, resolveBladeByName } = useBladeNavigation();
 
   async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
@@ -41,7 +40,6 @@ export default () => {
   return {
     items,
     load,
-    remove,
     loading,
     pagination,
     query,

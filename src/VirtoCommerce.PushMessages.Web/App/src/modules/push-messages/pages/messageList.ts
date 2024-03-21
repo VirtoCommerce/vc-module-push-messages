@@ -34,17 +34,6 @@ export const grid: DynamicGridSchema = {
     {
       id: "itemsGrid",
       component: "vc-table",
-      multiselect: true,
-      actions: [
-        {
-          id: "deleteAction",
-          icon: "fas fa-trash",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE",
-          type: "danger",
-          position: "left",
-          method: "deleteItem",
-        },
-      ],
       columns: [
         {
           id: "createdDate",
