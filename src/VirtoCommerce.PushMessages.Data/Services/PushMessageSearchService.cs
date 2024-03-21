@@ -27,6 +27,12 @@ public class PushMessageSearchService : SearchService<PushMessageSearchCriteria,
     protected override IQueryable<PushMessageEntity> BuildQuery(IRepository repository, PushMessageSearchCriteria criteria)
     {
         var query = ((IPushMessagesRepository)repository).Messages;
+
+        if (!string.IsNullOrEmpty(criteria.Keyword))
+        {
+            query = query.Where(x => x.ShortMessage.Contains(criteria.Keyword));
+        }
+
         return query;
     }
 

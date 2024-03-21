@@ -48,6 +48,11 @@ public class PushMessageRecipientSearchService : SearchService<PushMessageRecipi
             query = query.Where(x => x.IsRead == criteria.IsRead.Value);
         }
 
+        if (!string.IsNullOrEmpty(criteria.Keyword))
+        {
+            query = query.Where(x => x.MemberName.Contains(criteria.Keyword) || x.UserName.Contains(criteria.Keyword));
+        }
+
         return query;
     }
 
