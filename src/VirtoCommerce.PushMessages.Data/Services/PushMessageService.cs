@@ -81,6 +81,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
     private async Task<IList<PushMessageRecipient>> GetRecipients(PushMessage message)
     {
         List<PushMessageRecipient> recipients = [];
+        var userIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
         searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
@@ -93,7 +94,13 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         {
             if (member is IHasSecurityAccounts hasSecurityAccounts)
             {
-                recipients.AddRange(hasSecurityAccounts.SecurityAccounts.Select(x => GetRecipient(message, member, x)));
+                var users = hasSecurityAccounts.SecurityAccounts.Where(x => !userIds.Contains(x.Id)).ToList();
+
+                foreach (var user in users)
+                {
+                    userIds.Add(user.Id);
+                    recipients.Add(GetRecipient(message, member, user));
+                }
             }
             else
             {
