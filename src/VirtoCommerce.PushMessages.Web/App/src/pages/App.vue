@@ -1,8 +1,8 @@
 <template>
   <VcApp
     :is-ready="isReady"
-    :logo="uiSettings.logo"
-    :title="uiSettings.title"
+    :logo="logoImage"
+    :title="$t('PUSH_MESSAGES.MENU.TITLE')"
     :version="version"
     :disable-menu="true"
   >
@@ -10,38 +10,23 @@
 </template>
 
 <script lang="ts" setup>
-import { useSettings, useUser } from "@vc-shell/framework";
-import { onMounted, ref, watch } from "vue";
+import { useUser } from "@vc-shell/framework";
+import { onMounted, ref } from "vue";
 // eslint-disable-next-line import/no-unresolved
-import logoImage from "/assets/logo.svg";
+import logoImage from "/img/icons/safari-pinned-tab.svg";
 
-const { uiSettings, applySettings } = useSettings();
 const isReady = ref(false);
 const version = import.meta.env.PACKAGE_VERSION;
 
 const { isAuthenticated } = useUser();
 
 onMounted(async () => {
-  try {
-    if (isAuthenticated.value) {
-      await customizationHandler();
-
-      isReady.value = true;
-    }
-  } catch (e) {
-    console.log(e);
-    throw e;
+  if (isAuthenticated.value) {
+    isReady.value = true;
   }
 });
 
 console.debug(`Initializing App`);
-
-async function customizationHandler() {
-  applySettings({
-    title: uiSettings.value?.title || undefined,
-    logo: uiSettings.value?.logo || logoImage,
-  });
-}
 </script>
 
 <style lang="scss">

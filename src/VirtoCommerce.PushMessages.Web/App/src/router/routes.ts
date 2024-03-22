@@ -31,7 +31,7 @@ export const routes: RouteRecordRaw[] = [
       composable: useLogin,
       logo: whiteLogoImage,
       background: bgImage,
-      title: "Scaffolded App",
+      title: "Push Messages",
     }),
   },
   {

@@ -34,6 +34,9 @@
             "DELETE": "Delete"
           }
         },
+        "NOT_FOUND": {
+          "EMPTY": "No messages found."
+        },
         "EMPTY": {
           "NO_ITEMS": "There are no items yet"
         }
