@@ -50,7 +50,10 @@ public class PushMessageRecipientSearchService : SearchService<PushMessageRecipi
 
         if (!string.IsNullOrEmpty(criteria.Keyword))
         {
-            query = query.Where(x => x.MemberName.Contains(criteria.Keyword) || x.UserName.Contains(criteria.Keyword));
+            query = query.Where(x => x.MemberName.Contains(criteria.Keyword) ||
+                                     x.UserName.Contains(criteria.Keyword) ||
+                                     x.MemberId.Contains(criteria.Keyword) ||
+                                     x.UserId.Contains(criteria.Keyword));
         }
 
         return query;

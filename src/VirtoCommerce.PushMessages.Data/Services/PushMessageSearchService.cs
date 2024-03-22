@@ -30,7 +30,9 @@ public class PushMessageSearchService : SearchService<PushMessageSearchCriteria,
 
         if (!string.IsNullOrEmpty(criteria.Keyword))
         {
-            query = query.Where(x => x.ShortMessage.Contains(criteria.Keyword));
+            query = query.Where(x => x.ShortMessage.Contains(criteria.Keyword) ||
+                                     x.CreatedBy.Contains(criteria.Keyword) ||
+                                     x.Id.Contains(criteria.Keyword));
         }
 
         return query;
