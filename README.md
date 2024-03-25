@@ -1,18 +1,18 @@
 # Push Messages
-The Push Notification Module enables back-end marketers to send custom notifications to selected customers or organizations within the Virto Commerce platform.
+The Push Messages module enables back-end marketers to send custom notifications to selected customers or organizations within the Virto Commerce platform.
 
 ## Overview
-The Push Notification Module provides a seamless solution for Marketers to customize and send notifications to fronted application for specific customers or organizations. With options to tailor the Message of the notification, Marketers can effectively communicate with targeted groups. Additionally, the module offers features for displaying delivery status for notifications.
+The Push Messages module provides a seamless solution for Marketers to customize and send notifications to fronted applications for specific customers or organizations. With options to tailor the Message of the notification, Marketers can effectively communicate with targeted groups. Additionally, the module offers features for displaying delivery status for notifications.
 
 ## Features
-* Short Message in HTML format. Max length: 1024.
-* Option to select either customer or organizations for notification delivery
-* Delivery status display per customer
-* Notifcation's Preview (Soon)
+* Send a Short Message in HTML format. Max length: 1024.
+* Select multiple customers or organizations for notification delivery
+* Check Delivery status display per customer
+* Notification Preview (Soon)
 * Templates (Soon)
-* Delivery Reporting (Soon)
-* Add attachments (Soon)
 * Extend message with Subjet and Full Message (Soon)
+* Add attachments (Soon)
+* Reporting (Soon)
 * More Notifications Channels: Browser Push Notifications, SMS, Email, etc. (Soon)
 
 ## Screenshots
