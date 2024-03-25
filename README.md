@@ -99,3 +99,21 @@ mutation markPushMessageUnread($command: InputMarkPushMessageUnreadType!) {
   }
 }
 ```
+
+## References
+* Home: https://virtocommerce.com
+* Documantation: https://docs.virtocommerce.org
+* Community: https://www.virtocommerce.org
+* [Download Latest Release](https://github.com/VirtoCommerce/c-module-file-experience-api/releases/latest)
+
+## License
+Copyright (c) Virto Solutions LTD.  All rights reserved.
+
+This software is licensed under the Virto Commerce Open Software License (the "License"); you
+may not use this file except in compliance with the License. You may
+obtain a copy of the License at http://virtocommerce.com/opensourcelicense.
+
+Unless required by the applicable law or agreed to in written form, the software
+distributed under the License is provided on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.
