@@ -4,6 +4,8 @@ The Push Messages module enables back-end marketers to send custom notifications
 ## Overview
 The Push Messages module provides a seamless solution for Marketers to customize and send notifications to fronted applications for specific customers or organizations. With options to tailor the Message of the notification, Marketers can effectively communicate with targeted groups. Additionally, the module offers features for displaying delivery status for notifications.
 
+![image](https://github.com/VirtoCommerce/vc-module-push-messages/assets/7639413/cc931ef6-3aca-4b25-b4c7-177ff9157433)
+
 ## Features
 * Send a Short Message in HTML format. Max length: 1024.
 * Select multiple customers or organizations for notification delivery
@@ -23,6 +25,7 @@ The Push Messages module provides a seamless solution for Marketers to customize
 ![image](https://github.com/VirtoCommerce/vc-module-push-messages/assets/7639413/506ed18c-ff82-4f47-9dd7-2623de19875c)
 
 ![image](https://github.com/VirtoCommerce/vc-module-push-messages/assets/7639413/780a7014-a8fa-43e1-9b87-46bd15b4a16f)
+
 
 ## XAPI Specification
 
