@@ -1,5 +1,5 @@
 # Push Messages
-The Push Messages module enables back-end marketers to send custom notifications to selected customers or organizations within the Virto Commerce platform.
+The Push Messages module enables marketers to send custom notifications to selected customers or organizations within the Virto Commerce platform.
 
 ## Overview
 The Push Messages module provides a seamless solution for Marketers to customize and send notifications to fronted applications for specific customers or organizations. With options to tailor the Message of the notification, Marketers can effectively communicate with targeted groups. Additionally, the module offers features for displaying delivery status for notifications.
