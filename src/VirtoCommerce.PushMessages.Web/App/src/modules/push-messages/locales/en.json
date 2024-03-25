@@ -1,0 +1,71 @@
+{
+  "PUSH_MESSAGES": {
+    "MENU": {
+      "TITLE": "Push Messages"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Push Messages",
+        "TOOLBAR": {
+          "REFRESH": "Refresh",
+          "NEW": "New",
+          "DELETE": "Delete selected"
+        },
+        "SEARCH": {
+          "PLACEHOLDER": "Search keywords"
+        },
+        "TABLE": {
+          "TOTALS": "Count:",
+          "HEADER": {
+            "ID": "ID",
+            "CREATED_DATE": "Date",
+            "CREATED_BY": "Author",
+            "SHORT_MESSAGE": "Message"
+          },
+          "EMPTY": {
+            "TITLE": "There are no content yet",
+            "ACTION": "Add content"
+          },
+          "NOT_FOUND": {
+            "TITLE": "No content found.",
+            "ACTION": "Reset search"
+          },
+          "ACTIONS": {
+            "DELETE": "Delete"
+          }
+        },
+        "NOT_FOUND": {
+          "EMPTY": "No messages found."
+        },
+        "EMPTY": {
+          "NO_ITEMS": "There are no items yet"
+        }
+      },
+      "DETAILS": {
+        "TOOLBAR": {
+          "SAVE": "Save"
+        },
+        "WIDGETS": {
+          "RECIPIENTS": "Status"
+        }
+      },
+      "RECIPIENTS": {
+        "TITLE": "Status",
+        "TABLE": {
+          "TOTALS": "Count:",
+          "HEADER": {
+            "MEMBER_ID": "Member ID",
+            "MEMBER_NAME": "Name",
+            "USER_ID": "User ID",
+            "USER_NAME": "Login",
+            "IS_READ": "Read",
+            "IS_HIDDEN": "Hidden"
+          }
+        }
+      },
+      "ALERTS": {
+        "CLOSE_CONFIRMATION": "You have unsaved changes\nClose anyway?"
+      }
+    }
+  }
+}

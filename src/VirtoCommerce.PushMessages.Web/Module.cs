@@ -1,15 +1,29 @@
+using System;
+using GraphQL.Server;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.ExperienceApiModule.Core.Extensions;
+using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
+using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core;
-using VirtoCommerce.PushMessages.Data.PostgreSql;
+using VirtoCommerce.PushMessages.Core.Events;
+using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.MySql;
+using VirtoCommerce.PushMessages.Data.PostgreSql;
 using VirtoCommerce.PushMessages.Data.Repositories;
+using VirtoCommerce.PushMessages.Data.Services;
 using VirtoCommerce.PushMessages.Data.SqlServer;
+using VirtoCommerce.PushMessages.ExperienceApi;
+using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
+using VirtoCommerce.PushMessages.ExperienceApi.Extensions;
+using VirtoCommerce.PushMessages.ExperienceApi.Handlers;
 
 namespace VirtoCommerce.PushMessages.Web;
 
@@ -39,12 +53,25 @@ public class Module : IModule, IHasConfiguration
             }
         });
 
-        // Override models
-        //AbstractTypeFactory<OriginalModel>.OverrideType<OriginalModel, ExtendedModel>().MapToType<ExtendedEntity>();
-        //AbstractTypeFactory<OriginalEntity>.OverrideType<OriginalEntity, ExtendedEntity>();
+        serviceCollection.AddTransient<IPushMessagesRepository, PushMessagesRepository>();
+        serviceCollection.AddTransient<Func<IPushMessagesRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetRequiredService<IPushMessagesRepository>());
 
-        // Register services
-        //serviceCollection.AddTransient<IMyService, MyService>();
+        serviceCollection.AddTransient<IPushMessageService, PushMessageService>();
+        serviceCollection.AddTransient<IPushMessageSearchService, PushMessageSearchService>();
+
+        serviceCollection.AddTransient<IPushMessageRecipientService, PushMessageRecipientService>();
+        serviceCollection.AddTransient<IPushMessageRecipientSearchService, PushMessageRecipientSearchService>();
+
+        // GraphQL
+        var assemblyMarker = typeof(AssemblyMarker);
+        var graphQlBuilder = new CustomGraphQLBuilder(serviceCollection);
+        graphQlBuilder.AddGraphTypes(assemblyMarker);
+        serviceCollection.AddMediatR(assemblyMarker);
+        serviceCollection.AddAutoMapper(assemblyMarker);
+        serviceCollection.AddSchemaBuilders(assemblyMarker);
+        serviceCollection.AddDistributedMessageService(Configuration);
+        serviceCollection.AddTransient<PushMessageChangedEventHandler>();
+        serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();
     }
 
     public void PostInitialize(IApplicationBuilder appBuilder)
@@ -63,6 +90,8 @@ public class Module : IModule, IHasConfiguration
         using var serviceScope = serviceProvider.CreateScope();
         using var dbContext = serviceScope.ServiceProvider.GetRequiredService<PushMessagesDbContext>();
         dbContext.Database.Migrate();
+
+        appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
     }
 
     public void Uninstall()

@@ -5,7 +5,7 @@ Add-Migration Initial -Context VirtoCommerce.PushMessages.Data.Repositories.Push
 
 ### Entity Framework Core Commands
 ```
-dotnet tool install --global dotnet-ef --version 6.*
+dotnet tool install --global dotnet-ef --version 8.*
 ```
 
 **Generate Migrations**

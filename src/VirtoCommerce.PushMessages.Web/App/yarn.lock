@@ -2707,22 +2707,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vc-shell/config-generator@npm:^1.0.178":
-  version: 1.0.178
-  resolution: "@vc-shell/config-generator@npm:1.0.178"
+"@vc-shell/config-generator@npm:^1.0.188":
+  version: 1.0.188
+  resolution: "@vc-shell/config-generator@npm:1.0.188"
   dependencies:
     "@vitejs/plugin-vue": "npm:^5.0.3"
     vite: "npm:^5.0.11"
     vite-plugin-checker: "npm:^0.6.2"
     vite-plugin-mkcert: "npm:^1.17.1"
     vue: "npm:^3.4.15"
-  checksum: 8c027c076d5bbfe3d0d5c3ac4fd192cbb38b7bbc7c74f4c350fa5f82da5a3166b5a063b06a9851b1cd070e271bbf64e34a06b7866404e6d46b09af536d78a994
+  checksum: 93540feee9655224a9921496918d8ab7dc5b4187c4442310e189e11b9b591cec9cee14db5b352083c7ce400268e6edd042a3242b07a706a76c18b79c2dcb8f30
   languageName: node
   linkType: hard
 
-"@vc-shell/framework@npm:^1.0.178":
-  version: 1.0.178
-  resolution: "@vc-shell/framework@npm:1.0.178"
+"@vc-shell/framework@npm:^1.0.188":
+  version: 1.0.188
+  resolution: "@vc-shell/framework@npm:1.0.188"
   dependencies:
     "@floating-ui/vue": "npm:^1.0.6"
     "@headlessui/vue": "npm:^1.7.19"
@@ -2733,7 +2733,6 @@ __metadata:
     "@vueuse/components": "npm:^10.7.1"
     "@vueuse/core": "npm:^10.7.1"
     "@vueuse/integrations": "npm:^10.7.1"
-    ace-builds: "npm:^1.32.2"
     core-js: "npm:^3.35.0"
     iso-639-1: "npm:^3.1.0"
     moment: "npm:^2.30.1"
@@ -2746,10 +2745,9 @@ __metadata:
     vue-currency-input: "npm:^3.0.5"
     vue-i18n: "npm:^9.8.0"
     vue-router: "npm:^4.2.5"
-    vue3-ace-editor: "npm:^2.2.4"
     vue3-touch-events: "npm:^4.1.8"
     whatwg-fetch: "npm:^3.6.19"
-  checksum: 5b07a8c494fbe23792b1245585be7fc7f5c1111f1127ec22aee88ca5a08f60e63315fed0bc6b58af718457b5c1e4e2387264e3fba5996b9e501a251cac245391
+  checksum: 18daba6186bea5c00dd2b62ab19d3dfd987174c300e83fc6cbefbd6792b82864c2c7569a0cd5062c4aa83c9aab7cf44a329cef7f69ddbc6eeb5e9628f173dee8
   languageName: node
   linkType: hard
 
@@ -3111,13 +3109,6 @@ __metadata:
   dependencies:
     event-target-shim: "npm:^5.0.0"
   checksum: ed84af329f1828327798229578b4fe03a4dd2596ba304083ebd2252666bdc1d7647d66d0b18704477e1f8aa315f055944aa6e859afebd341f12d0a53c37b4b40
-  languageName: node
-  linkType: hard
-
-"ace-builds@npm:^1.32.2":
-  version: 1.32.7
-  resolution: "ace-builds@npm:1.32.7"
-  checksum: 9767247cb48079d06e965590ef39ddcec2715638be0f61906d6c3931cbce94596d383f584ebe6074f9dd3c7295cdaffc0ba3409f19c34c1d1291b92e6483bfb2
   languageName: node
   linkType: hard
 
@@ -7629,8 +7620,8 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.16.0"
     "@typescript-eslint/parser": "npm:^6.16.0"
     "@vc-shell/api-client-generator": "npm:^1.0.178"
-    "@vc-shell/config-generator": "npm:^1.0.178"
-    "@vc-shell/framework": "npm:^1.0.178"
+    "@vc-shell/config-generator": "npm:^1.0.188"
+    "@vc-shell/framework": "npm:^1.0.188"
     "@vc-shell/release-config": "npm:^1.0.178"
     "@vc-shell/ts-config": "npm:^1.0.178"
     "@vitejs/plugin-vue": "npm:^5.0.3"
@@ -7916,13 +7907,6 @@ __metadata:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: 878880ee78ccdce372784f62f52a272048e2d0827c29ae31e7f99da18b62a2b9463ea03a75f277352f4697c100183debb0532371ad515a2d49d4bfe596dd4c20
-  languageName: node
-  linkType: hard
-
-"resize-observer-polyfill@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "resize-observer-polyfill@npm:1.5.1"
-  checksum: e10ee50cd6cf558001de5c6fb03fee15debd011c2f694564b71f81742eef03fb30d6c2596d1d5bf946d9991cb692fcef529b7bd2e4057041377ecc9636c753ce
   languageName: node
   linkType: hard
 
@@ -9629,18 +9613,6 @@ __metadata:
   bin:
     vue-tsc: bin/vue-tsc.js
   checksum: fb84ff195de75e3529cf01b917f111bee561d15e1e437aa97a47e797f99f913783f24ec2d595271240240a21df08ba43b36aa7fc82a48a4c396a0f6d0e409376
-  languageName: node
-  linkType: hard
-
-"vue3-ace-editor@npm:^2.2.4":
-  version: 2.2.4
-  resolution: "vue3-ace-editor@npm:2.2.4"
-  dependencies:
-    resize-observer-polyfill: "npm:^1.5.1"
-  peerDependencies:
-    ace-builds: "*"
-    vue: ^3
-  checksum: d7f029bac72a9bbf245019a25ea502495e3ad3d38fb70004bc26d48747036c12a8b81c006b58bc6e2cf737e6fbf8ce94f2ea509a1c1110e9b508eee6f22677c8
   languageName: node
   linkType: hard
 

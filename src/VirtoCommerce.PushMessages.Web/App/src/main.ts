@@ -3,7 +3,7 @@ import { createApp } from "vue";
 import { router } from "./router";
 import * as locales from "./locales";
 import { RouterView } from "vue-router";
-import DynamicModule from "./modules/dynamic-module";
+import DynamicModule from "./modules/push-messages";
 import { bootstrap } from "./bootstrap";
 
 // Load required CSS
