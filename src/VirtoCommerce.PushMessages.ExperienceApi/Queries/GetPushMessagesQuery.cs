@@ -9,6 +9,8 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
 {
     public class GetPushMessagesQuery : Query<ExpPushMessagesResponse>
     {
+        private const int PageSize = 20;
+
         public bool UnreadOnly { get; set; }
 
         public bool WithHidden { get; set; }
@@ -41,7 +43,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
             if (context is IResolveConnectionContext connectionContext)
             {
                 Skip = int.TryParse(connectionContext.After, out var skip) ? skip : 0;
-                Take = connectionContext.First ?? connectionContext.PageSize ?? 20;
+                Take = connectionContext.First ?? connectionContext.PageSize ?? PageSize;
             }
         }
     }

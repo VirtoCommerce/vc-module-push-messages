@@ -34,7 +34,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
             return result;
         }
 
-        private List<ExpPushMessage> GetExpSearchMessages(IList<PushMessageRecipient> messages)
+        private static List<ExpPushMessage> GetExpSearchMessages(IList<PushMessageRecipient> messages)
         {
             return messages
                 .Select(x =>
