@@ -104,7 +104,7 @@ mutation markPushMessageUnread($command: InputMarkPushMessageUnreadType!) {
 * Home: https://virtocommerce.com
 * Documantation: https://docs.virtocommerce.org
 * Community: https://www.virtocommerce.org
-* [Download Latest Release](https://github.com/VirtoCommerce/c-module-file-experience-api/releases/latest)
+* [Download Latest Release](/releases/latest)
 
 ## License
 Copyright (c) Virto Solutions LTD.  All rights reserved.
