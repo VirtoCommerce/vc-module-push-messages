@@ -22,17 +22,20 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
         public async Task<ExpPushMessagesResponse> Handle(GetPushMessagesQuery request, CancellationToken cancellationToken)
         {
             var result = AbstractTypeFactory<ExpPushMessagesResponse>.TryCreateInstance();
-            result.Items = await SearchMessages(request);
+
+            var criteria = GetSearchCriteria(request);
+
+            var searchResult = await _recipientSearchService.SearchAsync(criteria);
+
+            result.Items = GetExpSearchMessages(searchResult.Results);
+            result.TotalCount = searchResult.TotalCount;
             result.UnreadCount = result.Items.Count(x => !x.IsRead);
 
             return result;
         }
 
-        private async Task<List<ExpPushMessage>> SearchMessages(GetPushMessagesQuery request)
+        private List<ExpPushMessage> GetExpSearchMessages(IList<PushMessageRecipient> messages)
         {
-            var criteria = GetSearchCriteria(request);
-            var messages = await _recipientSearchService.SearchAllNoCloneAsync(criteria);
-
             return messages
                 .Select(x =>
                     new ExpPushMessage
@@ -50,8 +53,11 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
         {
             var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
+            criteria.WithHidden = request.WithHidden;
             criteria.IsRead = request.UnreadOnly ? false : null;
-            criteria.Take = 50;
+            criteria.Keyword = request.Keyword;
+            criteria.Take = request.Take;
+            criteria.Skip = request.Skip;
             criteria.ResponseGroup = PushMessageRecipientResponseGroup.WithMessages.ToString();
 
             return criteria;
