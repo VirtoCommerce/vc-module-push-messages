@@ -27,6 +27,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
             criteria.MessageId = request.MessageId;
             criteria.UserId = request.UserId;
             criteria.IsRead = false;
+            criteria.WithHidden = true;
             criteria.Take = 1;
 
             var searchResult = await _recipientSearchService.SearchAsync(criteria);
