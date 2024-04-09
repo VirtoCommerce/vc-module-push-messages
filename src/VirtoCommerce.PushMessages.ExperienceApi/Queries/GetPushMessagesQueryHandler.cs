@@ -45,6 +45,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
                         CreatedDate = x.Message.CreatedDate,
                         UserId = x.UserId,
                         IsRead = x.IsRead,
+                        IsHidden = x.IsHidden,
                     })
                 .ToList();
         }

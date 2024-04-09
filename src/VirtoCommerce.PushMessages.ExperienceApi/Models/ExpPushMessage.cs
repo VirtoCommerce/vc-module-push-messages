@@ -13,5 +13,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Models
         public string UserId { get; set; }
 
         public bool IsRead { get; set; }
+
+        public bool IsHidden { get; set; }
     }
 }
