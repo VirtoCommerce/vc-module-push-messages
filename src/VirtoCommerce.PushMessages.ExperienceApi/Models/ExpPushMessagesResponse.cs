@@ -1,13 +1,8 @@
-using System.Collections.Generic;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Models
 {
-    public class ExpPushMessagesResponse
+    public class ExpPushMessagesResponse : GenericSearchResult<ExpPushMessage>
     {
-        public int TotalCount { get; set; }
-
-        public int UnreadCount { get; set; }
-
-        public IList<ExpPushMessage> Items { get; set; } = [];
     }
 }
