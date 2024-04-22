@@ -7,7 +7,13 @@ namespace VirtoCommerce.PushMessages.Core.Models;
 
 public class PushMessage : AuditableEntity, ICloneable
 {
+    public string Topic { get; set; }
+
     public string ShortMessage { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public string Status { get; set; }
 
     public IList<string> MemberIds { get; set; }
 

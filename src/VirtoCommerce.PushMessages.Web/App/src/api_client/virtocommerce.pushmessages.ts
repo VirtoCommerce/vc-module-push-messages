@@ -198,6 +198,58 @@ export class PushMessageClient extends AuthApiBase {
     }
 
     /**
+     * @param body (optional) 
+     * @return Success
+     */
+    update(body?: PushMessage | undefined): Promise<PushMessage> {
+        let url_ = this.baseUrl + "/api/push-message";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json-patch+json",
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processUpdate(_response);
+        });
+    }
+
+    protected processUpdate(response: Response): Promise<PushMessage> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PushMessage.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PushMessage>(null as any);
+    }
+
+    /**
      * @param ids (optional) 
      * @return No Content
      */
@@ -302,7 +354,10 @@ export class PushMessageClient extends AuthApiBase {
 }
 
 export class PushMessage implements IPushMessage {
+    topic?: string | undefined;
     shortMessage?: string | undefined;
+    startDate?: Date | undefined;
+    status?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -321,7 +376,10 @@ export class PushMessage implements IPushMessage {
 
     init(_data?: any) {
         if (_data) {
+            this.topic = _data["topic"];
             this.shortMessage = _data["shortMessage"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.status = _data["status"];
             if (Array.isArray(_data["memberIds"])) {
                 this.memberIds = [] as any;
                 for (let item of _data["memberIds"])
@@ -344,7 +402,10 @@ export class PushMessage implements IPushMessage {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["topic"] = this.topic;
         data["shortMessage"] = this.shortMessage;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["status"] = this.status;
         if (Array.isArray(this.memberIds)) {
             data["memberIds"] = [];
             for (let item of this.memberIds)
@@ -360,7 +421,10 @@ export class PushMessage implements IPushMessage {
 }
 
 export interface IPushMessage {
+    topic?: string | undefined;
     shortMessage?: string | undefined;
+    startDate?: Date | undefined;
+    status?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -626,6 +690,8 @@ export interface IPushMessageRecipientSearchResult {
 }
 
 export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
+    startDateBefore?: Date | undefined;
+    statuses?: string[] | undefined;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;
@@ -653,6 +719,12 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 
     init(_data?: any) {
         if (_data) {
+            this.startDateBefore = _data["startDateBefore"] ? new Date(_data["startDateBefore"].toString()) : <any>undefined;
+            if (Array.isArray(_data["statuses"])) {
+                this.statuses = [] as any;
+                for (let item of _data["statuses"])
+                    this.statuses!.push(item);
+            }
             this.responseGroup = _data["responseGroup"];
             this.objectType = _data["objectType"];
             if (Array.isArray(_data["objectTypes"])) {
@@ -688,6 +760,12 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["startDateBefore"] = this.startDateBefore ? this.startDateBefore.toISOString() : <any>undefined;
+        if (Array.isArray(this.statuses)) {
+            data["statuses"] = [];
+            for (let item of this.statuses)
+                data["statuses"].push(item);
+        }
         data["responseGroup"] = this.responseGroup;
         data["objectType"] = this.objectType;
         if (Array.isArray(this.objectTypes)) {
@@ -716,6 +794,8 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 }
 
 export interface IPushMessageSearchCriteria {
+    startDateBefore?: Date | undefined;
+    statuses?: string[] | undefined;
     responseGroup?: string | undefined;
     /** Search object type */
     objectType?: string | undefined;

@@ -18,8 +18,9 @@
           "TOTALS": "Count:",
           "HEADER": {
             "ID": "ID",
-            "CREATED_DATE": "Date",
-            "CREATED_BY": "Author",
+            "CREATED_DATE": "Created date",
+            "CREATED_BY": "Created by",
+            "STATUS": "Status",
             "SHORT_MESSAGE": "Message"
           },
           "EMPTY": {
@@ -39,11 +40,30 @@
         },
         "EMPTY": {
           "NO_ITEMS": "There are no items yet"
+        },
+        "DELETE_SELECTED_CONFIRMATION": {
+          "MESSAGE": "Are you sure you want to delete {count} selected messages?"
         }
       },
       "DETAILS": {
         "TOOLBAR": {
-          "SAVE": "Save"
+          "SAVE": "Save",
+          "DELETE": "Delete"
+        },
+        "FORM": {
+          "MESSAGE": {
+            "LABEL": "Message"
+          },
+          "RECIPIENTS": {
+            "LABEL": "Recipients",
+            "PLACEHOLDER": "Select recipients"
+          },
+          "TOPIC": {
+            "LABEL": "Topic"
+          },
+          "START_DATE": {
+            "LABEL": "Start date"
+          }
         },
         "WIDGETS": {
           "RECIPIENTS": "Status"
@@ -64,7 +84,8 @@
         }
       },
       "ALERTS": {
-        "CLOSE_CONFIRMATION": "You have unsaved changes\nClose anyway?"
+        "CLOSE_CONFIRMATION": "You have unsaved changes\nClose anyway?",
+        "DELETE": "Are you sure you want to delete this message?"
       }
     }
   }

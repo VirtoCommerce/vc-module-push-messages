@@ -46,9 +46,16 @@ public class PushMessageController : Controller
 
     [HttpPost]
     [Authorize(ModuleConstants.Security.Permissions.Create)]
-    public async Task<ActionResult<PushMessage>> Create([FromBody] PushMessage model)
+    public Task<ActionResult<PushMessage>> Create([FromBody] PushMessage model)
     {
         model.Id = null;
+        return Update(model);
+    }
+
+    [HttpPut]
+    [Authorize(ModuleConstants.Security.Permissions.Update)]
+    public async Task<ActionResult<PushMessage>> Update([FromBody] PushMessage model)
+    {
         await _messageService.SaveChangesAsync([model]);
         return Ok(model);
     }

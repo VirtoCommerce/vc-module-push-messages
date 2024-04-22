@@ -16,11 +16,18 @@ export default () => {
   const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
     load: async (query) => {
       const criteria = { ...(query || {}) } as PushMessageSearchCriteria;
+      criteria.responseGroup = "None";
       return (await getApiClient()).search(criteria);
+    },
+    remove: async (query, customQuery) => {
+      const ids = customQuery.ids;
+      if (ids) {
+        return (await getApiClient()).delete(ids);
+      }
     },
   });
 
-  const { load, items, pagination, loading, query } = listFactory({ pageSize: 20 });
+  const { load, remove, items, pagination, loading, query } = listFactory({ pageSize: 20 });
   const { openBlade, resolveBladeByName } = useBladeNavigation();
 
   async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
@@ -32,14 +39,15 @@ export default () => {
 
   const scope = ref<PushMessageListScope>({
     openDetailsBlade,
-    deleteItem: () => {
-      alert("Delete item");
+    isReadOnly: (data: { item: PushMessage }) => {
+      return data.item.status === "Sent";
     },
   });
 
   return {
     items,
     load,
+    remove,
     loading,
     pagination,
     query,

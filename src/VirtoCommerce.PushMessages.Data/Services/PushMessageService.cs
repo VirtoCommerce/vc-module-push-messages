@@ -12,6 +12,7 @@ using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Data.GenericCrud;
 using VirtoCommerce.PushMessages.Core.Events;
+using VirtoCommerce.PushMessages.Core.Extensions;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.Extensions;
@@ -40,6 +41,21 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         _recipientService = recipientService;
     }
 
+    public override async Task SaveChangesAsync(IList<PushMessage> models)
+    {
+        var ids = models.Where(x => x.Id != null).Select(x => x.Id).ToList();
+        var existingModels = await CheckStatusAsync(ids);
+        UpdateStatus(models, existingModels);
+        await base.SaveChangesAsync(models);
+    }
+
+    public override async Task DeleteAsync(IList<string> ids, bool softDelete = false)
+    {
+        await CheckStatusAsync(ids);
+        await base.DeleteAsync(ids, softDelete);
+    }
+
+
     protected override Task<IList<PushMessageEntity>> LoadEntities(IRepository repository, IList<string> ids, string responseGroup)
     {
         return ((IPushMessagesRepository)repository).GetMessagesByIdsAsync(ids, responseGroup);
@@ -59,10 +75,38 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         GenericSearchCachingRegion<PushMessageRecipient>.ExpireRegion();
     }
 
+
+    private async Task<IList<PushMessage>> CheckStatusAsync(IList<string> ids)
+    {
+        var models = await GetAsync(ids);
+
+        if (models.Any(x => x.Status == PushMessageStatus.Sent))
+        {
+            throw new InvalidOperationException($"Cannot modify or delete messages with status {PushMessageStatus.Sent}.");
+        }
+
+        return models;
+    }
+
+    private static void UpdateStatus(IList<PushMessage> newModels, IList<PushMessage> oldModels)
+    {
+        foreach (var newModel in newModels)
+        {
+            var oldModel = oldModels.FirstOrDefault(x => x.Id.EqualsInvariant(newModel.Id));
+
+            if (oldModel is null)
+            {
+                newModel.Status = newModel.StartDate > DateTime.UtcNow
+                    ? PushMessageStatus.Scheduled
+                    : PushMessageStatus.Sent;
+            }
+        }
+    }
+
     private async Task AddRecipients(IList<GenericChangedEntry<PushMessage>> changedEntries)
     {
         foreach (var changedEntry in changedEntries.Where(x =>
-                     x.EntryState == EntryState.Added &&
+                     x.IsSent() &&
                      x.NewEntry.MemberIds.Count > 0))
         {
             var message = changedEntry.NewEntry;

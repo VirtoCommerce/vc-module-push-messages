@@ -1,11 +1,4 @@
 {
-  "PushMessages": {
-    "blades": {
-      "hello-world": {
-        "title": "Hello world blade"
-      }
-    }
-  },
   "permissions": {
     "PushMessages:access": "Open PushMessages menu",
     "PushMessages:create": "Create PushMessages related data",
@@ -14,15 +7,17 @@
     "PushMessages:delete": "Delete PushMessages related data"
   },
   "settings": {
-    "PushMessages": {
-      "PushMessagesEnabled": {
-        "title": "PushMessages Enabled",
-        "description": "PushMessages Enabled setting"
-      },
-      "PushMessagesPassword": {
-        "title": "PushMessages Password",
-        "description": "PushMessages Password setting"
-      }
+    "PushMessages.BatchSize": {
+      "title": "Batch size",
+      "description": ""
+    },
+    "PushMessages.BackgroundJobs.Enable": {
+      "title": "Background jobs enable",
+      "description": ""
+    },
+    "PushMessages.BackgroundJobs.CronExpression": {
+      "title": "Background jobs cron expression",
+      "description": ""
     }
   }
 }

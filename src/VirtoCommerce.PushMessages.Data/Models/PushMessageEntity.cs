@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,8 +10,16 @@ namespace VirtoCommerce.PushMessages.Data.Models;
 
 public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity, PushMessage>
 {
+    [StringLength(128)]
+    public string Topic { get; set; }
+
     [StringLength(1024)]
     public string ShortMessage { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    [StringLength(64)]
+    public string Status { get; set; }
 
     public virtual ObservableCollection<PushMessageMemberEntity> Members { get; set; } = new NullCollection<PushMessageMemberEntity>();
 
@@ -24,7 +33,10 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
         model.ModifiedBy = ModifiedBy;
         model.ModifiedDate = ModifiedDate;
 
+        model.Topic = Topic;
         model.ShortMessage = ShortMessage;
+        model.StartDate = StartDate;
+        model.Status = Status;
         model.MemberIds = Members.OrderBy(x => x.MemberId).Select(x => x.MemberId).ToList();
 
         return model;
@@ -40,7 +52,10 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
         ModifiedBy = model.ModifiedBy;
         ModifiedDate = model.ModifiedDate;
 
+        Topic = model.Topic;
         ShortMessage = model.ShortMessage;
+        StartDate = model.StartDate;
+        Status = model.Status;
 
         if (model.MemberIds != null)
         {
@@ -56,7 +71,10 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
 
     public virtual void Patch(PushMessageEntity target)
     {
+        target.Topic = Topic;
         target.ShortMessage = ShortMessage;
+        target.StartDate = StartDate;
+        target.Status = Status;
 
         if (!Members.IsNullCollection())
         {

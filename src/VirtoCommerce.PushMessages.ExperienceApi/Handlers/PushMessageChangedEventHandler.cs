@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.PushMessages.Core.Events;
+using VirtoCommerce.PushMessages.Core.Extensions;
 using VirtoCommerce.PushMessages.ExperienceApi.Models;
 using VirtoCommerce.PushMessages.ExperienceApi.Subscriptions;
 
@@ -17,10 +19,12 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Handlers
 
         public async Task Handle(PushMessageChangedEvent message)
         {
-            foreach (var entry in message.ChangedEntries)
+            foreach (var pushMessage in message.ChangedEntries
+                         .Where(x =>
+                             x.IsSent() &&
+                             x.NewEntry.UserIds?.Count > 0)
+                         .Select(x => x.NewEntry))
             {
-                var pushMessage = entry.NewEntry;
-
                 foreach (var userId in pushMessage.UserIds)
                 {
                     var expPushMessage = new ExpPushMessage
