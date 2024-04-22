@@ -53,7 +53,8 @@ public class PushMessageRecipientSearchService : SearchService<PushMessageRecipi
             query = query.Where(x => x.MemberName.Contains(criteria.Keyword) ||
                                      x.UserName.Contains(criteria.Keyword) ||
                                      x.MemberId.Contains(criteria.Keyword) ||
-                                     x.UserId.Contains(criteria.Keyword));
+                                     x.UserId.Contains(criteria.Keyword) ||
+                                     x.Message.ShortMessage.Contains(criteria.Keyword));
         }
 
         return query;
@@ -67,7 +68,7 @@ public class PushMessageRecipientSearchService : SearchService<PushMessageRecipi
         {
             sortInfos =
             [
-                new SortInfo { SortColumn = nameof(PushMessageEntity.CreatedDate), SortDirection = SortDirection.Descending},
+                new SortInfo { SortColumn = nameof(PushMessageEntity.CreatedDate), SortDirection = SortDirection.Descending },
                 new SortInfo { SortColumn = nameof(PushMessageRecipientEntity.Id) },
             ];
         }

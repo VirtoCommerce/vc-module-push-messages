@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,29 +20,28 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
 
         public async Task<ExpPushMessagesResponse> Handle(GetPushMessagesQuery request, CancellationToken cancellationToken)
         {
+            var criteria = GetSearchCriteria(request);
+            var searchResult = await _recipientSearchService.SearchAsync(criteria);
+
             var result = AbstractTypeFactory<ExpPushMessagesResponse>.TryCreateInstance();
-            result.Items = await SearchMessages(request);
-            result.UnreadCount = result.Items.Count(x => !x.IsRead);
+            result.Results = searchResult.Results.Select(ToExpPushMessage).ToList();
+            result.TotalCount = searchResult.TotalCount;
 
             return result;
         }
 
-        private async Task<List<ExpPushMessage>> SearchMessages(GetPushMessagesQuery request)
+        private static ExpPushMessage ToExpPushMessage(PushMessageRecipient recipient)
         {
-            var criteria = GetSearchCriteria(request);
-            var messages = await _recipientSearchService.SearchAllNoCloneAsync(criteria);
+            var message = AbstractTypeFactory<ExpPushMessage>.TryCreateInstance();
 
-            return messages
-                .Select(x =>
-                    new ExpPushMessage
-                    {
-                        Id = x.Message.Id,
-                        ShortMessage = x.Message.ShortMessage,
-                        CreatedDate = x.Message.CreatedDate,
-                        UserId = x.UserId,
-                        IsRead = x.IsRead,
-                    })
-                .ToList();
+            message.Id = recipient.Message.Id;
+            message.ShortMessage = recipient.Message.ShortMessage;
+            message.CreatedDate = recipient.Message.CreatedDate;
+            message.UserId = recipient.UserId;
+            message.IsRead = recipient.IsRead;
+            message.IsHidden = recipient.IsHidden;
+
+            return message;
         }
 
         private static PushMessageRecipientSearchCriteria GetSearchCriteria(GetPushMessagesQuery request)
@@ -51,7 +49,10 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
             var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
             criteria.IsRead = request.UnreadOnly ? false : null;
-            criteria.Take = 50;
+            criteria.WithHidden = request.WithHidden;
+            criteria.Keyword = request.Keyword;
+            criteria.Skip = request.Skip;
+            criteria.Take = request.Take;
             criteria.ResponseGroup = PushMessageRecipientResponseGroup.WithMessages.ToString();
 
             return criteria;

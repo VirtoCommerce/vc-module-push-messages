@@ -50,6 +50,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
             var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
             criteria.UserId = request.UserId;
             criteria.IsRead = true;
+            criteria.WithHidden = true;
             criteria.Take = 50;
 
             return criteria;

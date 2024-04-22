@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using GraphQL;
-using GraphQL.Types;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ExperienceApiModule.Core.BaseQueries;
@@ -11,7 +10,7 @@ using VirtoCommerce.PushMessages.ExperienceApi.Schemas;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
 {
-    public class GetPushMessagesQueryBuilder : QueryBuilder<GetPushMessagesQuery, ExpPushMessagesResponse, NonNullGraphType<PushMessagesResponseType>>
+    public class GetPushMessagesQueryBuilder : SearchQueryBuilder<GetPushMessagesQuery, ExpPushMessagesResponse, ExpPushMessage, PushMessageType>
     {
         protected override string Name => "pushMessages";
 
