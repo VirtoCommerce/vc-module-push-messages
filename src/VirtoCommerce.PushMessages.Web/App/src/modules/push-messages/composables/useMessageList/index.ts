@@ -19,7 +19,7 @@ export default () => {
       criteria.responseGroup = "None";
       return (await getApiClient()).search(criteria);
     },
-    remove: async (query, customQuery) => {
+    remove: async (_query, customQuery) => {
       const ids = customQuery.ids;
       if (ids) {
         return (await getApiClient()).delete(ids);
