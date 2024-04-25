@@ -9,6 +9,7 @@ GraphQL.Server.Core.dll
 GraphQL.Server.Transports.AspNetCore.dll
 GraphQL.Server.Transports.AspNetCore.NewtonsoftJson.dll
 GraphQL.Server.Transports.Subscriptions.Abstractions.dll
+GraphQL.Server.Transports.Subscriptions.WebSockets.dll
 GraphQL.SystemReactive.dll
 GraphQL-Parser.dll
 MediatR.dll

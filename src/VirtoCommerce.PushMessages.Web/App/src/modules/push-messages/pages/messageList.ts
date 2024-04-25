@@ -23,6 +23,12 @@ export const grid: DynamicGridSchema = {
         title: "PUSH_MESSAGES.PAGES.LIST.TOOLBAR.NEW",
         method: "openAddBlade",
       },
+      {
+        id: "deleteSelected",
+        icon: "fas fa-trash",
+        title: "PUSH_MESSAGES.PAGES.LIST.TOOLBAR.DELETE",
+        method: "removeItems",
+      },
     ],
     menuItem: {
       title: "PUSH_MESSAGES.MENU.TITLE",
@@ -34,12 +40,23 @@ export const grid: DynamicGridSchema = {
     {
       id: "itemsGrid",
       component: "vc-table",
+      multiselect: true,
+      actions: [
+        {
+          id: "deleteAction",
+          icon: "fas fa-trash",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE",
+          type: "danger",
+          position: "left",
+          method: "removeItems",
+          disabled: { method: "isReadOnly" },
+        },
+      ],
       columns: [
         {
           id: "id",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.ID",
           sortable: true,
-          width: "21em",
           visible: false,
         },
         {
@@ -47,15 +64,18 @@ export const grid: DynamicGridSchema = {
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
           sortable: true,
           type: "date-time",
-          width: "14em",
           alwaysVisible: true,
         },
         {
           id: "createdBy",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_BY",
           sortable: true,
-          width: "14em",
           visible: false,
+        },
+        {
+          id: "status",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.STATUS",
+          sortable: true,
         },
         {
           id: "shortMessage",

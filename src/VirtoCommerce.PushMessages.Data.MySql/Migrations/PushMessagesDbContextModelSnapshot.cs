@@ -44,6 +44,17 @@ namespace VirtoCommerce.PushMessages.Data.MySql.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("varchar(1024)");
 
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("Topic")
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
                     b.HasKey("Id");
 
                     b.ToTable("PushMessage", (string)null);

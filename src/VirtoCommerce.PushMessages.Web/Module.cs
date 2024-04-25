@@ -12,9 +12,13 @@ using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.Platform.Core.Settings.Events;
 using VirtoCommerce.PushMessages.Core;
+using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Events;
 using VirtoCommerce.PushMessages.Core.Services;
+using VirtoCommerce.PushMessages.Data.BackgroundJobs;
+using VirtoCommerce.PushMessages.Data.Handlers;
 using VirtoCommerce.PushMessages.Data.MySql;
 using VirtoCommerce.PushMessages.Data.PostgreSql;
 using VirtoCommerce.PushMessages.Data.Repositories;
@@ -62,6 +66,9 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddTransient<IPushMessageRecipientService, PushMessageRecipientService>();
         serviceCollection.AddTransient<IPushMessageRecipientSearchService, PushMessageRecipientSearchService>();
 
+        serviceCollection.AddSingleton<ObjectSettingEntryChangedEventHandler>();
+        serviceCollection.AddSingleton<IPushMessageJobService, PushMessageJobs>();
+
         // GraphQL
         var assemblyMarker = typeof(AssemblyMarker);
         var graphQlBuilder = new CustomGraphQLBuilder(serviceCollection);
@@ -84,14 +91,20 @@ public class Module : IModule, IHasConfiguration
 
         // Register permissions
         var permissionsRegistrar = serviceProvider.GetRequiredService<IPermissionsRegistrar>();
-        permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "PushMessages", ModuleConstants.Security.Permissions.AllPermissions);
+        permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Push Messages", ModuleConstants.Security.Permissions.AllPermissions);
 
         // Apply migrations
         using var serviceScope = serviceProvider.CreateScope();
         using var dbContext = serviceScope.ServiceProvider.GetRequiredService<PushMessagesDbContext>();
         dbContext.Database.Migrate();
 
+        // Register event handlers
+        appBuilder.RegisterEventHandler<ObjectSettingChangedEvent, ObjectSettingEntryChangedEventHandler>();
         appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
+
+        // Schedule background jobs
+        var pushMessageJobService = serviceProvider.GetService<IPushMessageJobService>();
+        pushMessageJobService.StartStopRecurringJobs().GetAwaiter().GetResult();
     }
 
     public void Uninstall()

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.PushMessages.Core;
@@ -16,13 +17,13 @@ public static class ModuleConstants
             public const string Delete = "PushMessages:delete";
 
             public static string[] AllPermissions { get; } =
-            {
+            [
                 Access,
                 Create,
                 Read,
                 Update,
                 Delete,
-            };
+            ];
         }
     }
 
@@ -30,28 +31,47 @@ public static class ModuleConstants
     {
         public static class General
         {
-            public static SettingDescriptor PushMessagesEnabled { get; } = new()
+            public static SettingDescriptor BatchSize { get; } = new()
             {
-                Name = "PushMessages.PushMessagesEnabled",
-                GroupName = "PushMessages|General",
-                ValueType = SettingValueType.Boolean,
-                DefaultValue = false,
-            };
-
-            public static SettingDescriptor PushMessagesPassword { get; } = new()
-            {
-                Name = "PushMessages.PushMessagesPassword",
-                GroupName = "PushMessages|Advanced",
-                ValueType = SettingValueType.SecureString,
-                DefaultValue = "qwerty",
+                Name = "PushMessages.BatchSize",
+                GroupName = "Push Messages|General",
+                ValueType = SettingValueType.Integer,
+                DefaultValue = 50,
             };
 
             public static IEnumerable<SettingDescriptor> AllGeneralSettings
             {
                 get
                 {
-                    yield return PushMessagesEnabled;
-                    yield return PushMessagesPassword;
+                    yield return BatchSize;
+                }
+            }
+        }
+
+        public static class BackgroundJobs
+        {
+            public static SettingDescriptor Enable { get; } = new()
+            {
+                Name = "PushMessages.BackgroundJobs.Enable",
+                GroupName = "Push Messages|Background Jobs",
+                ValueType = SettingValueType.Boolean,
+                DefaultValue = true,
+            };
+
+            public static SettingDescriptor CronExpression { get; } = new()
+            {
+                Name = "PushMessages.BackgroundJobs.CronExpression",
+                GroupName = "Push Messages|Background Jobs",
+                ValueType = SettingValueType.ShortText,
+                DefaultValue = "0/5 * * * *",
+            };
+
+            public static IEnumerable<SettingDescriptor> AllBackgroundJobsSettings
+            {
+                get
+                {
+                    yield return Enable;
+                    yield return CronExpression;
                 }
             }
         }
@@ -60,7 +80,7 @@ public static class ModuleConstants
         {
             get
             {
-                return General.AllGeneralSettings;
+                return General.AllGeneralSettings.Concat(BackgroundJobs.AllBackgroundJobsSettings);
             }
         }
     }

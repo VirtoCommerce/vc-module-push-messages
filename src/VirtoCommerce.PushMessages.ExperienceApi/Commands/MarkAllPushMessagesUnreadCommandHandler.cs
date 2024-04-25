@@ -2,8 +2,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
+using VirtoCommerce.PushMessages.Core.Extensions;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
+using GeneralSettings = VirtoCommerce.PushMessages.Core.ModuleConstants.Settings.General;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
 {
@@ -11,49 +14,33 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Commands
     {
         private readonly IPushMessageRecipientService _recipientService;
         private readonly IPushMessageRecipientSearchService _recipientSearchService;
+        private readonly ISettingsManager _settingsManager;
 
         public MarkAllPushMessagesUnreadCommandHandler(
             IPushMessageRecipientService recipientService,
-            IPushMessageRecipientSearchService recipientSearchService)
+            IPushMessageRecipientSearchService recipientSearchService,
+            ISettingsManager settingsManager)
         {
             _recipientService = recipientService;
             _recipientSearchService = recipientSearchService;
+            _settingsManager = settingsManager;
         }
 
         public async Task<bool> Handle(MarkAllPushMessagesUnreadCommand request, CancellationToken cancellationToken)
         {
-            var searchCriteria = GetSearchCriteria(request);
-            PushMessageRecipientSearchResult searchResult;
+            var searchCriteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
+            searchCriteria.UserId = request.UserId;
+            searchCriteria.IsRead = true;
+            searchCriteria.WithHidden = true;
+            searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
 
-            do
+            await _recipientSearchService.SearchWhileResultIsNotEmpty(searchCriteria, async searchResult =>
             {
-                searchResult = await _recipientSearchService.SearchAsync(searchCriteria);
-
-                if (searchResult.Results.Count > 0)
-                {
-                    foreach (var recipient in searchResult.Results)
-                    {
-                        recipient.IsRead = false;
-                    }
-
-                    await _recipientService.SaveChangesAsync(searchResult.Results);
-                }
-            }
-            while (searchResult.Results.Count == searchCriteria.Take &&
-                   searchResult.Results.Count != searchResult.TotalCount);
+                searchResult.Results.Apply(x => x.IsRead = false);
+                await _recipientService.SaveChangesAsync(searchResult.Results);
+            });
 
             return true;
-        }
-
-        private static PushMessageRecipientSearchCriteria GetSearchCriteria(PushMessagesCommand request)
-        {
-            var criteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
-            criteria.UserId = request.UserId;
-            criteria.IsRead = true;
-            criteria.WithHidden = true;
-            criteria.Take = 50;
-
-            return criteria;
         }
     }
 }

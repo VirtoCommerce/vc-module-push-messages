@@ -16,6 +16,7 @@ const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient
 export interface PushMessageDetailsScope extends DetailsBaseBladeScope {
   toolbarOverrides: {
     saveChanges: IBladeToolbar;
+    remove: IBladeToolbar;
   };
 }
 
@@ -24,6 +25,8 @@ export default (args: {
   emit: InstanceType<typeof DynamicBladeForm>["$emit"];
   mounted: Ref<boolean>;
 }) => {
+  const messageId = args.props.param;
+
   const detailsFactory = useDetailsFactory<PushMessage>({
     load: async (message) => {
       if (message?.id) {
@@ -31,10 +34,13 @@ export default (args: {
       }
     },
     saveChanges: async (message) => {
-      return (await getPushMessageApiClient()).create(message);
+      const apiClient = await getPushMessageApiClient();
+      return !messageId ? apiClient.create(message) : apiClient.update(message);
     },
-    remove: () => {
-      throw new Error("Function not implemented.");
+    remove: async ({ id }) => {
+      if (id) {
+        return (await getPushMessageApiClient()).delete([id]);
+      }
     },
   });
 
@@ -43,8 +49,11 @@ export default (args: {
   const scope = ref<PushMessageDetailsScope>({
     toolbarOverrides: {
       saveChanges: {
-        isVisible: computed(() => !args.props.param),
+        isVisible: computed(() => isEditable()),
         disabled: computed(() => validationState.value.disabled),
+      },
+      remove: {
+        isVisible: computed(() => messageId != null && isEditable()),
       },
     },
     loadMembers: async (keyword?: string, skip?: number, ids?: string[]) => {
@@ -58,10 +67,13 @@ export default (args: {
         take: ids?.length ?? 20,
       } as MembersSearchCriteria);
     },
-    isReadOnly: () => {
-      return args.props.param;
-    },
+    isReadOnly: () => !isEditable(),
   });
+
+  function isEditable(): boolean {
+    const message = item.value;
+    return !messageId || (message != null && message.status !== "Sent");
+  }
 
   const bladeTitle = computed(() => {
     return "Push message details";
@@ -70,7 +82,7 @@ export default (args: {
   watch(
     () => args?.mounted.value,
     async () => {
-      if (!args.props.param) {
+      if (!messageId) {
         item.value = reactive(new PushMessage());
         validationState.value.resetModified(item.value, true);
       }
