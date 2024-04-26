@@ -10,8 +10,8 @@
     <dependency id="VirtoCommerce.ExperienceApi" version="3.816.0" />
   </dependencies>
 
-  <title>VirtoCommerce PushMessages module</title>
-  <description>VirtoCommerce PushMessages module</description>
+  <title>Push Messages</title>
+  <description>Enables back-end admins to send custom notifications to selected organizations within the Virto Commerce platform.</description>
 
   <apps>
     <app id="push-messages">
