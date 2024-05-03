@@ -30,9 +30,13 @@ public class PushMessageSearchService : SearchService<PushMessageSearchCriteria,
 
         if (!string.IsNullOrEmpty(criteria.Keyword))
         {
-            query = query.Where(x => x.ShortMessage.Contains(criteria.Keyword) ||
-                                     x.CreatedBy.Contains(criteria.Keyword) ||
-                                     x.Id.Contains(criteria.Keyword));
+            query = query.Where(x =>
+                x.Topic.Contains(criteria.Keyword) ||
+                x.ShortMessage.Contains(criteria.Keyword) ||
+                x.MemberQuery.Contains(criteria.Keyword) ||
+                x.ModifiedBy.Contains(criteria.Keyword) ||
+                x.CreatedBy.Contains(criteria.Keyword) ||
+                x.Id.Contains(criteria.Keyword));
         }
 
         if (criteria.IsDraft != null)
