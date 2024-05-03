@@ -31,9 +31,11 @@ public abstract class RecurringJobService<T> : IRecurringJobService
 
     public virtual async Task Handle(ObjectSettingChangedEvent message)
     {
-        foreach (var entry in message.ChangedEntries.Where(x => x.EntryState is EntryState.Modified or EntryState.Added))
+        foreach (var setting in message.ChangedEntries
+                     .Where(x => x.EntryState is EntryState.Modified or EntryState.Added)
+                     .Select(x => x.NewEntry))
         {
-            var job = RecurringJobs.FirstOrDefault(job => job.EnableSetting.Name == entry.NewEntry.Name || job.CronSetting.Name == entry.NewEntry.Name);
+            var job = RecurringJobs.FirstOrDefault(job => job.EnableSetting.Name == setting.Name || job.CronSetting.Name == setting.Name);
             if (job != null)
             {
                 await StartStopRecurringJob(job);
