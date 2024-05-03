@@ -2,12 +2,12 @@ import { DynamicGridSchema } from "@vc-shell/framework";
 
 export const grid: DynamicGridSchema = {
   settings: {
-    url: "/all",
-    id: "PushMessageList",
+    url: "/tracking",
+    id: "PushMessageTrackingList",
     titleTemplate: "PUSH_MESSAGES.PAGES.LIST.TITLE",
     localizationPrefix: "PUSH_MESSAGES",
-    isWorkspace: true,
-    composable: "useMessageList",
+    isWorkspace: false,
+    composable: "useTrackingList",
     component: "DynamicBladeList",
     //permissions: "PushMessages:read",
     toolbar: [
@@ -31,14 +31,14 @@ export const grid: DynamicGridSchema = {
       },
     ],
     menuItem: {
-      title: "PUSH_MESSAGES.MENU.ALL",
-      icon: "fas fa-envelope",
-      priority: 1,
+      title: "PUSH_MESSAGES.MENU.TRACK_NEW_RECIPIENTS",
+      icon: "fas fa-user-plus",
+      priority: 4,
     },
   },
   content: [
     {
-      id: "messagesList",
+      id: "trackingList",
       component: "vc-table",
       multiselect: true,
       actions: [

@@ -31,7 +31,6 @@ public class PushMessageController : Controller
     public async Task<ActionResult<PushMessageRecipientSearchResult>> SearchRecipients([FromBody] PushMessageRecipientSearchCriteria criteria)
     {
         var result = await _recipientSearchService.SearchAsync(criteria);
-
         return Ok(result);
     }
 
@@ -40,7 +39,6 @@ public class PushMessageController : Controller
     public async Task<ActionResult<PushMessageSearchResult>> Search([FromBody] PushMessageSearchCriteria criteria)
     {
         var result = await _messageSearchService.SearchAsync(criteria);
-
         return Ok(result);
     }
 
@@ -57,15 +55,22 @@ public class PushMessageController : Controller
     public async Task<ActionResult<PushMessage>> Update([FromBody] PushMessage model)
     {
         await _messageService.SaveChangesAsync([model]);
-        return Ok(model);
+        return Ok(await _messageService.GetNoCloneAsync(model.Id));
+    }
+
+    [HttpPut("{id}/tracking/{value}")]
+    [Authorize(ModuleConstants.Security.Permissions.Update)]
+    public async Task<ActionResult<PushMessage>> ChangeTracking([FromRoute] string id, [FromRoute] bool value)
+    {
+        await _messageService.ChangeTracking(id, value);
+        return Ok(await _messageService.GetNoCloneAsync(id));
     }
 
     [HttpGet("{id}")]
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessage>> Get([FromRoute] string id, [FromQuery] string responseGroup = null)
     {
-        var retVal = await _messageService.GetNoCloneAsync(id, responseGroup);
-        return Ok(retVal);
+        return Ok(await _messageService.GetNoCloneAsync(id, responseGroup));
     }
 
     [HttpDelete]

@@ -2,9 +2,8 @@
   <VcApp
     :is-ready="isReady"
     :logo="logoImage"
-    :title="$t('PUSH_MESSAGES.MENU.TITLE')"
+    :title="$t('PUSH_MESSAGES.TITLE')"
     :version="version"
-    :disable-menu="true"
   >
   </VcApp>
 </template>

@@ -1,7 +1,11 @@
 {
   "PUSH_MESSAGES": {
+    "TITLE": "Push Messages",
     "MENU": {
-      "TITLE": "Push Messages"
+      "ALL": "All messages",
+      "TRACK_NEW_RECIPIENTS": "Track new recipients",
+      "SCHEDULED": "Scheduled",
+      "DRAFTS": "Drafts"
     },
     "PAGES": {
       "LIST": {
@@ -19,8 +23,11 @@
           "HEADER": {
             "ID": "ID",
             "CREATED_DATE": "Created date",
+            "MODIFIED_DATE": "Modified date",
+            "START_DATE": "Scheduled date",
             "CREATED_BY": "Created by",
             "STATUS": "Status",
+            "TOPIC": "Topic",
             "SHORT_MESSAGE": "Message"
           },
           "EMPTY": {
@@ -48,29 +55,41 @@
       "DETAILS": {
         "TOOLBAR": {
           "SAVE": "Save",
+          "SAVE_AND_PUBLISH": "Send",
           "DELETE": "Delete"
         },
         "FORM": {
           "MESSAGE": {
             "LABEL": "Message"
           },
-          "RECIPIENTS": {
-            "LABEL": "Recipients",
+          "MEMBER_IDS": {
+            "LABEL": "Recipients list",
             "PLACEHOLDER": "Select recipients"
+          },
+          "MEMBER_QUERY": {
+            "LABEL": "Recipients query",
+            "PLACEHOLDER": "Enter recipients query"
+          },
+          "COUNT": {
+            "LABEL": "Count"
           },
           "TOPIC": {
             "LABEL": "Topic"
           },
           "START_DATE": {
-            "LABEL": "Start date"
+            "LABEL": "Schedule send"
+          },
+          "TRACK_NEW_RECIPIENTS": {
+            "LABEL": "Track new recipients",
+            "DESCRIPTION": "Periodically check if there are new users matching the specified recipients list or query."
           }
         },
         "WIDGETS": {
-          "RECIPIENTS": "Status"
+          "RECIPIENTS": "Recipients"
         }
       },
       "RECIPIENTS": {
-        "TITLE": "Status",
+        "TITLE": "Recipients",
         "TABLE": {
           "TOTALS": "Count:",
           "HEADER": {

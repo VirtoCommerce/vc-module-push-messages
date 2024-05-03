@@ -18,7 +18,7 @@ export const routes: RouteRecordRaw[] = [
     children: [],
     redirect: (to) => {
       if (to.name === "App") {
-        return { path: "/messages", params: to.params };
+        return { path: "/all", params: to.params };
       }
       return to.path;
     },

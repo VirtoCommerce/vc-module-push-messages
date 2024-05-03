@@ -35,7 +35,7 @@ public class PushMessagesDbContext : DbContextBase
 
         modelBuilder.Entity<PushMessageRecipientEntity>().ToTable("PushMessageRecipient").HasKey(x => x.Id);
         modelBuilder.Entity<PushMessageRecipientEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
-        modelBuilder.Entity<PushMessageRecipientEntity>().HasOne(x => x.Message).WithMany(x => x.Recipients)
+        modelBuilder.Entity<PushMessageRecipientEntity>().HasOne(x => x.Message).WithMany()
             .HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Cascade).IsRequired();
         modelBuilder.Entity<PushMessageRecipientEntity>()
             .HasIndex(x => new { x.MessageId, x.UserId })

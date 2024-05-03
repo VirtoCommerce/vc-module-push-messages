@@ -1,6 +1,6 @@
 <template>
   <VcWidget
-    v-if="modelValue.item?.id"
+    v-if="modelValue.item?.status === 'Sent'"
     v-loading="loading"
     :value="count"
     :title="$t('PUSH_MESSAGES.PAGES.DETAILS.WIDGETS.RECIPIENTS')"

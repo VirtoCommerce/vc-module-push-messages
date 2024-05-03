@@ -35,6 +35,18 @@ public class PushMessageSearchService : SearchService<PushMessageSearchCriteria,
                                      x.Id.Contains(criteria.Keyword));
         }
 
+        if (criteria.IsDraft != null)
+        {
+            query = criteria.IsDraft.Value
+                ? query.Where(x => x.Status == PushMessageStatus.Draft)
+                : query.Where(x => x.Status != PushMessageStatus.Draft);
+        }
+
+        if (criteria.TrackNewRecipients != null)
+        {
+            query = query.Where(x => x.TrackNewRecipients == criteria.TrackNewRecipients);
+        }
+
         if (criteria.StartDateBefore != null)
         {
             query = query.Where(x => x.StartDate != null && x.StartDate <= criteria.StartDateBefore);

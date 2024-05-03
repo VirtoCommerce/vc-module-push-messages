@@ -2693,9 +2693,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vc-shell/api-client-generator@npm:^1.0.178":
-  version: 1.0.178
-  resolution: "@vc-shell/api-client-generator@npm:1.0.178"
+"@vc-shell/api-client-generator@npm:^1.0.208":
+  version: 1.0.208
+  resolution: "@vc-shell/api-client-generator@npm:1.0.208"
   dependencies:
     chalk: "npm:^2.4.2"
     nswag: "npm:^13.20.0"
@@ -2703,26 +2703,26 @@ __metadata:
     vite-plugin-dts: "npm:^3.6.4"
   bin:
     api-client-generator: ./dist/api-client-generator.js
-  checksum: 7cde292d8cb463aa459e5eb46d91ec27ad6d3e45961f221eb63c19f0d293bb9f48a5bd699b4dfbf357fb369faf7ffa55ee9b6afa459c5c8413ace64b3a49ebba
+  checksum: ab02b1e08d999da0a7f803161564da8873e65726034d69bc48229a8a99b361f14e813c2c9ad6897ef1fedb2000852812bc39a38cf90261f5f44d0088d295b37a
   languageName: node
   linkType: hard
 
-"@vc-shell/config-generator@npm:^1.0.188":
-  version: 1.0.188
-  resolution: "@vc-shell/config-generator@npm:1.0.188"
+"@vc-shell/config-generator@npm:^1.0.208":
+  version: 1.0.208
+  resolution: "@vc-shell/config-generator@npm:1.0.208"
   dependencies:
     "@vitejs/plugin-vue": "npm:^5.0.3"
     vite: "npm:^5.0.11"
     vite-plugin-checker: "npm:^0.6.2"
     vite-plugin-mkcert: "npm:^1.17.1"
     vue: "npm:^3.4.15"
-  checksum: 93540feee9655224a9921496918d8ab7dc5b4187c4442310e189e11b9b591cec9cee14db5b352083c7ce400268e6edd042a3242b07a706a76c18b79c2dcb8f30
+  checksum: c8d646cde35b965d87c42058a711e9544d14ce5744078f0e4cf15bbe5bf30dbc3b5709d563d93d7f31ba87d3a440f0676bb8e75b1a03f6981a435dbc1ac73447
   languageName: node
   linkType: hard
 
-"@vc-shell/framework@npm:^1.0.188":
-  version: 1.0.188
-  resolution: "@vc-shell/framework@npm:1.0.188"
+"@vc-shell/framework@npm:^1.0.208":
+  version: 1.0.208
+  resolution: "@vc-shell/framework@npm:1.0.208"
   dependencies:
     "@floating-ui/vue": "npm:^1.0.6"
     "@headlessui/vue": "npm:^1.7.19"
@@ -2734,12 +2734,14 @@ __metadata:
     "@vueuse/core": "npm:^10.7.1"
     "@vueuse/integrations": "npm:^10.7.1"
     core-js: "npm:^3.35.0"
+    dompurify: "npm:^3.0.11"
     iso-639-1: "npm:^3.1.0"
     moment: "npm:^2.30.1"
     normalize.css: "npm:^8.0.1"
     quill: "npm:^1.3.7"
     quill-image-uploader: "npm:^1.3.0"
     swiper: "npm:^6.8.4"
+    truncate-html: "npm:^1.1.1"
     vee-validate: "npm:^4.12.4"
     vue: "npm:^3.4.19"
     vue-currency-input: "npm:^3.0.5"
@@ -2747,27 +2749,27 @@ __metadata:
     vue-router: "npm:^4.2.5"
     vue3-touch-events: "npm:^4.1.8"
     whatwg-fetch: "npm:^3.6.19"
-  checksum: 18daba6186bea5c00dd2b62ab19d3dfd987174c300e83fc6cbefbd6792b82864c2c7569a0cd5062c4aa83c9aab7cf44a329cef7f69ddbc6eeb5e9628f173dee8
+  checksum: a9d36c187643acdd9eaa809f10dc148f8e5dcd96f4ba7b17eebbce3d93a671eb177671229742d89b8318874e841d58a83d34d60b48dcde6ee7ecb39d9679f3cb
   languageName: node
   linkType: hard
 
-"@vc-shell/release-config@npm:^1.0.178":
-  version: 1.0.178
-  resolution: "@vc-shell/release-config@npm:1.0.178"
+"@vc-shell/release-config@npm:^1.0.208":
+  version: 1.0.208
+  resolution: "@vc-shell/release-config@npm:1.0.208"
   dependencies:
     chalk: "npm:^2.4.2"
     mri: "npm:^1.2.0"
     prompts: "npm:^2.4.2"
     semver: "npm:^7.5.4"
     vite: "npm:^5.0.11"
-  checksum: 755ae1e3822dcbfee69e7da1da4168c958e1deb1015ab11e971f3ff49e3cfccbf14485f3d729b6ca580288a58ace8cb2aec2f67798d2384d7bcce857a0a7f289
+  checksum: 1bea804de762f8d58cd1bba6a50183dcdee26cbe92985f6ad0dddcb6501ce632f7c90cec0b45f3502983990f064f26191baa3514febea052dd814b71a53518f2
   languageName: node
   linkType: hard
 
-"@vc-shell/ts-config@npm:^1.0.178":
-  version: 1.0.178
-  resolution: "@vc-shell/ts-config@npm:1.0.178"
-  checksum: 261121834973961f4db28de89b0f5248c19398cce67108d0693770c751e6497a2a53cb040a3f750ccdc48da2abb030996bc943c42cd532fafaeac8b5ac18c458
+"@vc-shell/ts-config@npm:^1.0.208":
+  version: 1.0.208
+  resolution: "@vc-shell/ts-config@npm:1.0.208"
+  checksum: 528a498f98f20bff9198d06d6b58ca0387513c6e178ad5fc36d0f2661d614ecca6a14baf2fc62bf1ccf716f90f8a6e3cb3242b73df61bd7249d247a9058c470b
   languageName: node
   linkType: hard
 
@@ -3666,6 +3668,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cheerio-select@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "cheerio-select@npm:2.1.0"
+  dependencies:
+    boolbase: "npm:^1.0.0"
+    css-select: "npm:^5.1.0"
+    css-what: "npm:^6.1.0"
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.3"
+    domutils: "npm:^3.0.1"
+  checksum: b5d89208c23468c3a32d1e04f88b9e8c6e332e3649650c5cd29255e2cebc215071ae18563f58c3dc3f6ef4c234488fc486035490fceb78755572288245e2931a
+  languageName: node
+  linkType: hard
+
+"cheerio@npm:^1.0.0-rc.12":
+  version: 1.0.0-rc.12
+  resolution: "cheerio@npm:1.0.0-rc.12"
+  dependencies:
+    cheerio-select: "npm:^2.1.0"
+    dom-serializer: "npm:^2.0.0"
+    domhandler: "npm:^5.0.3"
+    domutils: "npm:^3.0.1"
+    htmlparser2: "npm:^8.0.1"
+    parse5: "npm:^7.0.0"
+    parse5-htmlparser2-tree-adapter: "npm:^7.0.0"
+  checksum: 812fed61aa4b669bbbdd057d0d7f73ba4649cabfd4fc3a8f1d5c7499e4613b430636102716369cbd6bbed8f1bdcb06387ae8342289fb908b2743184775f94f18
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.5.1, chokidar@npm:^3.5.3":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
@@ -4104,6 +4135,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"css-select@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "css-select@npm:5.1.0"
+  dependencies:
+    boolbase: "npm:^1.0.0"
+    css-what: "npm:^6.1.0"
+    domhandler: "npm:^5.0.2"
+    domutils: "npm:^3.0.1"
+    nth-check: "npm:^2.0.1"
+  checksum: d486b1e7eb140468218a5ab5af53257e01f937d2173ac46981f6b7de9c5283d55427a36715dc8decfc0c079cf89259ac5b41ef58f6e1a422eee44ab8bfdc78da
+  languageName: node
+  linkType: hard
+
+"css-what@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "css-what@npm:6.1.0"
+  checksum: c67a3a2d0d81843af87f8bf0a4d0845b0f952377714abbb2884e48942409d57a2110eabee003609d02ee487b054614bdfcfc59ee265728ff105bd5aa221c1d0e
+  languageName: node
+  linkType: hard
+
 "cssesc@npm:^3.0.0":
   version: 3.0.0
   resolution: "cssesc@npm:3.0.0"
@@ -4317,12 +4368,57 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dom-serializer@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "dom-serializer@npm:2.0.0"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.2"
+    entities: "npm:^4.2.0"
+  checksum: e3bf9027a64450bca0a72297ecdc1e3abb7a2912268a9f3f5d33a2e29c1e2c3502c6e9f860fc6625940bfe0cfb57a44953262b9e94df76872fdfb8151097eeb3
+  languageName: node
+  linkType: hard
+
 "dom7@npm:^3.0.0":
   version: 3.0.0
   resolution: "dom7@npm:3.0.0"
   dependencies:
     ssr-window: "npm:^3.0.0-alpha.1"
   checksum: c2e010a8fe3e4c3b12635a3d7b3bd0950a0d14c7d389c3260d9a3dc822b7118ff6594631bde5b7a0d32274287aec106c996462d7cd7435ab373d46f3c40615ec
+  languageName: node
+  linkType: hard
+
+"domelementtype@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "domelementtype@npm:2.3.0"
+  checksum: ee837a318ff702622f383409d1f5b25dd1024b692ef64d3096ff702e26339f8e345820f29a68bcdcea8cfee3531776b3382651232fbeae95612d6f0a75efb4f6
+  languageName: node
+  linkType: hard
+
+"domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "domhandler@npm:5.0.3"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+  checksum: 809b805a50a9c6884a29f38aec0a4e1b4537f40e1c861950ed47d10b049febe6b79ab72adaeeebb3cc8fc1cd33f34e97048a72a9265103426d93efafa78d3e96
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:^3.0.11":
+  version: 3.1.0
+  resolution: "dompurify@npm:3.1.0"
+  checksum: a8788d3510b0a5e26ae8f1beb3f079be63f417be0f7259918c273bd53f9b9eab50a0708e065caff9904ae97895cc4a7d4c66a1076021a9be0685389ad8ae4d2d
+  languageName: node
+  linkType: hard
+
+"domutils@npm:^3.0.1":
+  version: 3.1.0
+  resolution: "domutils@npm:3.1.0"
+  dependencies:
+    dom-serializer: "npm:^2.0.0"
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.3"
+  checksum: 9a169a6e57ac4c738269a73ab4caf785114ed70e46254139c1bbc8144ac3102aacb28a6149508395ae34aa5d6a40081f4fa5313855dc8319c6d8359866b6dfea
   languageName: node
   linkType: hard
 
@@ -4400,7 +4496,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.5.0":
+"entities@npm:^4.2.0, entities@npm:^4.4.0, entities@npm:^4.5.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: ede2a35c9bce1aeccd055a1b445d41c75a14a2bb1cd22e242f20cf04d236cdcd7f9c859eb83f76885327bfae0c25bf03303665ee1ce3d47c5927b98b0e3e3d48
@@ -5603,6 +5699,18 @@ __metadata:
   dependencies:
     lru-cache: "npm:^10.0.1"
   checksum: 5f740ecf3c70838e27446ff433a9a9a583de8747f7b661390b373ad12ca47edb937136e79999a4f953d0953079025a11df173f1fd9f7d52b0277b2fb9433e1c7
+  languageName: node
+  linkType: hard
+
+"htmlparser2@npm:^8.0.1":
+  version: 8.0.2
+  resolution: "htmlparser2@npm:8.0.2"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.3"
+    domutils: "npm:^3.0.1"
+    entities: "npm:^4.4.0"
+  checksum: ea5512956eee06f5835add68b4291d313c745e8407efa63848f4b8a90a2dee45f498a698bca8614e436f1ee0cfdd609938b71d67c693794545982b76e53e6f11
   languageName: node
   linkType: hard
 
@@ -7082,7 +7190,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nth-check@npm:^2.1.1":
+"nth-check@npm:^2.0.1, nth-check@npm:^2.1.1":
   version: 2.1.1
   resolution: "nth-check@npm:2.1.1"
   dependencies:
@@ -7325,6 +7433,25 @@ __metadata:
     lines-and-columns: "npm:^2.0.3"
     type-fest: "npm:^3.8.0"
   checksum: 187275c7ac097dcfb3c7420bca2399caa4da33bcd5d5aac3604bda0e2b8eee4df61cc26aa0d79fab97f0d67bf42d41d332baa9f9f56ad27636ad785f1ae639e5
+  languageName: node
+  linkType: hard
+
+"parse5-htmlparser2-tree-adapter@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "parse5-htmlparser2-tree-adapter@npm:7.0.0"
+  dependencies:
+    domhandler: "npm:^5.0.2"
+    parse5: "npm:^7.0.0"
+  checksum: 23dbe45fdd338fe726cf5c55b236e1f403aeb0c1b926e18ab8ef0aa580980a25f8492d160fe2ed0ec906c3c8e38b51e68ef5620a3b9460d9458ea78946a3f7c0
+  languageName: node
+  linkType: hard
+
+"parse5@npm:^7.0.0":
+  version: 7.1.2
+  resolution: "parse5@npm:7.1.2"
+  dependencies:
+    entities: "npm:^4.4.0"
+  checksum: 3c86806bb0fb1e9a999ff3a4c883b1ca243d99f45a619a0898dbf021a95a0189ed955c31b07fe49d342b54e814f33f2c9d7489198e8630dacd5477d413ec5782
   languageName: node
   linkType: hard
 
@@ -7619,11 +7746,11 @@ __metadata:
     "@types/node": "npm:^20.10.5"
     "@typescript-eslint/eslint-plugin": "npm:^6.16.0"
     "@typescript-eslint/parser": "npm:^6.16.0"
-    "@vc-shell/api-client-generator": "npm:^1.0.178"
-    "@vc-shell/config-generator": "npm:^1.0.188"
-    "@vc-shell/framework": "npm:^1.0.188"
-    "@vc-shell/release-config": "npm:^1.0.178"
-    "@vc-shell/ts-config": "npm:^1.0.178"
+    "@vc-shell/api-client-generator": "npm:^1.0.208"
+    "@vc-shell/config-generator": "npm:^1.0.208"
+    "@vc-shell/framework": "npm:^1.0.208"
+    "@vc-shell/release-config": "npm:^1.0.208"
+    "@vc-shell/ts-config": "npm:^1.0.208"
     "@vitejs/plugin-vue": "npm:^5.0.3"
     "@vue/eslint-config-prettier": "npm:^9.0.0"
     "@vue/eslint-config-typescript": "npm:^12.0.0"
@@ -8923,6 +9050,15 @@ __metadata:
   version: 3.0.1
   resolution: "trim-newlines@npm:3.0.1"
   checksum: b530f3fadf78e570cf3c761fb74fef655beff6b0f84b29209bac6c9622db75ad1417f4a7b5d54c96605dcd72734ad44526fef9f396807b90839449eb543c6206
+  languageName: node
+  linkType: hard
+
+"truncate-html@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "truncate-html@npm:1.1.1"
+  dependencies:
+    cheerio: "npm:^1.0.0-rc.12"
+  checksum: 0360ccf6d8a0758a1097c221f29c63ef91aa1bdeb2103eecf4410d8815b24c69e4c8f91b0995840502e69ccea07b3d1ac650636ec022bb96000ed763cc09d463
   languageName: node
   linkType: hard
 

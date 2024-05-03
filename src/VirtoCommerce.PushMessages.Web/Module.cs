@@ -6,16 +6,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.CustomerModule.Core.Events;
 using VirtoCommerce.ExperienceApiModule.Core.Extensions;
 using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
-using VirtoCommerce.Platform.Core.Settings.Events;
 using VirtoCommerce.PushMessages.Core;
 using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Events;
+using VirtoCommerce.PushMessages.Core.Extensions;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.BackgroundJobs;
 using VirtoCommerce.PushMessages.Data.Handlers;
@@ -66,8 +67,10 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddTransient<IPushMessageRecipientService, PushMessageRecipientService>();
         serviceCollection.AddTransient<IPushMessageRecipientSearchService, PushMessageRecipientSearchService>();
 
-        serviceCollection.AddSingleton<ObjectSettingEntryChangedEventHandler>();
-        serviceCollection.AddSingleton<IPushMessageJobService, PushMessageJobs>();
+        serviceCollection.AddSingleton<MemberChangedEventHandler>();
+        serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
+
+        serviceCollection.AddRecurringJobService<IPushMessageJobService, PushMessageJobService>();
 
         // GraphQL
         var assemblyMarker = typeof(AssemblyMarker);
@@ -77,7 +80,7 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddAutoMapper(assemblyMarker);
         serviceCollection.AddSchemaBuilders(assemblyMarker);
         serviceCollection.AddDistributedMessageService(Configuration);
-        serviceCollection.AddTransient<PushMessageChangedEventHandler>();
+        serviceCollection.AddTransient<PushMessageRecipientChangedEventHandler>();
         serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();
     }
 
@@ -99,13 +102,13 @@ public class Module : IModule, IHasConfiguration
         dbContext.Database.Migrate();
 
         // Register event handlers
-        appBuilder.RegisterEventHandler<ObjectSettingChangedEvent, ObjectSettingEntryChangedEventHandler>();
+        appBuilder.RegisterEventHandler<MemberChangedEvent, MemberChangedEventHandler>();
         appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
+        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, PushMessageRecipientChangedEventHandler>();
 
-        // Schedule background jobs
-        var pushMessageJobService = serviceProvider.GetService<IPushMessageJobService>();
-        pushMessageJobService.StartStopRecurringJobs().GetAwaiter().GetResult();
+        appBuilder.UseRecurringJobService<PushMessageJobService>();
     }
+
 
     public void Uninstall()
     {

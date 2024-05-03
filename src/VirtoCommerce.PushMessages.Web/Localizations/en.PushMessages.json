@@ -11,12 +11,20 @@
       "title": "Batch size",
       "description": ""
     },
-    "PushMessages.BackgroundJobs.Enable": {
-      "title": "Background jobs enable",
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "Send scheduled messages recurring job: enable",
       "description": ""
     },
-    "PushMessages.BackgroundJobs.CronExpression": {
-      "title": "Background jobs cron expression",
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "Send scheduled messages recurring job: cron expression",
+      "description": ""
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "Track new recipients recurring job: enable",
+      "description": ""
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "Track new recipients recurring job: cron expression",
       "description": ""
     }
   }
