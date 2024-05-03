@@ -31,11 +31,11 @@ public abstract class RecurringJobService<T> : IRecurringJobService
 
     public virtual async Task Handle(ObjectSettingChangedEvent message)
     {
-        foreach (var setting in message.ChangedEntries
+        foreach (var settingName in message.ChangedEntries
                      .Where(x => x.EntryState is EntryState.Modified or EntryState.Added)
-                     .Select(x => x.NewEntry))
+                     .Select(x => x.NewEntry.Name))
         {
-            var job = RecurringJobs.FirstOrDefault(job => job.EnableSetting.Name == setting.Name || job.CronSetting.Name == setting.Name);
+            var job = RecurringJobs.FirstOrDefault(job => job.EnableSetting.Name == settingName || job.CronSetting.Name == settingName);
             if (job != null)
             {
                 await StartStopRecurringJob(job);
