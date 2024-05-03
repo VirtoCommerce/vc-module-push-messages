@@ -109,7 +109,6 @@ public class Module : IModule, IHasConfiguration
         appBuilder.UseRecurringJobService<PushMessageJobService>();
     }
 
-
     public void Uninstall()
     {
         // Nothing to do here
