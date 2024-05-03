@@ -167,7 +167,7 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
         var queue = new Queue<Member>();
 
-        if (message.MemberIds != null && message.MemberIds.Count > 0)
+        if (!message.MemberIds.IsNullOrEmpty())
         {
             var members = await _memberService.GetByIdsAsync(message.MemberIds.ToArray(), searchCriteria.ResponseGroup);
             members.Apply(EnqueueMember);

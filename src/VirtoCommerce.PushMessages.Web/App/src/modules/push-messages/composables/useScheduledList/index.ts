@@ -14,8 +14,8 @@ export interface PushMessageListScope extends ListBaseBladeScope {}
 
 export default () => {
   const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
-    load: async (query) => {
-      const criteria = { ...(query || {}) } as PushMessageSearchCriteria;
+    load: async (_query) => {
+      const criteria = { ...(_query || {}) } as PushMessageSearchCriteria;
       criteria.statuses = ["Scheduled"];
       criteria.responseGroup = "None";
       return (await getApiClient()).search(criteria);

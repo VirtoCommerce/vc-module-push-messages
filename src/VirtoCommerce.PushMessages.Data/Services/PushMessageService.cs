@@ -63,7 +63,6 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
     {
         base.ClearCache(models);
 
-        // TODO: ???
         GenericCachingRegion<PushMessageRecipient>.ExpireRegion();
         GenericSearchCachingRegion<PushMessageRecipient>.ExpireRegion();
     }

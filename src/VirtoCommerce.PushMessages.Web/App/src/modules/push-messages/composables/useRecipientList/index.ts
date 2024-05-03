@@ -15,8 +15,8 @@ export default (args: {
   mounted: Ref<boolean>;
 }) => {
   const listFactory = useListFactory<PushMessageRecipient[], PushMessageRecipientSearchCriteria>({
-    load: async (query) => {
-      const criteria = { ...(query || {}) } as PushMessageRecipientSearchCriteria;
+    load: async (_query) => {
+      const criteria = { ...(_query || {}) } as PushMessageRecipientSearchCriteria;
       criteria.messageId = args.props.options.messageId;
       criteria.withHidden = true;
       return (await getApiClient()).searchRecipients(criteria);
