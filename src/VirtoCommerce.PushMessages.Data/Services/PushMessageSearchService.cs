@@ -47,6 +47,11 @@ public class PushMessageSearchService : SearchService<PushMessageSearchCriteria,
             query = query.Where(x => x.TrackNewRecipients == criteria.TrackNewRecipients);
         }
 
+        if (criteria.CreatedDateBefore != null)
+        {
+            query = query.Where(x => x.CreatedDate <= criteria.CreatedDateBefore);
+        }
+
         if (criteria.StartDateBefore != null)
         {
             query = query.Where(x => x.StartDate != null && x.StartDate <= criteria.StartDateBefore);

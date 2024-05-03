@@ -19,11 +19,17 @@ public class PushMessageChangedEventHandler : IEventHandler<PushMessageChangedEv
 
     public Task Handle(PushMessageChangedEvent message)
     {
+        // Add recipients if:
+        // - new message with status Sent
+        // - modified message with status changed to Sent
+        // - modified message with status Sent and TrackNewRecipients changed to true
+
         var messageIds = message.ChangedEntries
             .Where(x =>
-                x.NewEntry.Status == PushMessageStatus.Sent &&
-                (x.EntryState == EntryState.Added || x.EntryState == EntryState.Modified && x.OldEntry.Status != PushMessageStatus.Sent)
-                && x.NewEntry.HasRecipients())
+                x.NewEntry.Status == PushMessageStatus.Sent && x.NewEntry.HasRecipients() && (
+                    x.EntryState == EntryState.Added ||
+                    x.EntryState == EntryState.Modified && x.OldEntry.Status != PushMessageStatus.Sent ||
+                    x.EntryState == EntryState.Modified && x.NewEntry.TrackNewRecipients && !x.OldEntry.TrackNewRecipients))
             .Select(x => x.NewEntry.Id)
             .ToList();
 

@@ -80,8 +80,8 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
     public async Task SendScheduledMessagesRecurringJob(IJobCancellationToken cancellationToken)
     {
         var searchCriteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
-        searchCriteria.StartDateBefore = DateTime.UtcNow;
         searchCriteria.Statuses = [PushMessageStatus.Scheduled];
+        searchCriteria.StartDateBefore = DateTime.UtcNow;
         searchCriteria.Sort = $"{nameof(PushMessage.StartDate)};{nameof(PushMessage.CreatedDate)}";
         searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
 
@@ -98,7 +98,9 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
     public async Task TrackNewRecipientsRecurringJob(IJobCancellationToken cancellationToken)
     {
         var searchCriteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
+        searchCriteria.Statuses = [PushMessageStatus.Sent];
         searchCriteria.TrackNewRecipients = true;
+        searchCriteria.CreatedDateBefore = DateTime.UtcNow;
         searchCriteria.ResponseGroup = PushMessageResponseGroup.WithMembers.ToString();
         searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
 

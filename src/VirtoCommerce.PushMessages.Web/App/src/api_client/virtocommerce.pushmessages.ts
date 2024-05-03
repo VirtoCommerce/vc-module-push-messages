@@ -753,6 +753,7 @@ export interface IPushMessageRecipientSearchResult {
 export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
     isDraft?: boolean | undefined;
     trackNewRecipients?: boolean | undefined;
+    createdDateBefore?: Date | undefined;
     startDateBefore?: Date | undefined;
     statuses?: string[] | undefined;
     responseGroup?: string | undefined;
@@ -784,6 +785,7 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
         if (_data) {
             this.isDraft = _data["isDraft"];
             this.trackNewRecipients = _data["trackNewRecipients"];
+            this.createdDateBefore = _data["createdDateBefore"] ? new Date(_data["createdDateBefore"].toString()) : <any>undefined;
             this.startDateBefore = _data["startDateBefore"] ? new Date(_data["startDateBefore"].toString()) : <any>undefined;
             if (Array.isArray(_data["statuses"])) {
                 this.statuses = [] as any;
@@ -827,6 +829,7 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
         data = typeof data === 'object' ? data : {};
         data["isDraft"] = this.isDraft;
         data["trackNewRecipients"] = this.trackNewRecipients;
+        data["createdDateBefore"] = this.createdDateBefore ? this.createdDateBefore.toISOString() : <any>undefined;
         data["startDateBefore"] = this.startDateBefore ? this.startDateBefore.toISOString() : <any>undefined;
         if (Array.isArray(this.statuses)) {
             data["statuses"] = [];
@@ -863,6 +866,7 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 export interface IPushMessageSearchCriteria {
     isDraft?: boolean | undefined;
     trackNewRecipients?: boolean | undefined;
+    createdDateBefore?: Date | undefined;
     startDateBefore?: Date | undefined;
     statuses?: string[] | undefined;
     responseGroup?: string | undefined;
