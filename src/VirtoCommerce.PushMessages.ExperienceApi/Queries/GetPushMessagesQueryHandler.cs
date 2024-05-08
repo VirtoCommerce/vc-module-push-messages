@@ -24,24 +24,10 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
             var searchResult = await _recipientSearchService.SearchAsync(criteria);
 
             var result = AbstractTypeFactory<ExpPushMessagesResponse>.TryCreateInstance();
-            result.Results = searchResult.Results.Select(ToExpPushMessage).ToList();
+            result.Results = searchResult.Results.Select(x => ExpPushMessage.Create(x.Message, x)).ToList();
             result.TotalCount = searchResult.TotalCount;
 
             return result;
-        }
-
-        private static ExpPushMessage ToExpPushMessage(PushMessageRecipient recipient)
-        {
-            var message = AbstractTypeFactory<ExpPushMessage>.TryCreateInstance();
-
-            message.Id = recipient.Message.Id;
-            message.ShortMessage = recipient.Message.ShortMessage;
-            message.CreatedDate = recipient.Message.CreatedDate;
-            message.UserId = recipient.UserId;
-            message.IsRead = recipient.IsRead;
-            message.IsHidden = recipient.IsHidden;
-
-            return message;
         }
 
         private static PushMessageRecipientSearchCriteria GetSearchCriteria(GetPushMessagesQuery request)

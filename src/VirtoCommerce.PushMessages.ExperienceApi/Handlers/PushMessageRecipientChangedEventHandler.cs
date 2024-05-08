@@ -24,21 +24,16 @@ public class PushMessageRecipientChangedEventHandler : IEventHandler<PushMessage
 
     public async Task Handle(PushMessageRecipientChangedEvent message)
     {
-        foreach (var (messageId, userIds) in message.ChangedEntries
+        foreach (var (messageId, recipients) in message.ChangedEntries
                      .Where(x => x.EntryState == EntryState.Added)
                      .GroupBy(x => x.NewEntry.MessageId)
-                     .ToDictionary(g => g.Key, g => g.Select(x => x.NewEntry.UserId)))
+                     .ToDictionary(g => g.Key, g => g.Select(x => x.NewEntry)))
         {
             var pushMessage = await _pushMessageService.GetNoCloneAsync(messageId);
 
-            foreach (var userId in userIds)
+            foreach (var recipient in recipients)
             {
-                var expPushMessage = AbstractTypeFactory<ExpPushMessage>.TryCreateInstance();
-                expPushMessage.Id = pushMessage.Id;
-                expPushMessage.ShortMessage = pushMessage.ShortMessage;
-                expPushMessage.CreatedDate = pushMessage.CreatedDate;
-                expPushMessage.UserId = userId;
-
+                var expPushMessage = ExpPushMessage.Create(pushMessage, recipient);
                 await _eventBroker.AddMessageAsync(expPushMessage);
             }
         }
