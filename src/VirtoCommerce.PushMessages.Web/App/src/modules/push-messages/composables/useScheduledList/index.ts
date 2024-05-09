@@ -16,6 +16,7 @@ export default () => {
   const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
     load: async (_query) => {
       const criteria = { ...(_query || {}) } as PushMessageSearchCriteria;
+      criteria.statuses = ["Scheduled"];
       criteria.responseGroup = "None";
       return (await getApiClient()).search(criteria);
     },

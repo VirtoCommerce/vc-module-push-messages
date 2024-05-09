@@ -21,9 +21,12 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
     [StringLength(64)]
     public string Status { get; set; }
 
-    public virtual ObservableCollection<PushMessageMemberEntity> Members { get; set; } = new NullCollection<PushMessageMemberEntity>();
+    public bool TrackNewRecipients { get; set; }
 
-    public virtual ObservableCollection<PushMessageRecipientEntity> Recipients { get; set; } = new NullCollection<PushMessageRecipientEntity>();
+    [StringLength(1024)]
+    public string MemberQuery { get; set; }
+
+    public virtual ObservableCollection<PushMessageMemberEntity> Members { get; set; } = new NullCollection<PushMessageMemberEntity>();
 
     public virtual PushMessage ToModel(PushMessage model)
     {
@@ -37,6 +40,8 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
         model.ShortMessage = ShortMessage;
         model.StartDate = StartDate;
         model.Status = Status;
+        model.TrackNewRecipients = TrackNewRecipients;
+        model.MemberQuery = MemberQuery;
         model.MemberIds = Members.OrderBy(x => x.MemberId).Select(x => x.MemberId).ToList();
 
         return model;
@@ -56,6 +61,8 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
         ShortMessage = model.ShortMessage;
         StartDate = model.StartDate;
         Status = model.Status;
+        TrackNewRecipients = model.TrackNewRecipients;
+        MemberQuery = model.MemberQuery;
 
         if (model.MemberIds != null)
         {
@@ -75,6 +82,8 @@ public class PushMessageEntity : AuditableEntity, IDataEntity<PushMessageEntity,
         target.ShortMessage = ShortMessage;
         target.StartDate = StartDate;
         target.Status = Status;
+        target.TrackNewRecipients = TrackNewRecipients;
+        target.MemberQuery = MemberQuery;
 
         if (!Members.IsNullCollection())
         {

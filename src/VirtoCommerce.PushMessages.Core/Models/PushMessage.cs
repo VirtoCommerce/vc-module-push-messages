@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.PushMessages.Core.Models;
@@ -13,15 +12,21 @@ public class PushMessage : AuditableEntity, ICloneable
 
     public DateTime? StartDate { get; set; }
 
-    public string Status { get; set; }
+    public string Status { get; set; } = PushMessageStatus.Draft;
+
+    public bool TrackNewRecipients { get; set; }
+
+    public string MemberQuery { get; set; }
 
     public IList<string> MemberIds { get; set; }
 
-    [JsonIgnore]
-    public IList<string> UserIds { get; set; }
-
-    public object Clone()
+    public virtual object Clone()
     {
         return MemberwiseClone();
+    }
+
+    public virtual bool HasRecipients()
+    {
+        return MemberIds != null && MemberIds.Count > 0 || !string.IsNullOrEmpty(MemberQuery);
     }
 }

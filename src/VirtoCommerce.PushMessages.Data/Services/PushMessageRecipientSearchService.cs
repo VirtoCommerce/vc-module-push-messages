@@ -68,7 +68,7 @@ public class PushMessageRecipientSearchService : SearchService<PushMessageRecipi
         {
             sortInfos =
             [
-                new SortInfo { SortColumn = nameof(PushMessageEntity.CreatedDate), SortDirection = SortDirection.Descending },
+                new SortInfo { SortColumn = nameof(PushMessageRecipientEntity.CreatedDate), SortDirection = SortDirection.Descending },
                 new SortInfo { SortColumn = nameof(PushMessageRecipientEntity.Id) },
             ];
         }

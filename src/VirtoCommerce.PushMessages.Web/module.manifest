@@ -29,7 +29,7 @@
   </owners>
 
   <projectUrl>https://github.com/VirtoCommerce/vc-module-push-messages</projectUrl>
-  <iconUrl>Modules/$(VirtoCommerce.PushMessages)/Content/logo.png</iconUrl>
+  <iconUrl>Modules/$(VirtoCommerce.PushMessages)/Content/push-messages/img/icons/apple-touch-icon.png</iconUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
 
   <assemblyFile>VirtoCommerce.PushMessages.Web.dll</assemblyFile>

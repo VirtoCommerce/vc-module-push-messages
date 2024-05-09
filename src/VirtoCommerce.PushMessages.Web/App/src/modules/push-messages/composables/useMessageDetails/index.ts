@@ -16,6 +16,7 @@ const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient
 export interface PushMessageDetailsScope extends DetailsBaseBladeScope {
   toolbarOverrides: {
     saveChanges: IBladeToolbar;
+    saveAndPublish: IBladeToolbar;
     remove: IBladeToolbar;
   };
 }
@@ -25,7 +26,8 @@ export default (args: {
   emit: InstanceType<typeof DynamicBladeForm>["$emit"];
   mounted: Ref<boolean>;
 }) => {
-  const messageId = args.props.param;
+  let isNew = !args.props.param;
+  let newStatus: string | undefined;
 
   const detailsFactory = useDetailsFactory<PushMessage>({
     load: async (message) => {
@@ -35,7 +37,16 @@ export default (args: {
     },
     saveChanges: async (message) => {
       const apiClient = await getPushMessageApiClient();
-      return !messageId ? apiClient.create(message) : apiClient.update(message);
+      if (isNew) {
+        message.status = newStatus;
+        return apiClient.create(message);
+      } else if (message.status !== "Sent") {
+        if (newStatus) {
+          message.status = newStatus;
+        }
+        return apiClient.update(message);
+      }
+      return apiClient.changeTracking(message.id!, message.trackNewRecipients!);
     },
     remove: async ({ id }) => {
       if (id) {
@@ -49,11 +60,26 @@ export default (args: {
   const scope = ref<PushMessageDetailsScope>({
     toolbarOverrides: {
       saveChanges: {
-        isVisible: computed(() => isEditable()),
-        disabled: computed(() => validationState.value.disabled),
+        disabled: computed(() => !validationState.value.modified || !validationState.value.valid),
+        async clickHandler() {
+          return saveMessage(item.value);
+        },
+      },
+      saveAndPublish: {
+        isVisible: computed(() => isEditable() && item.value != null && item.value.status !== "Scheduled"),
+        disabled: computed(() => {
+          return (
+            !validationState.value.valid ||
+            item.value == null ||
+            (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0))
+          );
+        }),
+        clickHandler: async () => {
+          await saveMessage(item.value, item.value?.startDate != null ? "Scheduled" : "Sent");
+        },
       },
       remove: {
-        isVisible: computed(() => messageId != null && isEditable()),
+        isVisible: computed(() => !isNew && isEditable()),
       },
     },
     loadMembers: async (keyword?: string, skip?: number, ids?: string[]) => {
@@ -68,21 +94,49 @@ export default (args: {
       } as MembersSearchCriteria);
     },
     isReadOnly: () => !isEditable(),
+    countMembers: countMembers,
   });
 
+  async function saveMessage(message: PushMessage | undefined, status?: string) {
+    if (message) {
+      newStatus = status;
+      const result = await saveChanges(item.value);
+      newStatus = undefined;
+
+      if (result != null) {
+        isNew = false;
+        validationState.value.resetModified(reactive(result), true);
+      }
+
+      args.emit("parent:call", { method: "reload" });
+      args.emit("parent:call", { method: "updateActiveWidgetCount" });
+    }
+  }
+
+  async function countMembers() {
+    if (item.value?.memberQuery) {
+      const apiClient = await getCustomerApiClient();
+      const result = await apiClient.searchMember({
+        keyword: item.value.memberQuery,
+        deepSearch: true,
+        take: 0,
+      } as MembersSearchCriteria);
+      scope.value.memberCount = result.totalCount;
+    }
+  }
+
   function isEditable(): boolean {
-    const message = item.value;
-    return !messageId || (message != null && message.status !== "Sent");
+    return isNew || (item.value != null && item.value.status !== "Sent");
   }
 
   const bladeTitle = computed(() => {
-    return "Push message details";
+    return isNew ? "New push message" : "Push message details";
   });
 
   watch(
     () => args?.mounted.value,
     async () => {
-      if (!messageId) {
+      if (isNew) {
         item.value = reactive(new PushMessage());
         validationState.value.resetModified(item.value, true);
       }

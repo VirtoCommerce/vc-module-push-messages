@@ -33,6 +33,10 @@ namespace VirtoCommerce.PushMessages.Data.MySql.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("MemberQuery")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
@@ -54,6 +58,9 @@ namespace VirtoCommerce.PushMessages.Data.MySql.Migrations
                     b.Property<string>("Topic")
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
+
+                    b.Property<bool>("TrackNewRecipients")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
@@ -170,7 +177,7 @@ namespace VirtoCommerce.PushMessages.Data.MySql.Migrations
             modelBuilder.Entity("VirtoCommerce.PushMessages.Data.Models.PushMessageRecipientEntity", b =>
                 {
                     b.HasOne("VirtoCommerce.PushMessages.Data.Models.PushMessageEntity", "Message")
-                        .WithMany("Recipients")
+                        .WithMany()
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -181,8 +188,6 @@ namespace VirtoCommerce.PushMessages.Data.MySql.Migrations
             modelBuilder.Entity("VirtoCommerce.PushMessages.Data.Models.PushMessageEntity", b =>
                 {
                     b.Navigation("Members");
-
-                    b.Navigation("Recipients");
                 });
 #pragma warning restore 612, 618
         }

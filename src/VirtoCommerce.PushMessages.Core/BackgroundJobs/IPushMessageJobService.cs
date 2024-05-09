@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace VirtoCommerce.PushMessages.Core.BackgroundJobs;
 
-public interface IPushMessageJobService
+public interface IPushMessageJobService : IRecurringJobService
 {
-    Task StartStopRecurringJobs();
+    void EnqueueAddRecipients(IList<string> messageIds = null);
 }

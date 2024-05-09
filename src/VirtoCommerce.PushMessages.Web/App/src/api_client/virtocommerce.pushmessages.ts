@@ -298,6 +298,59 @@ export class PushMessageClient extends AuthApiBase {
     }
 
     /**
+     * @return Success
+     */
+    changeTracking(id: string, value: boolean): Promise<PushMessage> {
+        let url_ = this.baseUrl + "/api/push-message/{id}/tracking/{value}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (value === undefined || value === null)
+            throw new Error("The parameter 'value' must be defined.");
+        url_ = url_.replace("{value}", encodeURIComponent("" + value));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processChangeTracking(_response);
+        });
+    }
+
+    protected processChangeTracking(response: Response): Promise<PushMessage> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PushMessage.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PushMessage>(null as any);
+    }
+
+    /**
      * @param responseGroup (optional) 
      * @return Success
      */
@@ -358,6 +411,8 @@ export class PushMessage implements IPushMessage {
     shortMessage?: string | undefined;
     startDate?: Date | undefined;
     status?: string | undefined;
+    trackNewRecipients?: boolean;
+    memberQuery?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -380,6 +435,8 @@ export class PushMessage implements IPushMessage {
             this.shortMessage = _data["shortMessage"];
             this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
             this.status = _data["status"];
+            this.trackNewRecipients = _data["trackNewRecipients"];
+            this.memberQuery = _data["memberQuery"];
             if (Array.isArray(_data["memberIds"])) {
                 this.memberIds = [] as any;
                 for (let item of _data["memberIds"])
@@ -406,6 +463,8 @@ export class PushMessage implements IPushMessage {
         data["shortMessage"] = this.shortMessage;
         data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
         data["status"] = this.status;
+        data["trackNewRecipients"] = this.trackNewRecipients;
+        data["memberQuery"] = this.memberQuery;
         if (Array.isArray(this.memberIds)) {
             data["memberIds"] = [];
             for (let item of this.memberIds)
@@ -425,6 +484,8 @@ export interface IPushMessage {
     shortMessage?: string | undefined;
     startDate?: Date | undefined;
     status?: string | undefined;
+    trackNewRecipients?: boolean;
+    memberQuery?: string | undefined;
     memberIds?: string[] | undefined;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
@@ -690,6 +751,9 @@ export interface IPushMessageRecipientSearchResult {
 }
 
 export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
+    isDraft?: boolean | undefined;
+    trackNewRecipients?: boolean | undefined;
+    createdDateBefore?: Date | undefined;
     startDateBefore?: Date | undefined;
     statuses?: string[] | undefined;
     responseGroup?: string | undefined;
@@ -719,6 +783,9 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 
     init(_data?: any) {
         if (_data) {
+            this.isDraft = _data["isDraft"];
+            this.trackNewRecipients = _data["trackNewRecipients"];
+            this.createdDateBefore = _data["createdDateBefore"] ? new Date(_data["createdDateBefore"].toString()) : <any>undefined;
             this.startDateBefore = _data["startDateBefore"] ? new Date(_data["startDateBefore"].toString()) : <any>undefined;
             if (Array.isArray(_data["statuses"])) {
                 this.statuses = [] as any;
@@ -760,6 +827,9 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["isDraft"] = this.isDraft;
+        data["trackNewRecipients"] = this.trackNewRecipients;
+        data["createdDateBefore"] = this.createdDateBefore ? this.createdDateBefore.toISOString() : <any>undefined;
         data["startDateBefore"] = this.startDateBefore ? this.startDateBefore.toISOString() : <any>undefined;
         if (Array.isArray(this.statuses)) {
             data["statuses"] = [];
@@ -794,6 +864,9 @@ export class PushMessageSearchCriteria implements IPushMessageSearchCriteria {
 }
 
 export interface IPushMessageSearchCriteria {
+    isDraft?: boolean | undefined;
+    trackNewRecipients?: boolean | undefined;
+    createdDateBefore?: Date | undefined;
     startDateBefore?: Date | undefined;
     statuses?: string[] | undefined;
     responseGroup?: string | undefined;

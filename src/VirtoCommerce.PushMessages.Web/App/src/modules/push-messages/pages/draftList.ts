@@ -2,12 +2,12 @@ import { DynamicGridSchema } from "@vc-shell/framework";
 
 export const grid: DynamicGridSchema = {
   settings: {
-    url: "/all",
-    id: "PushMessageList",
+    url: "/drafts",
+    id: "PushMessageDraftList",
     titleTemplate: "PUSH_MESSAGES.PAGES.LIST.TITLE",
     localizationPrefix: "PUSH_MESSAGES",
-    isWorkspace: true,
-    composable: "useMessageList",
+    isWorkspace: false,
+    composable: "useDraftList",
     component: "DynamicBladeList",
     //permissions: "PushMessages:read",
     toolbar: [
@@ -31,14 +31,14 @@ export const grid: DynamicGridSchema = {
       },
     ],
     menuItem: {
-      title: "PUSH_MESSAGES.MENU.ALL",
-      icon: "fas fa-envelope",
-      priority: 1,
+      title: "PUSH_MESSAGES.MENU.DRAFTS",
+      icon: "fas fa-edit",
+      priority: 2,
     },
   },
   content: [
     {
-      id: "messagesList",
+      id: "draftsList",
       component: "vc-table",
       multiselect: true,
       actions: [
@@ -54,8 +54,8 @@ export const grid: DynamicGridSchema = {
       ],
       columns: [
         {
-          id: "createdDate",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
+          id: "modifiedDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MODIFIED_DATE",
           sortable: true,
           type: "date-time",
           alwaysVisible: true,

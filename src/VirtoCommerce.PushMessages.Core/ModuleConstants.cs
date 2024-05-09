@@ -50,28 +50,46 @@ public static class ModuleConstants
 
         public static class BackgroundJobs
         {
-            public static SettingDescriptor Enable { get; } = new()
+            public static SettingDescriptor SendScheduledMessagesRecurringJobEnable { get; } = new()
             {
-                Name = "PushMessages.BackgroundJobs.Enable",
+                Name = "PushMessages.SendScheduledMessagesRecurringJob.Enable",
                 GroupName = "Push Messages|Background Jobs",
                 ValueType = SettingValueType.Boolean,
                 DefaultValue = true,
             };
 
-            public static SettingDescriptor CronExpression { get; } = new()
+            public static SettingDescriptor SendScheduledMessagesRecurringJobCronExpression { get; } = new()
             {
-                Name = "PushMessages.BackgroundJobs.CronExpression",
+                Name = "PushMessages.SendScheduledMessagesRecurringJob.CronExpression",
                 GroupName = "Push Messages|Background Jobs",
                 ValueType = SettingValueType.ShortText,
                 DefaultValue = "0/5 * * * *",
+            };
+
+            public static SettingDescriptor TrackNewRecipientsRecurringJobEnable { get; } = new()
+            {
+                Name = "PushMessages.TrackNewRecipientsRecurringJob.Enable",
+                GroupName = "Push Messages|Background Jobs",
+                ValueType = SettingValueType.Boolean,
+                DefaultValue = true,
+            };
+
+            public static SettingDescriptor TrackNewRecipientsRecurringJobCronExpression { get; } = new()
+            {
+                Name = "PushMessages.TrackNewRecipientsRecurringJob.CronExpression",
+                GroupName = "Push Messages|Background Jobs",
+                ValueType = SettingValueType.ShortText,
+                DefaultValue = "0 0/1 * * *",
             };
 
             public static IEnumerable<SettingDescriptor> AllBackgroundJobsSettings
             {
                 get
                 {
-                    yield return Enable;
-                    yield return CronExpression;
+                    yield return SendScheduledMessagesRecurringJobEnable;
+                    yield return SendScheduledMessagesRecurringJobCronExpression;
+                    yield return TrackNewRecipientsRecurringJobEnable;
+                    yield return TrackNewRecipientsRecurringJobCronExpression;
                 }
             }
         }
