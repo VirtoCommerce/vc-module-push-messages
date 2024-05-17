@@ -94,7 +94,7 @@ jobs:
           login: ${{secrets.SONAR_TOKEN}}
 
       - name: Packaging
-        run: vc-build CompressWithCustomApp -skip CleanWithCustomApp+Restore+Compile+Test -DefaultProject "${{ matrix.projectName }}"
+        run: vc-build Compress -skip Clean+Restore+Compile+Test -DefaultProject "${{ matrix.projectName }}"
       
       - name: Rename artifact
         run: |
