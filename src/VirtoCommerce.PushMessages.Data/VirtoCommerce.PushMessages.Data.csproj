@@ -9,8 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="VirtoCommerce.CustomerModule.Core" Version="3.803.0" />
-    <PackageReference Include="VirtoCommerce.Platform.Data" Version="3.825.0" />
-    <PackageReference Include="VirtoCommerce.Platform.Hangfire" Version="3.825.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Data" Version="3.829.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Hangfire" Version="3.829.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Core\VirtoCommerce.PushMessages.Core.csproj" />

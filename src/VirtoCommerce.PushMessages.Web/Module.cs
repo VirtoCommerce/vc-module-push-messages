@@ -16,9 +16,9 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core;
 using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Events;
-using VirtoCommerce.PushMessages.Core.Extensions;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.BackgroundJobs;
+using VirtoCommerce.PushMessages.Data.Extensions;
 using VirtoCommerce.PushMessages.Data.Handlers;
 using VirtoCommerce.PushMessages.Data.MySql;
 using VirtoCommerce.PushMessages.Data.PostgreSql;
@@ -70,7 +70,7 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddSingleton<MemberChangedEventHandler>();
         serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
 
-        serviceCollection.AddRecurringJobService<IPushMessageJobService, PushMessageJobService>();
+        serviceCollection.AddSingleton<IPushMessageJobService, PushMessageJobService>();
 
         // GraphQL
         var assemblyMarker = typeof(AssemblyMarker);
@@ -106,7 +106,7 @@ public class Module : IModule, IHasConfiguration
         appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
         appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, PushMessageRecipientChangedEventHandler>();
 
-        appBuilder.UseRecurringJobService<PushMessageJobService>();
+        appBuilder.UsePushMessageJobs();
     }
 
     public void Uninstall()

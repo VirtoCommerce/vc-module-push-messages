@@ -15,11 +15,10 @@ using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.Extensions;
 using GeneralSettings = VirtoCommerce.PushMessages.Core.ModuleConstants.Settings.General;
-using JobSettings = VirtoCommerce.PushMessages.Core.ModuleConstants.Settings.BackgroundJobs;
 
 namespace VirtoCommerce.PushMessages.Data.BackgroundJobs;
 
-public class PushMessageJobService : RecurringJobService<PushMessageJobService>, IPushMessageJobService
+public class PushMessageJobService : IPushMessageJobService
 {
     private readonly ISettingsManager _settingsManager;
     private readonly IPushMessageService _messageService;
@@ -37,7 +36,6 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         IPushMessageRecipientSearchService recipientSearchService,
         IMemberService memberService,
         IMemberSearchService memberSearchService)
-        : base(settingsManager)
     {
         _settingsManager = settingsManager;
         _messageService = messageService;
@@ -46,22 +44,6 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         _recipientSearchService = recipientSearchService;
         _memberService = memberService;
         _memberSearchService = memberSearchService;
-
-        RecurringJobs.Add(new RecurringJobDescriptor<PushMessageJobService>
-        {
-            EnableSetting = JobSettings.SendScheduledMessagesRecurringJobEnable,
-            CronSetting = JobSettings.SendScheduledMessagesRecurringJobCronExpression,
-            Method = typeof(PushMessageJobService).GetMethod(nameof(SendScheduledMessagesRecurringJob)),
-            MethodCall = x => x.SendScheduledMessagesRecurringJob(JobCancellationToken.Null),
-        });
-
-        RecurringJobs.Add(new RecurringJobDescriptor<PushMessageJobService>
-        {
-            EnableSetting = JobSettings.TrackNewRecipientsRecurringJobEnable,
-            CronSetting = JobSettings.TrackNewRecipientsRecurringJobCronExpression,
-            Method = typeof(PushMessageJobService).GetMethod(nameof(TrackNewRecipientsRecurringJob)),
-            MethodCall = x => x.TrackNewRecipientsRecurringJob(JobCancellationToken.Null),
-        });
     }
 
     public void EnqueueAddRecipients(IList<string> messageIds = null)
@@ -83,7 +65,7 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         searchCriteria.Statuses = [PushMessageStatus.Scheduled];
         searchCriteria.StartDateBefore = DateTime.UtcNow;
         searchCriteria.Sort = $"{nameof(PushMessage.StartDate)};{nameof(PushMessage.CreatedDate)}";
-        searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
+        searchCriteria.Take = await GetBatchSize();
 
         await _messageSearchService.SearchWhileResultIsNotEmpty(searchCriteria, async searchResult =>
         {
@@ -102,7 +84,7 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         searchCriteria.TrackNewRecipients = true;
         searchCriteria.CreatedDateBefore = DateTime.UtcNow;
         searchCriteria.ResponseGroup = PushMessageResponseGroup.WithMembers.ToString();
-        searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
+        searchCriteria.Take = await GetBatchSize();
 
         await foreach (var searchResult in _messageSearchService.SearchBatchesNoCloneAsync(searchCriteria))
         {
@@ -145,7 +127,7 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         var searchCriteria = AbstractTypeFactory<PushMessageRecipientSearchCriteria>.TryCreateInstance();
         searchCriteria.MessageId = messageId;
         searchCriteria.WithHidden = true;
-        searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
+        searchCriteria.Take = await GetBatchSize();
 
         var userIds = new HashSet<string>();
 
@@ -164,7 +146,7 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
 
         var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
         searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
-        searchCriteria.Take = await _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
+        searchCriteria.Take = await GetBatchSize();
         var queue = new Queue<Member>();
 
         if (!message.MemberIds.IsNullOrEmpty())
@@ -234,5 +216,10 @@ public class PushMessageJobService : RecurringJobService<PushMessageJobService>,
         recipient.UserName = user.UserName;
 
         return recipient;
+    }
+
+    private Task<int> GetBatchSize()
+    {
+        return _settingsManager.GetValueAsync<int>(GeneralSettings.BatchSize);
     }
 }
