@@ -54,6 +54,11 @@ export const grid: DynamicGridSchema = {
       ],
       columns: [
         {
+          id: "trackNewRecipients",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.TRACK_NEW_RECIPIENTS",
+          sortable: true,
+        },
+        {
           id: "status",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.STATUS",
           sortable: true,
