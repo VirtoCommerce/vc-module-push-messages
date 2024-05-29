@@ -4,6 +4,7 @@
     "MENU": {
       "ALL": "All messages",
       "TRACK_NEW_RECIPIENTS": "Track new recipients",
+      "SENT": "Sent",
       "SCHEDULED": "Scheduled",
       "DRAFTS": "Drafts"
     },
