@@ -54,13 +54,6 @@ export const grid: DynamicGridSchema = {
       ],
       columns: [
         {
-          id: "createdDate",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
-          sortable: true,
-          type: "date-time",
-          alwaysVisible: true,
-        },
-        {
           id: "status",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.STATUS",
           sortable: true,
@@ -75,6 +68,13 @@ export const grid: DynamicGridSchema = {
           id: "shortMessage",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.SHORT_MESSAGE",
           type: "html",
+        },
+        {
+          id: "createdDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
+          sortable: true,
+          type: "date-time",
+          alwaysVisible: true,
         },
       ],
     },
