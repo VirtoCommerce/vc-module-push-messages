@@ -414,6 +414,9 @@ export class PushMessage implements IPushMessage {
     trackNewRecipients?: boolean;
     memberQuery?: string | undefined;
     memberIds?: string[] | undefined;
+    recipientsTotalCount?: number;
+    recipientsReadCount?: number;
+    recipientsReadPercent?: number;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
     createdBy?: string | undefined;
@@ -442,6 +445,9 @@ export class PushMessage implements IPushMessage {
                 for (let item of _data["memberIds"])
                     this.memberIds!.push(item);
             }
+            this.recipientsTotalCount = _data["recipientsTotalCount"];
+            this.recipientsReadCount = _data["recipientsReadCount"];
+            this.recipientsReadPercent = _data["recipientsReadPercent"];
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
             this.modifiedDate = _data["modifiedDate"] ? new Date(_data["modifiedDate"].toString()) : <any>undefined;
             this.createdBy = _data["createdBy"];
@@ -470,6 +476,9 @@ export class PushMessage implements IPushMessage {
             for (let item of this.memberIds)
                 data["memberIds"].push(item);
         }
+        data["recipientsTotalCount"] = this.recipientsTotalCount;
+        data["recipientsReadCount"] = this.recipientsReadCount;
+        data["recipientsReadPercent"] = this.recipientsReadPercent;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
         data["modifiedDate"] = this.modifiedDate ? this.modifiedDate.toISOString() : <any>undefined;
         data["createdBy"] = this.createdBy;
@@ -487,6 +496,9 @@ export interface IPushMessage {
     trackNewRecipients?: boolean;
     memberQuery?: string | undefined;
     memberIds?: string[] | undefined;
+    recipientsTotalCount?: number;
+    recipientsReadCount?: number;
+    recipientsReadPercent?: number;
     createdDate?: Date;
     modifiedDate?: Date | undefined;
     createdBy?: string | undefined;

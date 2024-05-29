@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.Platform.Caching;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
@@ -17,12 +18,15 @@ namespace VirtoCommerce.PushMessages.Data.Services;
 
 public class PushMessageService : CrudService<PushMessage, PushMessageEntity, PushMessageChangingEvent, PushMessageChangedEvent>, IPushMessageService
 {
+    private readonly Func<IPushMessagesRepository> _repositoryFactory;
+
     public PushMessageService(
         Func<IPushMessagesRepository> repositoryFactory,
         IPlatformMemoryCache platformMemoryCache,
         IEventPublisher eventPublisher)
         : base(repositoryFactory, platformMemoryCache, eventPublisher)
     {
+        _repositoryFactory = repositoryFactory;
     }
 
     public virtual async Task<PushMessage> ChangeTracking(string messageId, bool value)
@@ -59,6 +63,18 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         return ((IPushMessagesRepository)repository).GetMessagesByIdsAsync(ids, responseGroup);
     }
 
+    protected override async Task<IList<PushMessage>> GetByIdsNoCache(IList<string> ids, string responseGroup)
+    {
+        var models = await base.GetByIdsNoCache(ids, responseGroup);
+
+        if (models.Count > 0 && HasFlag(responseGroup, PushMessageResponseGroup.WithReadPercent))
+        {
+            await CalculateReadPercent(models);
+        }
+
+        return models;
+    }
+
     protected override void ClearCache(IList<PushMessage> models)
     {
         base.ClearCache(models);
@@ -76,5 +92,48 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         {
             throw new InvalidOperationException($"Cannot modify or delete messages with status {PushMessageStatus.Sent}.");
         }
+    }
+
+    private static bool HasFlag(string responseGroup, PushMessageResponseGroup flag)
+    {
+        var responseGroupEnum = EnumUtility.SafeParseFlags(responseGroup, PushMessageResponseGroup.Default);
+        return responseGroupEnum.HasFlag(flag);
+    }
+
+    private async Task CalculateReadPercent(IList<PushMessage> messages)
+    {
+        using var repository = _repositoryFactory();
+        var ids = messages.Select(x => x.Id).ToList();
+
+        var recipients = await repository.Recipients
+            .Where(x => ids.Contains(x.MessageId))
+            .GroupBy(x => x.MessageId)
+            .Select(g => new { MessageId = g.Key, TotalCount = g.Count(), ReadCount = g.Count(x => x.IsRead) })
+            .ToListAsync();
+
+        foreach (var recipient in recipients)
+        {
+            var message = messages.First(x => x.Id.EqualsIgnoreCase(recipient.MessageId));
+            message.RecipientsTotalCount = recipient.TotalCount;
+            message.RecipientsReadCount = recipient.ReadCount;
+            message.RecipientsReadPercent = CalculatePercent(recipient.ReadCount, recipient.TotalCount);
+        }
+    }
+
+    private static int CalculatePercent(int totalCount, int readCount)
+    {
+        if (totalCount <= 0)
+        {
+            return 0;
+        }
+
+        var percent = (int)Math.Round((double)readCount / totalCount * 100, MidpointRounding.AwayFromZero);
+
+        if (percent == 100 && readCount < totalCount)
+        {
+            percent = 99;
+        }
+
+        return percent;
     }
 }

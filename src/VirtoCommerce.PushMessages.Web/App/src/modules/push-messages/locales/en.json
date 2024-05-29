@@ -26,6 +26,8 @@
             "MODIFIED_DATE": "Modified date",
             "START_DATE": "Scheduled date",
             "CREATED_BY": "Created by",
+            "RECIPIENTS_TOTAL_COUNT": "# Recepients",
+            "RECIPIENTS_READ_PERCENT": "Read rate, %",
             "STATUS": "Status",
             "TOPIC": "Topic",
             "SHORT_MESSAGE": "Message"

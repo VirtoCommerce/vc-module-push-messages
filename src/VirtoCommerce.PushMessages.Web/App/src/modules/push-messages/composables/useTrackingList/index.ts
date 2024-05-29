@@ -18,7 +18,7 @@ export default () => {
       const criteria = { ...(_query || {}) } as PushMessageSearchCriteria;
       criteria.trackNewRecipients = true;
       criteria.isDraft = false;
-      criteria.responseGroup = "None";
+      criteria.responseGroup = "WithReadPercent";
       return (await getApiClient()).search(criteria);
     },
     remove: async (_query, customQuery) => {

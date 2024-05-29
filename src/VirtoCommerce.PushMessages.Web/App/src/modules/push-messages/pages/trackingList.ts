@@ -76,6 +76,14 @@ export const grid: DynamicGridSchema = {
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.SHORT_MESSAGE",
           type: "html",
         },
+        {
+          id: "recipientsTotalCount",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_TOTAL_COUNT",
+        },
+        {
+          id: "recipientsReadPercent",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_PERCENT",
+        },
       ],
     },
   ],
