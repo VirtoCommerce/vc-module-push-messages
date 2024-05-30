@@ -76,6 +76,21 @@ export const grid: DynamicGridSchema = {
           type: "date-time",
           alwaysVisible: true,
         },
+        {
+          id: "recipientsTotalCount",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_TOTAL_COUNT",
+          visible: false,
+        },
+        {
+          id: "recipientsReadCount",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_COUNT",
+          visible: false,
+        },
+        {
+          id: "recipientsReadPercent",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_PERCENT",
+          visible: false,
+        },
       ],
     },
   ],

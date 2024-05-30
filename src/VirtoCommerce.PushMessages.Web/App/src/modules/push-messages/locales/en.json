@@ -28,8 +28,9 @@
             "START_DATE": "Scheduled date",
             "CREATED_BY": "Created by",
             "TRACK_NEW_RECIPIENTS": "Track new recipients",
-            "RECIPIENTS_TOTAL_COUNT": "# Recepients",
-            "RECIPIENTS_READ_PERCENT": "Read rate, %",
+            "RECIPIENTS_TOTAL_COUNT": "Recipients, #",
+            "RECIPIENTS_READ_COUNT": "Read, #",
+            "RECIPIENTS_READ_PERCENT": "Read, %",
             "STATUS": "Status",
             "TOPIC": "Topic",
             "SHORT_MESSAGE": "Message"
