@@ -77,9 +77,23 @@ export const grid: DynamicGridSchema = {
         {
           id: "createdDate",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
-          sortable: true,
           type: "date-time",
+          sortable: true,
           alwaysVisible: true,
+        },
+        {
+          id: "modifiedDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MODIFIED_DATE",
+          type: "date-time",
+          sortable: true,
+          visible: false,
+        },
+        {
+          id: "startDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.START_DATE",
+          type: "date-time",
+          sortable: true,
+          visible: false,
         },
         {
           id: "recipientsTotalCount",
