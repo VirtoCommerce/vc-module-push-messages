@@ -1,4 +1,3 @@
-import { computed, ref } from "vue";
 import { ListBaseBladeScope, useApiClient, useBladeNavigation, useListFactory } from "@vc-shell/framework";
 
 import {

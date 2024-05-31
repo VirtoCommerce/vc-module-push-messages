@@ -21,10 +21,10 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
     private readonly Func<IPushMessagesRepository> _repositoryFactory;
 
     public PushMessageService(
-    Func<IPushMessagesRepository> repositoryFactory,
-    IPlatformMemoryCache platformMemoryCache,
+        Func<IPushMessagesRepository> repositoryFactory,
+        IPlatformMemoryCache platformMemoryCache,
         IEventPublisher eventPublisher)
-    : base(repositoryFactory, platformMemoryCache, eventPublisher)
+        : base(repositoryFactory, platformMemoryCache, eventPublisher)
     {
         _repositoryFactory = repositoryFactory;
     }
@@ -51,7 +51,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
 
         if (withReadRate && models.Count > 0)
         {
-            await CalculateReadPercent(models);
+            await CalculateReadRate(models);
         }
 
         return models;
@@ -101,7 +101,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         return responseGroupEnum.HasFlag(flag);
     }
 
-    private async Task CalculateReadPercent(IList<PushMessage> messages)
+    private async Task CalculateReadRate(IList<PushMessage> messages)
     {
         using var repository = _repositoryFactory();
         var ids = messages.Select(x => x.Id).ToList();

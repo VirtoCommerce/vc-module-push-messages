@@ -84,7 +84,6 @@ export default (args: DetailsComposableArgs<{ options: { sourceMessage: PushMess
               options: {
                 sourceMessage: item,
               },
-              //param: (res && res.id) ?? undefined,
             },
           });
         },
