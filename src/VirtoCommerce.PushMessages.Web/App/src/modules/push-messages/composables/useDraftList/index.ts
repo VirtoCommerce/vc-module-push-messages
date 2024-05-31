@@ -28,7 +28,7 @@ export default () => {
     },
   });
 
-  const { load, remove, items, pagination, loading, query } = listFactory({ pageSize: 20 });
+  const { load, remove, items, pagination, loading, query } = listFactory({ sort: "modifiedDate:desc", pageSize: 20 });
   const { openBlade, resolveBladeByName } = useBladeNavigation();
 
   async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
