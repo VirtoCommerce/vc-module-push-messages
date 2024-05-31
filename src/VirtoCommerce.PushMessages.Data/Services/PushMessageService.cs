@@ -21,10 +21,10 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
     private readonly Func<IPushMessagesRepository> _repositoryFactory;
 
     public PushMessageService(
-        Func<IPushMessagesRepository> repositoryFactory,
-        IPlatformMemoryCache platformMemoryCache,
+    Func<IPushMessagesRepository> repositoryFactory,
+    IPlatformMemoryCache platformMemoryCache,
         IEventPublisher eventPublisher)
-        : base(repositoryFactory, platformMemoryCache, eventPublisher)
+    : base(repositoryFactory, platformMemoryCache, eventPublisher)
     {
         _repositoryFactory = repositoryFactory;
     }
@@ -44,6 +44,19 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         return message;
     }
 
+    public override async Task<IList<PushMessage>> GetAsync(IList<string> ids, string responseGroup = null, bool clone = true)
+    {
+        var withReadRate = HasFlag(responseGroup, PushMessageResponseGroup.WithReadRate);
+        var models = await base.GetAsync(ids, responseGroup, clone || withReadRate);
+
+        if (withReadRate && models.Count > 0)
+        {
+            await CalculateReadPercent(models);
+        }
+
+        return models;
+    }
+
     public override async Task SaveChangesAsync(IList<PushMessage> models)
     {
         var ids = models.Where(x => x.Id != null).Select(x => x.Id).ToList();
@@ -61,18 +74,6 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
     protected override Task<IList<PushMessageEntity>> LoadEntities(IRepository repository, IList<string> ids, string responseGroup)
     {
         return ((IPushMessagesRepository)repository).GetMessagesByIdsAsync(ids, responseGroup);
-    }
-
-    protected override async Task<IList<PushMessage>> GetByIdsNoCache(IList<string> ids, string responseGroup)
-    {
-        var models = await base.GetByIdsNoCache(ids, responseGroup);
-
-        if (models.Count > 0 && HasFlag(responseGroup, PushMessageResponseGroup.WithReadPercent))
-        {
-            await CalculateReadPercent(models);
-        }
-
-        return models;
     }
 
     protected override void ClearCache(IList<PushMessage> models)

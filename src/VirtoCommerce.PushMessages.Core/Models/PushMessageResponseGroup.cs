@@ -7,6 +7,6 @@ public enum PushMessageResponseGroup
 {
     None = 0,
     WithMembers = 1 << 0,
-    WithReadPercent = 1 << 1,
+    WithReadRate = 1 << 1,
     Default = WithMembers,
 }
