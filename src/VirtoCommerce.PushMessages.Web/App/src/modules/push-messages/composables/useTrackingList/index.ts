@@ -39,12 +39,12 @@ export default () => {
     });
   }
 
-  const scope = ref<PushMessageListScope>({
+  const scope: PushMessageListScope = {
     openDetailsBlade,
     isReadOnly: (data: { item: PushMessage }) => {
       return data.item.status === "Sent";
     },
-  });
+  };
 
   return {
     items,
@@ -53,6 +53,6 @@ export default () => {
     loading,
     pagination,
     query,
-    scope: computed(() => scope.value),
+    scope,
   };
 };

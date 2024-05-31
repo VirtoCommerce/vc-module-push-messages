@@ -1,7 +1,7 @@
-import { computed, reactive, ref, Ref, watch } from "vue";
+import { computed, reactive, watch } from "vue";
 import {
   DetailsBaseBladeScope,
-  DynamicBladeForm,
+  DetailsComposableArgs,
   IBladeToolbar,
   useApiClient,
   useDetailsFactory,
@@ -21,11 +21,7 @@ export interface PushMessageDetailsScope extends DetailsBaseBladeScope {
   };
 }
 
-export default (args: {
-  props: InstanceType<typeof DynamicBladeForm>["$props"];
-  emit: InstanceType<typeof DynamicBladeForm>["$emit"];
-  mounted: Ref<boolean>;
-}) => {
+export default (args: DetailsComposableArgs) => {
   let isNew = !args.props.param;
   let newStatus: string | undefined;
 
@@ -57,7 +53,7 @@ export default (args: {
 
   const { load, saveChanges, remove, loading, item, validationState } = detailsFactory();
 
-  const scope = ref<PushMessageDetailsScope>({
+  const scope: PushMessageDetailsScope = {
     toolbarOverrides: {
       saveChanges: {
         disabled: computed(() => !validationState.value.modified || !validationState.value.valid),
@@ -95,7 +91,7 @@ export default (args: {
     },
     isReadOnly: () => !isEditable(),
     countMembers: countMembers,
-  });
+  };
 
   async function saveMessage(message: PushMessage | undefined, status?: string) {
     if (message) {
@@ -151,6 +147,6 @@ export default (args: {
     item,
     validationState,
     bladeTitle,
-    scope: computed(() => scope.value),
+    scope,
   };
 };

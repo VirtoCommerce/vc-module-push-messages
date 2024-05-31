@@ -6,7 +6,7 @@ export const grid: DynamicGridSchema = {
     id: "PushMessageTrackingList",
     titleTemplate: "PUSH_MESSAGES.PAGES.LIST.TITLE",
     localizationPrefix: "PUSH_MESSAGES",
-    isWorkspace: false,
+    isWorkspace: true,
     composable: "useTrackingList",
     component: "DynamicBladeList",
     //permissions: "PushMessages:read",
