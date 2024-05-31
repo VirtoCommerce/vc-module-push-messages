@@ -58,6 +58,7 @@
         "TOOLBAR": {
           "SAVE": "Save",
           "SAVE_AND_PUBLISH": "Send",
+          "CLONE": "Clone",
           "DELETE": "Delete"
         },
         "FORM": {

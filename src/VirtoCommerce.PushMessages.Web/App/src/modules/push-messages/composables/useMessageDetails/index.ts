@@ -17,11 +17,12 @@ export interface PushMessageDetailsScope extends DetailsBaseBladeScope {
   toolbarOverrides: {
     saveChanges: IBladeToolbar;
     saveAndPublish: IBladeToolbar;
+    clone: IBladeToolbar;
     remove: IBladeToolbar;
   };
 }
 
-export default (args: DetailsComposableArgs) => {
+export default (args: DetailsComposableArgs<{ options: { sourceMessage: PushMessage } }>) => {
   let isNew = !args.props.param;
   let newStatus: string | undefined;
 
@@ -72,6 +73,20 @@ export default (args: DetailsComposableArgs) => {
         }),
         clickHandler: async () => {
           await saveMessage(item.value, item.value?.startDate != null ? "Scheduled" : "Sent");
+        },
+      },
+      clone: {
+        isVisible: computed(() => !isNew),
+        clickHandler: async () => {
+          args.emit("parent:call", {
+            method: "openDetailsBlade",
+            args: {
+              options: {
+                sourceMessage: item,
+              },
+              //param: (res && res.id) ?? undefined,
+            },
+          });
         },
       },
       remove: {
@@ -133,8 +148,17 @@ export default (args: DetailsComposableArgs) => {
     () => args?.mounted.value,
     async () => {
       if (isNew) {
-        item.value = reactive(new PushMessage());
+        const message = new PushMessage();
+        item.value = reactive(message);
         validationState.value.resetModified(item.value, true);
+
+        const sourceMessage = args.props.options?.sourceMessage;
+        if (sourceMessage) {
+          message.topic = sourceMessage.topic;
+          message.shortMessage = sourceMessage.shortMessage;
+          message.memberIds = sourceMessage.memberIds;
+          message.memberQuery = sourceMessage.memberQuery;
+        }
       }
     },
   );

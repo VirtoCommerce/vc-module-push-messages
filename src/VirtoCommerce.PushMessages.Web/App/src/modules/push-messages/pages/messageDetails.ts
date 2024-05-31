@@ -21,6 +21,12 @@ export const details: DynamicDetailsSchema = {
         method: "saveAndPublish",
       },
       {
+        id: "clone",
+        icon: "fas fa-copy",
+        title: "PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.CLONE",
+        method: "clone",
+      },
+      {
         id: "delete",
         icon: "fas fa-trash",
         title: "PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.DELETE",
