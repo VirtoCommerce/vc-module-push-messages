@@ -73,20 +73,7 @@ export const grid: DynamicGridSchema = {
           id: "shortMessage",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.SHORT_MESSAGE",
           type: "html",
-        },
-        {
-          id: "createdDate",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
-          type: "date-time",
-          sortable: true,
           alwaysVisible: true,
-        },
-        {
-          id: "modifiedDate",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MODIFIED_DATE",
-          type: "date-time",
-          sortable: true,
-          visible: false,
         },
         {
           id: "startDate",
@@ -94,6 +81,20 @@ export const grid: DynamicGridSchema = {
           type: "date-time",
           sortable: true,
           visible: false,
+        },
+        {
+          id: "createdDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
+          type: "date-time",
+          sortable: true,
+          visible: false,
+        },
+        {
+          id: "modifiedDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MODIFIED_DATE",
+          type: "date-time",
+          sortable: true,
+          alwaysVisible: true,
         },
         {
           id: "recipientsTotalCount",
