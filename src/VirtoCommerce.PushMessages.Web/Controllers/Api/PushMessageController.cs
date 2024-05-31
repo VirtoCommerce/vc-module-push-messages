@@ -30,7 +30,7 @@ public class PushMessageController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessageRecipientSearchResult>> SearchRecipients([FromBody] PushMessageRecipientSearchCriteria criteria)
     {
-        var result = await _recipientSearchService.SearchAsync(criteria);
+        var result = await _recipientSearchService.SearchNoCloneAsync(criteria);
         return Ok(result);
     }
 
@@ -38,7 +38,7 @@ public class PushMessageController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessageSearchResult>> Search([FromBody] PushMessageSearchCriteria criteria)
     {
-        var result = await _messageSearchService.SearchAsync(criteria);
+        var result = await _messageSearchService.SearchNoCloneAsync(criteria);
         return Ok(result);
     }
 

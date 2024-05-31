@@ -21,7 +21,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Queries
         public async Task<ExpPushMessagesResponse> Handle(GetPushMessagesQuery request, CancellationToken cancellationToken)
         {
             var criteria = GetSearchCriteria(request);
-            var searchResult = await _recipientSearchService.SearchAsync(criteria);
+            var searchResult = await _recipientSearchService.SearchNoCloneAsync(criteria);
 
             var result = AbstractTypeFactory<ExpPushMessagesResponse>.TryCreateInstance();
             result.Results = searchResult.Results.Select(x => ExpPushMessage.Create(x.Message, x)).ToList();
