@@ -17,6 +17,7 @@ public class GetFcmConfigQueryHandler : IQueryHandler<GetFcmConfigQuery, FcmConf
             StorageBucket = string.Empty,
             MessagingSenderId = string.Empty,
             AppId = string.Empty,
+            VapidKey = string.Empty,
         };
 
         return Task.FromResult(config);

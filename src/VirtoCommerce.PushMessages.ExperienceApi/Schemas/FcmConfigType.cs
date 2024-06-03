@@ -13,5 +13,6 @@ public class FcmConfigType : ObjectGraphType<FcmConfig>
         Field(x => x.StorageBucket, nullable: false);
         Field(x => x.MessagingSenderId, nullable: false);
         Field(x => x.AppId, nullable: false);
+        Field(x => x.VapidKey, nullable: false);
     }
 }

@@ -8,4 +8,5 @@ public class FcmConfig
     public string StorageBucket { get; set; }
     public string MessagingSenderId { get; set; }
     public string AppId { get; set; }
+    public string VapidKey { get; set; }
 }
