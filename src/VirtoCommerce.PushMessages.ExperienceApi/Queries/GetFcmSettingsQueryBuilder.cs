@@ -10,16 +10,16 @@ using VirtoCommerce.PushMessages.ExperienceApi.Schemas;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;
 
-public class GetFcmConfigQueryBuilder : QueryBuilder<GetFcmConfigQuery, FcmConfig, FcmConfigType>
+public class GetFcmSettingsQueryBuilder : QueryBuilder<GetFcmSettingsQuery, FcmSettings, FcmSettingsType>
 {
-    protected override string Name => "fcmConfig";
+    protected override string Name => "fcmSettings";
 
-    public GetFcmConfigQueryBuilder(IMediator mediator, IAuthorizationService authorizationService)
+    public GetFcmSettingsQueryBuilder(IMediator mediator, IAuthorizationService authorizationService)
         : base(mediator, authorizationService)
     {
     }
 
-    protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, GetFcmConfigQuery request)
+    protected override async Task BeforeMediatorSend(IResolveFieldContext<object> context, GetFcmSettingsQuery request)
     {
         await Authorize(context, null, new PushMessagesAuthorizationRequirement());
         context.CopyArgumentsToUserContext();

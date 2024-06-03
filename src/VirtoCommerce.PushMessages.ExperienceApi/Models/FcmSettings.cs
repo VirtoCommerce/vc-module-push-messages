@@ -1,6 +1,6 @@
 namespace VirtoCommerce.PushMessages.ExperienceApi.Models;
 
-public class FcmConfig
+public class FcmSettings
 {
     public string ApiKey { get; set; }
     public string AuthDomain { get; set; }

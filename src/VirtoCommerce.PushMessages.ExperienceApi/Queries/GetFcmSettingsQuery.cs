@@ -6,7 +6,7 @@ using VirtoCommerce.PushMessages.ExperienceApi.Models;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;
 
-public class GetFcmConfigQuery : Query<FcmConfig>
+public class GetFcmSettingsQuery : Query<FcmSettings>
 {
     public string UserId { get; set; }
 

@@ -5,11 +5,11 @@ using VirtoCommerce.PushMessages.ExperienceApi.Models;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;
 
-public class GetFcmConfigQueryHandler : IQueryHandler<GetFcmConfigQuery, FcmConfig>
+public class GetFcmSettingsQueryHandler : IQueryHandler<GetFcmSettingsQuery, FcmSettings>
 {
-    public Task<FcmConfig> Handle(GetFcmConfigQuery request, CancellationToken cancellationToken)
+    public Task<FcmSettings> Handle(GetFcmSettingsQuery request, CancellationToken cancellationToken)
     {
-        var config = new FcmConfig
+        var config = new FcmSettings
         {
             ApiKey = string.Empty,
             AuthDomain = string.Empty,

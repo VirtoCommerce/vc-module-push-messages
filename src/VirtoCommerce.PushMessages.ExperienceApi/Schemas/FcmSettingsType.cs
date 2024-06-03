@@ -3,9 +3,9 @@ using VirtoCommerce.PushMessages.ExperienceApi.Models;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas;
 
-public class FcmConfigType : ObjectGraphType<FcmConfig>
+public class FcmSettingsType : ObjectGraphType<FcmSettings>
 {
-    public FcmConfigType()
+    public FcmSettingsType()
     {
         Field(x => x.ApiKey, nullable: false);
         Field(x => x.AuthDomain, nullable: false);
