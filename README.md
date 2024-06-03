@@ -45,31 +45,32 @@ subscription pushMessageCreated {
 ```js
 {
   pushMessages (unreadOnly: true, cultureName: "en-Us") {
-    unreadCount
+    totalCount
     items {
       id
       shortMessage
       createdDate
       isRead
+      isHidden
     }
   }
 }
 ```
 ### Mutations
 ```js
-mutation clearAllPushMessages{
+mutation clearAllPushMessages {
     clearAllPushMessages
 }
 ```
 
 ```js
-mutation markAllPushMessagesRead{
+mutation markAllPushMessagesRead {
     markAllPushMessagesRead
 }
 ```
 
 ```js
-mutation markAllPushMessagesUnread{
+mutation markAllPushMessagesUnread {
     markAllPushMessagesUnread
 }
 ```
