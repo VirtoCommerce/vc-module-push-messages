@@ -4,13 +4,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.ExperienceApiModule.Core.BaseQueries;
 using VirtoCommerce.ExperienceApiModule.Core.Extensions;
+using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
-using VirtoCommerce.PushMessages.ExperienceApi.Models;
 using VirtoCommerce.PushMessages.ExperienceApi.Schemas;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;
 
-public class GetFcmSettingsQueryBuilder : QueryBuilder<GetFcmSettingsQuery, FcmSettings, FcmSettingsType>
+public class GetFcmSettingsQueryBuilder : QueryBuilder<GetFcmSettingsQuery, FcmReceiverOptions, FcmSettingsType>
 {
     protected override string Name => "fcmSettings";
 

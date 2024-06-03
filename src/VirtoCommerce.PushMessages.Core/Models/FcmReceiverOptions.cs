@@ -1,6 +1,6 @@
-namespace VirtoCommerce.PushMessages.ExperienceApi.Models;
+namespace VirtoCommerce.PushMessages.Core.Models;
 
-public class FcmSettings
+public class FcmReceiverOptions
 {
     public string ApiKey { get; set; }
     public string AuthDomain { get; set; }

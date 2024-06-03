@@ -1,25 +1,26 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
-using VirtoCommerce.PushMessages.ExperienceApi.Models;
+using VirtoCommerce.PushMessages.Core.Models;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;
 
-public class GetFcmSettingsQueryHandler : IQueryHandler<GetFcmSettingsQuery, FcmSettings>
+public class GetFcmSettingsQueryHandler : IQueryHandler<GetFcmSettingsQuery, FcmReceiverOptions>
 {
-    public Task<FcmSettings> Handle(GetFcmSettingsQuery request, CancellationToken cancellationToken)
-    {
-        var config = new FcmSettings
-        {
-            ApiKey = string.Empty,
-            AuthDomain = string.Empty,
-            ProjectId = string.Empty,
-            StorageBucket = string.Empty,
-            MessagingSenderId = string.Empty,
-            AppId = string.Empty,
-            VapidKey = string.Empty,
-        };
+    private readonly PushMessageOptions _options;
 
-        return Task.FromResult(config);
+    public GetFcmSettingsQueryHandler(IOptions<PushMessageOptions> options)
+    {
+        _options = options.Value;
+    }
+
+    public Task<FcmReceiverOptions> Handle(GetFcmSettingsQuery request, CancellationToken cancellationToken)
+    {
+        var result = _options.UseFirebaseCloudMessaging
+            ? _options.FcmReceiverOptions
+            : null;
+
+        return Task.FromResult(result);
     }
 }

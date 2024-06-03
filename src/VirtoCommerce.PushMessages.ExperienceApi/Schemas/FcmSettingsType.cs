@@ -1,9 +1,9 @@
 using GraphQL.Types;
-using VirtoCommerce.PushMessages.ExperienceApi.Models;
+using VirtoCommerce.PushMessages.Core.Models;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas;
 
-public class FcmSettingsType : ObjectGraphType<FcmSettings>
+public class FcmSettingsType : ObjectGraphType<FcmReceiverOptions>
 {
     public FcmSettingsType()
     {

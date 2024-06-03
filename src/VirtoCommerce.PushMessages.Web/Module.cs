@@ -16,6 +16,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core;
 using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Events;
+using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.BackgroundJobs;
 using VirtoCommerce.PushMessages.Data.Extensions;
@@ -39,6 +40,8 @@ public class Module : IModule, IHasConfiguration
 
     public void Initialize(IServiceCollection serviceCollection)
     {
+        serviceCollection.AddOptions<PushMessageOptions>().BindConfiguration("PushMessages").ValidateDataAnnotations();
+
         serviceCollection.AddDbContext<PushMessagesDbContext>(options =>
         {
             var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
