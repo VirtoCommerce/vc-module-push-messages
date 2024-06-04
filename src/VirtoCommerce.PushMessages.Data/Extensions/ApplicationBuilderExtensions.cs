@@ -27,12 +27,7 @@ public static class ApplicationBuilderExtensions
         }
 
         var json = JsonConvert.SerializeObject(options.FcmSenderOptions);
-
-        var appOptions = new AppOptions
-        {
-            Credential = GoogleCredential.FromJson(json),
-        };
-
+        var appOptions = new AppOptions { Credential = GoogleCredential.FromJson(json) };
         FirebaseApp.Create(appOptions);
 
         appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, FcmPushMessageRecipientChangedEventHandler>();
