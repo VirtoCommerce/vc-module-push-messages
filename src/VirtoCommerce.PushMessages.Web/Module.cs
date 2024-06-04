@@ -72,6 +72,7 @@ public class Module : IModule, IHasConfiguration
 
         serviceCollection.AddTransient<IFcmTokenService, FcmTokenService>();
         serviceCollection.AddTransient<IFcmTokenSearchService, FcmTokenSearchService>();
+        serviceCollection.AddSingleton<FcmPushMessageRecipientChangedEventHandler>();
 
         serviceCollection.AddSingleton<MemberChangedEventHandler>();
         serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
@@ -86,7 +87,7 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddAutoMapper(assemblyMarker);
         serviceCollection.AddSchemaBuilders(assemblyMarker);
         serviceCollection.AddDistributedMessageService(Configuration);
-        serviceCollection.AddTransient<PushMessageRecipientChangedEventHandler>();
+        serviceCollection.AddSingleton<XapiPushMessageRecipientChangedEventHandler>();
         serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();
     }
 
@@ -110,8 +111,9 @@ public class Module : IModule, IHasConfiguration
         // Register event handlers
         appBuilder.RegisterEventHandler<MemberChangedEvent, MemberChangedEventHandler>();
         appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
-        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, PushMessageRecipientChangedEventHandler>();
+        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, XapiPushMessageRecipientChangedEventHandler>();
 
+        appBuilder.UseFirebaseCloudMessaging();
         appBuilder.UsePushMessageJobs();
     }
 
