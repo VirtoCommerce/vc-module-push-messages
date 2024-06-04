@@ -70,6 +70,9 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddTransient<IPushMessageRecipientService, PushMessageRecipientService>();
         serviceCollection.AddTransient<IPushMessageRecipientSearchService, PushMessageRecipientSearchService>();
 
+        serviceCollection.AddTransient<IFcmTokenService, FcmTokenService>();
+        serviceCollection.AddTransient<IFcmTokenSearchService, FcmTokenSearchService>();
+
         serviceCollection.AddSingleton<MemberChangedEventHandler>();
         serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
 
