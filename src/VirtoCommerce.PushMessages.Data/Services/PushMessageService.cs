@@ -121,7 +121,7 @@ public class PushMessageService : CrudService<PushMessage, PushMessageEntity, Pu
         }
     }
 
-    private static int CalculatePercent(int totalCount, int readCount)
+    private static int CalculatePercent(int readCount, int totalCount)
     {
         if (totalCount <= 0)
         {
