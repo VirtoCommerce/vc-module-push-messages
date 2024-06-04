@@ -2,12 +2,12 @@ import { DynamicGridSchema } from "@vc-shell/framework";
 
 export const grid: DynamicGridSchema = {
   settings: {
-    url: "/drafts",
-    id: "PushMessageDraftList",
+    url: "/sent",
+    id: "PushMessageSentList",
     titleTemplate: "PUSH_MESSAGES.PAGES.LIST.TITLE",
     localizationPrefix: "PUSH_MESSAGES",
     isWorkspace: true,
-    composable: "useDraftList",
+    composable: "useSentList",
     component: "DynamicBladeList",
     //permissions: "PushMessages:read",
     toolbar: [
@@ -31,14 +31,14 @@ export const grid: DynamicGridSchema = {
       },
     ],
     menuItem: {
-      title: "PUSH_MESSAGES.MENU.DRAFTS",
-      icon: "fas fa-edit",
-      priority: 2,
+      title: "PUSH_MESSAGES.MENU.SENT",
+      icon: "fas fa-paper-plane",
+      priority: 5,
     },
   },
   content: [
     {
-      id: "draftsList",
+      id: "sentList",
       component: "vc-table",
       multiselect: true,
       actions: [
@@ -53,6 +53,11 @@ export const grid: DynamicGridSchema = {
         },
       ],
       columns: [
+        {
+          id: "trackNewRecipients",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.TRACK_NEW_RECIPIENTS",
+          sortable: true,
+        },
         {
           id: "status",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.STATUS",
@@ -94,7 +99,6 @@ export const grid: DynamicGridSchema = {
         {
           id: "recipientsTotalCount",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_TOTAL_COUNT",
-          visible: false,
         },
         {
           id: "recipientsReadCount",
@@ -104,7 +108,6 @@ export const grid: DynamicGridSchema = {
         {
           id: "recipientsReadPercent",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_PERCENT",
-          visible: false,
         },
       ],
     },

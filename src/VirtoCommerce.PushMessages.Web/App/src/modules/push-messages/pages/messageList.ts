@@ -54,11 +54,9 @@ export const grid: DynamicGridSchema = {
       ],
       columns: [
         {
-          id: "createdDate",
-          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
+          id: "trackNewRecipients",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.TRACK_NEW_RECIPIENTS",
           sortable: true,
-          type: "date-time",
-          alwaysVisible: true,
         },
         {
           id: "status",
@@ -75,6 +73,43 @@ export const grid: DynamicGridSchema = {
           id: "shortMessage",
           title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.SHORT_MESSAGE",
           type: "html",
+          alwaysVisible: true,
+        },
+        {
+          id: "startDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.START_DATE",
+          type: "date-time",
+          sortable: true,
+          visible: false,
+        },
+        {
+          id: "createdDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE",
+          type: "date-time",
+          sortable: true,
+          visible: false,
+        },
+        {
+          id: "modifiedDate",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MODIFIED_DATE",
+          type: "date-time",
+          sortable: true,
+          alwaysVisible: true,
+        },
+        {
+          id: "recipientsTotalCount",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_TOTAL_COUNT",
+          visible: false,
+        },
+        {
+          id: "recipientsReadCount",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_COUNT",
+          visible: false,
+        },
+        {
+          id: "recipientsReadPercent",
+          title: "PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_PERCENT",
+          visible: false,
         },
       ],
     },

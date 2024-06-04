@@ -1,4 +1,3 @@
-import { computed, ref } from "vue";
 import { ListBaseBladeScope, useApiClient, useBladeNavigation, useListFactory } from "@vc-shell/framework";
 
 import {
@@ -28,7 +27,7 @@ export default () => {
     },
   });
 
-  const { load, remove, items, pagination, loading, query } = listFactory({ pageSize: 20 });
+  const { load, remove, items, pagination, loading, query } = listFactory({ sort: "modifiedDate:desc", pageSize: 20 });
   const { openBlade, resolveBladeByName } = useBladeNavigation();
 
   async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
@@ -38,12 +37,12 @@ export default () => {
     });
   }
 
-  const scope = ref<PushMessageListScope>({
+  const scope: PushMessageListScope = {
     openDetailsBlade,
     isReadOnly: (data: { item: PushMessage }) => {
       return data.item.status === "Sent";
     },
-  });
+  };
 
   return {
     items,
@@ -52,6 +51,6 @@ export default () => {
     loading,
     pagination,
     query,
-    scope: computed(() => scope.value),
+    scope,
   };
 };

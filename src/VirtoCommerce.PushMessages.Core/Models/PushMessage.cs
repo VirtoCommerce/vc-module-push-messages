@@ -20,6 +20,12 @@ public class PushMessage : AuditableEntity, ICloneable
 
     public IList<string> MemberIds { get; set; }
 
+    public int RecipientsTotalCount { get; set; }
+
+    public int RecipientsReadCount { get; set; }
+
+    public int RecipientsReadPercent { get; set; }
+
     public virtual object Clone()
     {
         return MemberwiseClone();

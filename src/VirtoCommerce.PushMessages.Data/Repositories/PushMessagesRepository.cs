@@ -36,7 +36,7 @@ public class PushMessagesRepository : DbContextRepositoryBase<PushMessagesDbCont
 
         if (messages.Count > 0)
         {
-            var responseGroupEnum = EnumUtility.SafeParseFlags(responseGroup, PushMessageResponseGroup.Full);
+            var responseGroupEnum = EnumUtility.SafeParseFlags(responseGroup, PushMessageResponseGroup.Default);
 
             if (responseGroupEnum.HasFlag(PushMessageResponseGroup.WithMembers))
             {

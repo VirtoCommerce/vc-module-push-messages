@@ -1,5 +1,4 @@
-import { Ref } from "vue";
-import { DynamicBladeList, useApiClient, useListFactory } from "@vc-shell/framework";
+import { ListComposableArgs, useApiClient, useListFactory } from "@vc-shell/framework";
 
 import {
   PushMessageClient,
@@ -9,11 +8,7 @@ import {
 
 const { getApiClient } = useApiClient(PushMessageClient);
 
-export default (args: {
-  props: InstanceType<typeof DynamicBladeList>["$props"] & { options: { messageId: string } };
-  emit: InstanceType<typeof DynamicBladeList>["$emit"];
-  mounted: Ref<boolean>;
-}) => {
+export default (args: ListComposableArgs<{ options: { messageId: string } }>) => {
   const listFactory = useListFactory<PushMessageRecipient[], PushMessageRecipientSearchCriteria>({
     load: async (_query) => {
       const criteria = { ...(_query || {}) } as PushMessageRecipientSearchCriteria;
