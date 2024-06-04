@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace VirtoCommerce.PushMessages.Core.Models;
@@ -8,7 +7,7 @@ public class FcmSenderOptions
     [JsonProperty("type")]
     public string Type { get; set; }
 
-    [JsonPropertyName("project_id")]
+    [JsonProperty("project_id")]
     public string ProjectId { get; set; }
 
     [JsonProperty("private_key_id")]

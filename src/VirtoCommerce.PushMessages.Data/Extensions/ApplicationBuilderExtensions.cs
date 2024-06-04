@@ -31,7 +31,6 @@ public static class ApplicationBuilderExtensions
         var appOptions = new AppOptions
         {
             Credential = GoogleCredential.FromJson(json),
-            ProjectId = options.FcmSenderOptions.ProjectId,
         };
 
         FirebaseApp.Create(appOptions);
