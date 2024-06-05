@@ -45,13 +45,6 @@ public class FcmPushMessageRecipientChangedEventHandler : IEventHandler<PushMess
 
     public async Task SendMessageAsync(PushMessage message, IList<PushMessageRecipient> recipients)
     {
-        var tokens = await GetDeviceRegistrationTokens(recipients);
-
-        if (tokens.Count == 0)
-        {
-            return;
-        }
-
         var firebaseMessage = new MulticastMessage
         {
             Data = new Dictionary<string, string>
@@ -63,41 +56,39 @@ public class FcmPushMessageRecipientChangedEventHandler : IEventHandler<PushMess
                 Title = "Virto Commerce Notification",
                 Body = message.ShortMessage,
             },
-            Tokens = tokens.AsReadOnly(),
         };
 
+        var searchCriteria = AbstractTypeFactory<FcmTokenSearchCriteria>.TryCreateInstance();
+        searchCriteria.UserIds = recipients.Select(x => x.UserId).ToList();
+        searchCriteria.Take = await GetBatchSize();
+
+        await foreach (var searchResult in _fcmTokenSearchService.SearchBatchesNoCloneAsync(searchCriteria))
+        {
+            firebaseMessage.Tokens = searchResult.Results.Select(x => x.Token).ToArray();
+            await SendFirebaseMessage(firebaseMessage);
+        }
+    }
+
+    private async Task SendFirebaseMessage(MulticastMessage firebaseMessage)
+    {
         try
         {
             var batchResponse = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(firebaseMessage);
 
-            if (batchResponse.FailureCount > 0)
+            if (batchResponse.FailureCount == 0)
             {
-                foreach (var response in batchResponse.Responses.Where(x => !x.IsSuccess))
-                {
-                    _logger.LogError("FCM Send failed: {Exception}", response.Exception);
-                }
+                return;
+            }
+
+            foreach (var response in batchResponse.Responses.Where(x => !x.IsSuccess))
+            {
+                _logger.LogError("FCM Send failed: {Exception}", response.Exception);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError("FCM Send failed. {Exception}", ex);
         }
-    }
-
-    private async Task<IList<string>> GetDeviceRegistrationTokens(IList<PushMessageRecipient> recipients)
-    {
-        var tokens = new List<string>();
-
-        var criteria = AbstractTypeFactory<FcmTokenSearchCriteria>.TryCreateInstance();
-        criteria.UserIds = recipients.Select(x => x.UserId).ToList();
-        criteria.Take = await GetBatchSize();
-
-        await foreach (var searchResult in _fcmTokenSearchService.SearchBatchesNoCloneAsync(criteria))
-        {
-            tokens.AddRange(searchResult.Results.Select(x => x.Token));
-        }
-
-        return tokens;
     }
 
     private Task<int> GetBatchSize()
