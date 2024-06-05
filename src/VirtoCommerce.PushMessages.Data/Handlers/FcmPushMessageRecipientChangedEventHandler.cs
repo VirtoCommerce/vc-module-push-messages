@@ -50,10 +50,7 @@ public class FcmPushMessageRecipientChangedEventHandler : IEventHandler<PushMess
             Data = new Dictionary<string, string>
             {
                 { "messageId", message.Id },
-            },
-            Notification = new Notification
-            {
-                Body = message.ShortMessage,
+                { "body", message.ShortMessage },
             },
         };
 
