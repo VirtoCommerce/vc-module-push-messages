@@ -53,7 +53,6 @@ public class FcmPushMessageRecipientChangedEventHandler : IEventHandler<PushMess
             },
             Notification = new Notification
             {
-                Title = "Virto Commerce Notification",
                 Body = message.ShortMessage,
             },
         };
