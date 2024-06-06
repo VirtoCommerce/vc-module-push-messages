@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Reflection;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Hangfire;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.Events;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Hangfire;
 using VirtoCommerce.PushMessages.Core.Events;
 using VirtoCommerce.PushMessages.Core.Models;
@@ -17,22 +20,6 @@ namespace VirtoCommerce.PushMessages.Data.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static void UseFirebaseCloudMessaging(this IApplicationBuilder appBuilder)
-    {
-        var options = appBuilder.ApplicationServices.GetService<IOptions<PushMessageOptions>>().Value;
-
-        if (!options.UseFirebaseCloudMessaging)
-        {
-            return;
-        }
-
-        var json = JsonConvert.SerializeObject(options.FcmSenderOptions);
-        var appOptions = new AppOptions { Credential = GoogleCredential.FromJson(json) };
-        FirebaseApp.Create(appOptions);
-
-        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, FcmPushMessageRecipientChangedEventHandler>();
-    }
-
     public static IApplicationBuilder UsePushMessageJobs(this IApplicationBuilder appBuilder)
     {
         var recurringJobService = appBuilder.ApplicationServices.GetService<IRecurringJobService>();
@@ -52,5 +39,47 @@ public static class ApplicationBuilderExtensions
                 .Build());
 
         return appBuilder;
+    }
+
+    public static void UseFirebaseCloudMessaging(this IApplicationBuilder appBuilder, string moduleId)
+    {
+        var options = appBuilder.ApplicationServices.GetService<IOptions<PushMessageOptions>>().Value;
+
+        if (!options.UseFirebaseCloudMessaging)
+        {
+            return;
+        }
+
+        var json = JsonConvert.SerializeObject(options.FcmSenderOptions);
+        var appOptions = new AppOptions { Credential = GoogleCredential.FromJson(json) };
+        FirebaseApp.Create(appOptions);
+
+        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, FcmPushMessageRecipientChangedEventHandler>();
+
+        var receiverSettings = options.FcmReceiverOptions.ToSettings();
+        var settingsRegistrar = appBuilder.ApplicationServices.GetRequiredService<ISettingsRegistrar>();
+        settingsRegistrar.RegisterSettings(receiverSettings, moduleId);
+        settingsRegistrar.RegisterSettingsForType(receiverSettings, "Store");
+    }
+
+    private static SettingDescriptor[] ToSettings(this FcmReceiverOptions options)
+    {
+        return options
+            .GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Select(x => CreateSetting(x.Name, x.GetValue(options)))
+            .ToArray();
+    }
+
+    private static SettingDescriptor CreateSetting(string name, object value)
+    {
+        return new SettingDescriptor
+        {
+            Name = $"PushMessages.{nameof(FcmReceiverOptions)}.{name}",
+            GroupName = "Push Messages|FCM Receiver Options",
+            ValueType = SettingValueType.ShortText,
+            DefaultValue = value,
+            IsPublic = true,
+        };
     }
 }

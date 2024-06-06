@@ -11,6 +11,34 @@
       "title": "Batch size",
       "description": ""
     },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": ""
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": ""
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": ""
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": ""
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": ""
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": ""
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": ""
+    },
     "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
       "title": "Send scheduled messages recurring job: enable",
       "description": ""

@@ -113,7 +113,7 @@ public class Module : IModule, IHasConfiguration
         appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
         appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, XapiPushMessageRecipientChangedEventHandler>();
 
-        appBuilder.UseFirebaseCloudMessaging();
+        appBuilder.UseFirebaseCloudMessaging(ModuleInfo.Id);
         appBuilder.UsePushMessageJobs();
     }
 
