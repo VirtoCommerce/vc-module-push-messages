@@ -16,6 +16,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core;
 using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Events;
+using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.BackgroundJobs;
 using VirtoCommerce.PushMessages.Data.Extensions;
@@ -39,6 +40,8 @@ public class Module : IModule, IHasConfiguration
 
     public void Initialize(IServiceCollection serviceCollection)
     {
+        serviceCollection.AddOptions<PushMessageOptions>().BindConfiguration("PushMessages").ValidateDataAnnotations();
+
         serviceCollection.AddDbContext<PushMessagesDbContext>(options =>
         {
             var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
@@ -67,6 +70,10 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddTransient<IPushMessageRecipientService, PushMessageRecipientService>();
         serviceCollection.AddTransient<IPushMessageRecipientSearchService, PushMessageRecipientSearchService>();
 
+        serviceCollection.AddTransient<IFcmTokenService, FcmTokenService>();
+        serviceCollection.AddTransient<IFcmTokenSearchService, FcmTokenSearchService>();
+        serviceCollection.AddSingleton<FcmPushMessageRecipientChangedEventHandler>();
+
         serviceCollection.AddSingleton<MemberChangedEventHandler>();
         serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
 
@@ -80,7 +87,7 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddAutoMapper(assemblyMarker);
         serviceCollection.AddSchemaBuilders(assemblyMarker);
         serviceCollection.AddDistributedMessageService(Configuration);
-        serviceCollection.AddTransient<PushMessageRecipientChangedEventHandler>();
+        serviceCollection.AddSingleton<XapiPushMessageRecipientChangedEventHandler>();
         serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();
     }
 
@@ -104,8 +111,9 @@ public class Module : IModule, IHasConfiguration
         // Register event handlers
         appBuilder.RegisterEventHandler<MemberChangedEvent, MemberChangedEventHandler>();
         appBuilder.RegisterEventHandler<PushMessageChangedEvent, PushMessageChangedEventHandler>();
-        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, PushMessageRecipientChangedEventHandler>();
+        appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, XapiPushMessageRecipientChangedEventHandler>();
 
+        appBuilder.UseFirebaseCloudMessaging(ModuleInfo.Id);
         appBuilder.UsePushMessageJobs();
     }
 

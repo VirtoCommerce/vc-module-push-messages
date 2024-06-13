@@ -23,6 +23,8 @@ public class PushMessagesRepository : DbContextRepositoryBase<PushMessagesDbCont
 
     public IQueryable<PushMessageRecipientEntity> Recipients => DbContext.Set<PushMessageRecipientEntity>();
 
+    public IQueryable<FcmTokenEntity> FcmTokens => DbContext.Set<FcmTokenEntity>();
+
     public virtual async Task<IList<PushMessageEntity>> GetMessagesByIdsAsync(IList<string> ids, string responseGroup)
     {
         if (ids.IsNullOrEmpty())
@@ -71,5 +73,17 @@ public class PushMessagesRepository : DbContextRepositoryBase<PushMessagesDbCont
         }
 
         return recipients;
+    }
+
+    public virtual async Task<IList<FcmTokenEntity>> GetFcmTokensByIdsAsync(IList<string> ids, string responseGroup)
+    {
+        if (ids.IsNullOrEmpty())
+        {
+            return [];
+        }
+
+        return ids.Count == 1
+            ? await FcmTokens.Where(x => x.Id == ids.First()).ToListAsync()
+            : await FcmTokens.Where(x => ids.Contains(x.Id)).ToListAsync();
     }
 }

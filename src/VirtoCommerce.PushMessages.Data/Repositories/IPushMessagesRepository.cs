@@ -14,7 +14,11 @@ public interface IPushMessagesRepository : IRepository
 
     public IQueryable<PushMessageRecipientEntity> Recipients { get; }
 
+    public IQueryable<FcmTokenEntity> FcmTokens { get; }
+
     Task<IList<PushMessageEntity>> GetMessagesByIdsAsync(IList<string> ids, string responseGroup);
 
     Task<IList<PushMessageRecipientEntity>> GetRecipientsByIdsAsync(IList<string> ids, string responseGroup);
+
+    Task<IList<FcmTokenEntity>> GetFcmTokensByIdsAsync(IList<string> ids, string responseGroup);
 }

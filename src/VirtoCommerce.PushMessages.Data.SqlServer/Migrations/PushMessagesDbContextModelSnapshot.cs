@@ -22,6 +22,48 @@ namespace VirtoCommerce.PushMessages.Data.SqlServer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("VirtoCommerce.PushMessages.Data.Models.FcmTokenEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_PushMessageFcmToken_UserId");
+
+                    b.HasIndex("Token", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PushMessageFcmToken_Token_UserId")
+                        .HasFilter("[Token] IS NOT NULL AND [UserId] IS NOT NULL");
+
+                    b.ToTable("PushMessageFcmToken", (string)null);
+                });
+
             modelBuilder.Entity("VirtoCommerce.PushMessages.Data.Models.PushMessageEntity", b =>
                 {
                     b.Property<string>("Id")
