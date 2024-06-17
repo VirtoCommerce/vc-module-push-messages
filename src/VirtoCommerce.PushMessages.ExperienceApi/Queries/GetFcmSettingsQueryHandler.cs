@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
+using VirtoCommerce.Xapi.Core.Infrastructure;
 using VirtoCommerce.PushMessages.Core.Models;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;

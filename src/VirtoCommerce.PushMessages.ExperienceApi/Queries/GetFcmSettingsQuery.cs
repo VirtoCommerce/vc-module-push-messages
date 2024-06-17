@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
-using VirtoCommerce.ExperienceApiModule.Core.BaseQueries;
 using VirtoCommerce.PushMessages.Core.Models;
+using VirtoCommerce.Xapi.Core.BaseQueries;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Queries;
 
