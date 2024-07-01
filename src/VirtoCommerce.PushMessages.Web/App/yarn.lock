@@ -1845,30 +1845,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@intlify/core-base@npm:9.10.1":
-  version: 9.10.1
-  resolution: "@intlify/core-base@npm:9.10.1"
+"@intlify/core-base@npm:9.8.0":
+  version: 9.8.0
+  resolution: "@intlify/core-base@npm:9.8.0"
   dependencies:
-    "@intlify/message-compiler": "npm:9.10.1"
-    "@intlify/shared": "npm:9.10.1"
-  checksum: b6b4948226ede55f5f0ad414a96f9ceeec410a1654643c6d3c2f31aaaeb36b678624e797c075ff267a0cbd3468def0728c4d32f170cc9d28699c9d146ca57d2e
+    "@intlify/message-compiler": "npm:9.8.0"
+    "@intlify/shared": "npm:9.8.0"
+  checksum: ac495d840cc0b1ad41abf91408637c768a0dc76b96f51f9243225c8a31828471ac8526aa63cf35927226f7043440e22495a57c679a97ca7fbc900b27a4a943ed
   languageName: node
   linkType: hard
 
-"@intlify/message-compiler@npm:9.10.1":
-  version: 9.10.1
-  resolution: "@intlify/message-compiler@npm:9.10.1"
+"@intlify/message-compiler@npm:9.8.0":
+  version: 9.8.0
+  resolution: "@intlify/message-compiler@npm:9.8.0"
   dependencies:
-    "@intlify/shared": "npm:9.10.1"
+    "@intlify/shared": "npm:9.8.0"
     source-map-js: "npm:^1.0.2"
-  checksum: 176a6872c35ebfbcc65a2b4757b5697001a44e5c1084f2adb8db085ae5730efe1b64a89498380b561f43e5bd4c55a089ec97363d7da51985ccd3cbd83541c2c9
+  checksum: d0916fb732618241429e5318e2b499125ad453737ecb1a36a207cc336ad3e1a74b0a79844ce3b2dc7c3b46ee30ca16213a63a9ed4c77e14b2107861bade82955
   languageName: node
   linkType: hard
 
-"@intlify/shared@npm:9.10.1":
-  version: 9.10.1
-  resolution: "@intlify/shared@npm:9.10.1"
-  checksum: d675a93fa913a12b9ee283d32b42ff1c7cc62cc56f7611a68973d8da599d76671992de3698df74b2d3f6363f4c5eb82d9458f24a89c36ce79238e1b2c147792b
+"@intlify/shared@npm:9.8.0":
+  version: 9.8.0
+  resolution: "@intlify/shared@npm:9.8.0"
+  checksum: af9ceb1df72f68a3382fafa75fe532d8a01393c6dc69b7e398a2781a8de25356ac39640831b3c9e4e503b9919ccfdeb5402dd765ec9cda5121ce7f7272bf06db
   languageName: node
   linkType: hard
 
@@ -1983,6 +1983,151 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@microsoft/applicationinsights-analytics-js@npm:3.2.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-analytics-js@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-common": "npm:3.2.2"
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 85c91b18b147850b3b7ba82ba78ad38e879df897e9664d180ba02692fe80e88092a153c0802faabeecb3ad1beaa7121a8d424e5fd1d998700b26ca1ce0ad4e6c
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-cfgsync-js@npm:3.2.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-cfgsync-js@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-common": "npm:3.2.2"
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-async": "npm:>= 0.5.1 < 2.x"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 3988386ffcab6a36d06bf5463d1ae6302160d071a27714fdb788c6c16bb8c4dbe4f5698c761fef1df194de2a7e886d6f3a9944608569cb9cdcf00229c7aea184
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-channel-js@npm:3.2.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-channel-js@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-common": "npm:3.2.2"
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-async": "npm:>= 0.5.1 < 2.x"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: d9f0b577e9a471a3f2b68bc2d6640a297d008fbfbfa8ce74624899aa6ac0c4ffb32ca3364eb03916acec1ce060f260b9bc437409301116a67321aa4ee54482bd
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-common@npm:3.2.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-common@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 2e3c998b8ffcf77de2a606646a9ec641931441dd63bb4893cc1c87b97edb9d236649e3333191b4f898d8c0939ec754ae35c072d953b9233b4d8f1e7e4c1d9bfd
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-core-js@npm:3.2.2, @microsoft/applicationinsights-core-js@npm:^3.0.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-core-js@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-async": "npm:>= 0.5.1 < 2.x"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 1d4b8af25a3d01728207627b3211f73dba97bbb95184dde2121e8240d981ca5b9c86c477a853c80d1954f5280119dc649a77b525e3b4d0d1c6ee2d78e591b2de
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-dependencies-js@npm:3.2.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-dependencies-js@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-common": "npm:3.2.2"
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-async": "npm:>= 0.5.1 < 2.x"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: f17e4d684b4254d5512d7c70c124fd0eb4b22acc9943d04bf19e9056ddb4ac92e36aacd41abf17bade4b379c0e9ad3f5168c79178f0a2fb91658d7f138bbe9fc
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-properties-js@npm:3.2.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-properties-js@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-common": "npm:3.2.2"
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 915c8e8c76d1e7605bf16c67179b28fc8bca3e34cf8d0e237df6cf34498bf843254b92a5b83815e43dae986568b90bebda16508e97a3d4b48a79394e4cb8f4f3
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-shims@npm:3.0.1":
+  version: 3.0.1
+  resolution: "@microsoft/applicationinsights-shims@npm:3.0.1"
+  dependencies:
+    "@nevware21/ts-utils": "npm:>= 0.9.4 < 2.x"
+  checksum: 1e3acb2d110ee237741105d3d795bbf394546cd779fad88d14383e86a42f1b5a92dba2b2cedfd874174bff74ba7acb23d6e9a01d371fbb75cd32e08f070f52fa
+  languageName: node
+  linkType: hard
+
+"@microsoft/applicationinsights-web@npm:^3.0.2":
+  version: 3.2.2
+  resolution: "@microsoft/applicationinsights-web@npm:3.2.2"
+  dependencies:
+    "@microsoft/applicationinsights-analytics-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-cfgsync-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-channel-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-common": "npm:3.2.2"
+    "@microsoft/applicationinsights-core-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-dependencies-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-properties-js": "npm:3.2.2"
+    "@microsoft/applicationinsights-shims": "npm:3.0.1"
+    "@microsoft/dynamicproto-js": "npm:^2.0.3"
+    "@nevware21/ts-async": "npm:>= 0.5.1 < 2.x"
+    "@nevware21/ts-utils": "npm:>= 0.11.1 < 2.x"
+  peerDependencies:
+    tslib: "*"
+  checksum: 01d2abe1f0be4ef416d4140a31bfb2a1df534626de484eb09709904ba0759b15609977435c383b006ab3101a41a3afd991f104f6d3bd8c43383785f9c96604e4
+  languageName: node
+  linkType: hard
+
+"@microsoft/dynamicproto-js@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "@microsoft/dynamicproto-js@npm:2.0.3"
+  dependencies:
+    "@nevware21/ts-utils": "npm:>= 0.10.4 < 2.x"
+  checksum: 19a782c5d946a139580de4ee7d5dfdda6969653502fd7975bf0a1516ce63d0178ed7e5868c4f51ce086d7b683f854878f39c879e1716d31ea02ebcd00a775816
+  languageName: node
+  linkType: hard
+
 "@microsoft/signalr@npm:^8.0.0":
   version: 8.0.0
   resolution: "@microsoft/signalr@npm:8.0.0"
@@ -2012,6 +2157,22 @@ __metadata:
   version: 0.14.2
   resolution: "@microsoft/tsdoc@npm:0.14.2"
   checksum: 00c3d4fc184e8e09e17aef57e4a990402bd9752607a5d50bd62a9e85bc4b8791c985a51e238affa6b9a2d23110f24d373becbfc84e1e6e9a84cf977822e3b00a
+  languageName: node
+  linkType: hard
+
+"@nevware21/ts-async@npm:>= 0.5.1 < 2.x":
+  version: 0.5.2
+  resolution: "@nevware21/ts-async@npm:0.5.2"
+  dependencies:
+    "@nevware21/ts-utils": "npm:>= 0.11.3 < 2.x"
+  checksum: ffc77548353597314158a872007f747343c89dfa9f424d65da3f0b557c1674a7845c3b04cdcf240b3e21259118f3be16fee70432be0f8a1a169efb8e4d736e10
+  languageName: node
+  linkType: hard
+
+"@nevware21/ts-utils@npm:>= 0.10.4 < 2.x, @nevware21/ts-utils@npm:>= 0.11.1 < 2.x, @nevware21/ts-utils@npm:>= 0.11.3 < 2.x, @nevware21/ts-utils@npm:>= 0.9.4 < 2.x":
+  version: 0.11.3
+  resolution: "@nevware21/ts-utils@npm:0.11.3"
+  checksum: db62ba8a3231bac6d916738cad8523a6b3419cf5d1bb3a0fefeebc60fdd162ecca3d26ea4233523349cf45837b3fcca0aef8fced6119c8309525de9af510d5f9
   languageName: node
   linkType: hard
 
@@ -2693,9 +2854,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vc-shell/api-client-generator@npm:^1.0.223":
-  version: 1.0.223
-  resolution: "@vc-shell/api-client-generator@npm:1.0.223"
+"@vc-shell/api-client-generator@npm:^1.0.247":
+  version: 1.0.247
+  resolution: "@vc-shell/api-client-generator@npm:1.0.247"
   dependencies:
     chalk: "npm:^2.4.2"
     nswag: "npm:^13.20.0"
@@ -2703,26 +2864,26 @@ __metadata:
     vite-plugin-dts: "npm:^3.6.4"
   bin:
     api-client-generator: ./dist/api-client-generator.js
-  checksum: 03a76c8932f8aadb8a13da9bc90d065ef0f343323431c975a0824f654ea1071ecb970e8284e5d000888fda1533e70e19dd29f0aeadf9594b408c23bc74584ef1
+  checksum: 7be7c7b463ca08c77ba9feab8d02e3ac00e539c4125efde7f2412a58f53b47d23b0d9ebffc04894ce22f4a3704a3ae785ee0cdf5357b864a2617a7fa76005fe1
   languageName: node
   linkType: hard
 
-"@vc-shell/config-generator@npm:^1.0.223":
-  version: 1.0.223
-  resolution: "@vc-shell/config-generator@npm:1.0.223"
+"@vc-shell/config-generator@npm:^1.0.247":
+  version: 1.0.247
+  resolution: "@vc-shell/config-generator@npm:1.0.247"
   dependencies:
     "@vitejs/plugin-vue": "npm:^5.0.3"
     vite: "npm:^5.0.11"
     vite-plugin-checker: "npm:^0.6.2"
     vite-plugin-mkcert: "npm:^1.17.1"
     vue: "npm:^3.4.15"
-  checksum: ce1138def2f21c19e1a44b71894a465a674b28d78cf7027cd789407f849524486d599e0130b1423f322a645fdcad4d6ba1a38d9d41a52955fab2726f54ca2aef
+  checksum: 1d9f3b2b6ad97de172a5c4a3ae7ee6049d439893bf731f8b84da8a775dc37514e0e61917818d30e7eda64473d06742969eb6c5f8326af49b1dfbf4b2e21076c3
   languageName: node
   linkType: hard
 
-"@vc-shell/framework@npm:^1.0.223":
-  version: 1.0.223
-  resolution: "@vc-shell/framework@npm:1.0.223"
+"@vc-shell/framework@npm:^1.0.247":
+  version: 1.0.247
+  resolution: "@vc-shell/framework@npm:1.0.247"
   dependencies:
     "@floating-ui/vue": "npm:^1.0.6"
     "@headlessui/vue": "npm:^1.7.19"
@@ -2746,31 +2907,32 @@ __metadata:
     vee-validate: "npm:^4.12.4"
     vue: "npm:^3.4.19"
     vue-currency-input: "npm:^3.0.5"
-    vue-i18n: "npm:^9.8.0"
+    vue-i18n: "npm:~9.8.0"
     vue-router: "npm:^4.2.5"
+    vue3-application-insights: "npm:^1.1.0"
     vue3-touch-events: "npm:^4.1.8"
     whatwg-fetch: "npm:^3.6.19"
-  checksum: 1534793022503d63b4aff3927522f3a0a8c27bae09ef46867520b2f69b750d848aa4de04d50a29feab16b92aa383570660610a8889a04191cf6d3e0128eae24e
+  checksum: 3062557711cc1b8750bd0ec3b9a8544cfc792475cea23713f4ac2e9ed2a3bf2594da377615e813b71a60917038ccdc8d7851c25688f0351d41e3239ca9af1c92
   languageName: node
   linkType: hard
 
-"@vc-shell/release-config@npm:^1.0.223":
-  version: 1.0.223
-  resolution: "@vc-shell/release-config@npm:1.0.223"
+"@vc-shell/release-config@npm:^1.0.247":
+  version: 1.0.247
+  resolution: "@vc-shell/release-config@npm:1.0.247"
   dependencies:
     chalk: "npm:^2.4.2"
     mri: "npm:^1.2.0"
     prompts: "npm:^2.4.2"
     semver: "npm:^7.5.4"
     vite: "npm:^5.0.11"
-  checksum: 9109385de1542021923dd967cb1e753b327ef6c6514c4a5fc29ca49b1db205bf9159a091dcf7228a1525dccd04616b17b0e365109c02d6a501c8d41886c5ce1e
+  checksum: defe5e8e1a7cf49e4e72bf4161ce7608e96c86c2e248d08a1bed00985a2e809d81e07ac07e722d289ec2af7d0c7894e61d9724c227bc3f81822dd4c401ef919b
   languageName: node
   linkType: hard
 
-"@vc-shell/ts-config@npm:^1.0.223":
-  version: 1.0.223
-  resolution: "@vc-shell/ts-config@npm:1.0.223"
-  checksum: 41bb9e10630108a7aecb1f563dc4f422a985c12fcd95bb32f6577ecc0370e03efd01069b9ea6c5a764f938b3cf8df94c3b0a343b5138687b3fc1f0401a16740b
+"@vc-shell/ts-config@npm:^1.0.247":
+  version: 1.0.247
+  resolution: "@vc-shell/ts-config@npm:1.0.247"
+  checksum: a0074de44c1c7fc1eff097b5639339a624576ab7639236aa151c926786fa3afe1ec668f5ec405e281386f88091ba03ac0338eb0734120920b62346bc9c38d7f6
   languageName: node
   linkType: hard
 
@@ -7765,11 +7927,11 @@ __metadata:
     "@types/node": "npm:^20.10.5"
     "@typescript-eslint/eslint-plugin": "npm:^6.16.0"
     "@typescript-eslint/parser": "npm:^6.16.0"
-    "@vc-shell/api-client-generator": "npm:^1.0.223"
-    "@vc-shell/config-generator": "npm:^1.0.223"
-    "@vc-shell/framework": "npm:^1.0.223"
-    "@vc-shell/release-config": "npm:^1.0.223"
-    "@vc-shell/ts-config": "npm:^1.0.223"
+    "@vc-shell/api-client-generator": "npm:^1.0.247"
+    "@vc-shell/config-generator": "npm:^1.0.247"
+    "@vc-shell/framework": "npm:^1.0.247"
+    "@vc-shell/release-config": "npm:^1.0.247"
+    "@vc-shell/ts-config": "npm:^1.0.247"
     "@vitejs/plugin-vue": "npm:^5.0.3"
     "@vue/eslint-config-prettier": "npm:^9.0.0"
     "@vue/eslint-config-typescript": "npm:^12.0.0"
@@ -9722,16 +9884,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-i18n@npm:^9.8.0":
-  version: 9.10.1
-  resolution: "vue-i18n@npm:9.10.1"
+"vue-i18n@npm:~9.8.0":
+  version: 9.8.0
+  resolution: "vue-i18n@npm:9.8.0"
   dependencies:
-    "@intlify/core-base": "npm:9.10.1"
-    "@intlify/shared": "npm:9.10.1"
+    "@intlify/core-base": "npm:9.8.0"
+    "@intlify/shared": "npm:9.8.0"
     "@vue/devtools-api": "npm:^6.5.0"
   peerDependencies:
     vue: ^3.0.0
-  checksum: e7471e0af0dca3e522448b6ff1ef3460d95b44e7b6a0726b70a14145600b444c4aa23013f2eda35fbd856b8e89ecee2a06c6cec8489722ff4b08086bd5b85110
+  checksum: 1e3f1a2c54a6b236a84e96f6bfb922afbac1376bef47b98f7af002b3dfcd4485c236b79d2ee4f576a980e352175478a89b8d3ee84851c1cb862f6de01179bb76
   languageName: node
   linkType: hard
 
@@ -9768,6 +9930,22 @@ __metadata:
   bin:
     vue-tsc: bin/vue-tsc.js
   checksum: fb84ff195de75e3529cf01b917f111bee561d15e1e437aa97a47e797f99f913783f24ec2d595271240240a21df08ba43b36aa7fc82a48a4c396a0f6d0e409376
+  languageName: node
+  linkType: hard
+
+"vue3-application-insights@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "vue3-application-insights@npm:1.1.0"
+  dependencies:
+    "@microsoft/applicationinsights-core-js": "npm:^3.0.2"
+    "@microsoft/applicationinsights-web": "npm:^3.0.2"
+  peerDependencies:
+    vue: ^3.0.0
+    vue-router: ^4.0.0
+  peerDependenciesMeta:
+    vue-router:
+      optional: true
+  checksum: 4691effc0f81b708d7488302823f2b109aafcd2226b1884d3876f6a0548f3b46738b49043c2d98137eabef0dccce90b34dc890e4c5d4e6981bcbf68f46c98c63
   languageName: node
   linkType: hard
 

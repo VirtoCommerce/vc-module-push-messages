@@ -1,4 +1,4 @@
-import { computed, reactive, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import {
   DetailsBaseBladeScope,
   DetailsComposableArgs,
@@ -105,6 +105,7 @@ export default (args: DetailsComposableArgs<{ options: { sourceMessage: PushMess
     },
     isReadOnly: () => !isEditable(),
     countMembers: countMembers,
+    memberCount: ref(),
   };
 
   async function saveMessage(message: PushMessage | undefined, status?: string) {
@@ -131,7 +132,7 @@ export default (args: DetailsComposableArgs<{ options: { sourceMessage: PushMess
         deepSearch: true,
         take: 0,
       } as MembersSearchCriteria);
-      scope.value.memberCount = result.totalCount;
+      scope.memberCount.value = result.totalCount;
     }
   }
 
