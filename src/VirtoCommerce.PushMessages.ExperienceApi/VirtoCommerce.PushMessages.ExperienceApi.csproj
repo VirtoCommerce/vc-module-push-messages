@@ -8,7 +8,7 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="VirtoCommerce.Xapi.Core" Version="3.800.0-alpha.3-vcst-1352" />
+    <PackageReference Include="VirtoCommerce.Xapi.Core" Version="3.800.0-alpha.5-vcst-1352" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Core\VirtoCommerce.PushMessages.Core.csproj" />
