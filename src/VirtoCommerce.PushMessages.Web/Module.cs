@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.CustomerModule.Core.Events;
-using VirtoCommerce.ExperienceApiModule.Core.Extensions;
-using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
@@ -30,6 +28,8 @@ using VirtoCommerce.PushMessages.ExperienceApi;
 using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Extensions;
 using VirtoCommerce.PushMessages.ExperienceApi.Handlers;
+using VirtoCommerce.Xapi.Core.Extensions;
+using VirtoCommerce.Xapi.Core.Infrastructure;
 
 namespace VirtoCommerce.PushMessages.Web;
 

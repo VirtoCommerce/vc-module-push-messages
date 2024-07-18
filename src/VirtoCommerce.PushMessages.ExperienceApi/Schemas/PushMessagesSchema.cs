@@ -5,13 +5,13 @@ using GraphQL.Resolvers;
 using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authorization;
-using VirtoCommerce.ExperienceApiModule.Core.Extensions;
-using VirtoCommerce.ExperienceApiModule.Core.Helpers;
-using VirtoCommerce.ExperienceApiModule.Core.Infrastructure;
-using VirtoCommerce.ExperienceApiModule.Core.Infrastructure.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Models;
 using VirtoCommerce.PushMessages.ExperienceApi.Subscriptions;
+using VirtoCommerce.Xapi.Core.Extensions;
+using VirtoCommerce.Xapi.Core.Helpers;
+using VirtoCommerce.Xapi.Core.Infrastructure;
+using VirtoCommerce.Xapi.Core.Security.Authorization;
 
 namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
 {
