@@ -13,7 +13,7 @@
     },
     "PushMessages.FCM.Enable": {
       "title": "Enable firebase cloud messaging (FCM)",
-      "description": "Enable or disable Firebase Cloud Messaging (FCM). Additional configuration is required use following link https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+      "description": "Enable or disable Firebase Cloud Messaging (FCM). Additional configuration is required use following link for configuration https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
     },
     "PushMessages.BatchSize": {
       "title": "Batch size",
