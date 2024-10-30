@@ -31,6 +31,24 @@ public static class ModuleConstants
     {
         public static class General
         {
+            public static readonly SettingDescriptor Enable = new()
+            {
+                Name = "PushMessages.Enable",
+                GroupName = "Push Messages|General",
+                ValueType = SettingValueType.Boolean,
+                DefaultValue = true,
+                IsPublic = true,
+            };
+
+            public static readonly SettingDescriptor FirebaseCloudMessagingEnable = new()
+            {
+                Name = "PushMessages.FCM.Enable",
+                GroupName = "Push Messages|General",
+                ValueType = SettingValueType.Boolean,
+                DefaultValue = true,
+                IsPublic = true,
+            };
+
             public static SettingDescriptor BatchSize { get; } = new()
             {
                 Name = "PushMessages.BatchSize",
@@ -38,11 +56,12 @@ public static class ModuleConstants
                 ValueType = SettingValueType.Integer,
                 DefaultValue = 50,
             };
-
             public static IEnumerable<SettingDescriptor> AllGeneralSettings
             {
                 get
                 {
+                    yield return Enable;
+                    yield return FirebaseCloudMessagingEnable;
                     yield return BatchSize;
                 }
             }
@@ -91,6 +110,15 @@ public static class ModuleConstants
                     yield return TrackNewRecipientsRecurringJobEnable;
                     yield return TrackNewRecipientsRecurringJobCronExpression;
                 }
+            }
+        }
+
+        public static IEnumerable<SettingDescriptor> StoreSettings
+        {
+            get
+            {
+                yield return General.Enable;
+                yield return General.FirebaseCloudMessagingEnable;
             }
         }
 
