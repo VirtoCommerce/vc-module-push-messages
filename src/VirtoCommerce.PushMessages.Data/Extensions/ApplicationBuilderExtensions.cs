@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FirebaseAdmin;
@@ -10,6 +11,7 @@ using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Hangfire;
+using VirtoCommerce.PushMessages.Core;
 using VirtoCommerce.PushMessages.Core.Events;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Data.BackgroundJobs;
@@ -62,13 +64,17 @@ public static class ApplicationBuilderExtensions
         settingsRegistrar.RegisterSettingsForType(receiverSettings, "Store");
     }
 
-    private static SettingDescriptor[] ToSettings(this FcmReceiverOptions options)
+    private static IList<SettingDescriptor> ToSettings(this FcmReceiverOptions options)
     {
-        return options
+        var settings = options
             .GetType()
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Select(x => CreateSetting(x.Name, x.GetValue(options)))
-            .ToArray();
+            .ToList();
+
+        settings.Insert(0, ModuleConstants.Settings.General.FirebaseCloudMessagingEnable);
+
+        return settings;
     }
 
     private static SettingDescriptor CreateSetting(string name, object value)

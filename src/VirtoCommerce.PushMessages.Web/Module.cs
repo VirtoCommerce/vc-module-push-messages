@@ -28,6 +28,7 @@ using VirtoCommerce.PushMessages.ExperienceApi;
 using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Extensions;
 using VirtoCommerce.PushMessages.ExperienceApi.Handlers;
+using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
 
@@ -98,6 +99,9 @@ public class Module : IModule, IHasConfiguration
         // Register settings
         var settingsRegistrar = serviceProvider.GetRequiredService<ISettingsRegistrar>();
         settingsRegistrar.RegisterSettings(ModuleConstants.Settings.AllSettings, ModuleInfo.Id);
+
+        // Register store settings
+        settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.StoreSettings, nameof(Store));
 
         // Register permissions
         var permissionsRegistrar = serviceProvider.GetRequiredService<IPermissionsRegistrar>();

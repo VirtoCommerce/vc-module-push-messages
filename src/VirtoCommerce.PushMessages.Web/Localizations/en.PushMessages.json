@@ -7,6 +7,14 @@
     "PushMessages:delete": "Delete PushMessages related data"
   },
   "settings": {
+    "PushMessages.Enable": {
+      "title": "Enable push notifications",
+      "description": "Enable or disable push notifications"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Enable firebase cloud messaging (FCM)",
+      "description": "Enable or disable Firebase Cloud Messaging (FCM). Additional configuration is required use following link for configuration https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
     "PushMessages.BatchSize": {
       "title": "Batch size",
       "description": ""
