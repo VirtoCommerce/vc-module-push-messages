@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "プッシュメッセージメニューを開く",
+    "PushMessages:create": "プッシュメッセージ関連データを作成する",
+    "PushMessages:read": "プッシュメッセージ関連データを表示する",
+    "PushMessages:update": "プッシュメッセージ関連データを更新する",
+    "PushMessages:delete": "プッシュメッセージ関連データを削除する"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "プッシュメッセージの有効化",
+      "description": "プッシュメッセージを有効/無効にする"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Firebase Cloud Messaging (FCM) の有効化",
+      "description": "Firebase Cloud Messaging (FCM) を有効/無効にする。追加の設定が必要です。設定には次のリンクを使用してください https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "バッチサイズ",
+      "description": "バッチごとに送信されるメッセージの数を定義する"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "Firebaseサービスにアクセスするためにアプリを認証する"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "Firebaseプロジェクトの認証リクエストが処理されるドメインを設定する"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "すべてのFirebaseサービスを1つのプロジェクトにリンクするためにFirebaseプロジェクトに名前を付ける"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "プロジェクトに関連するファイルを保存できるFirebase Cloud StorageのURLを設定する"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "送信者を識別し、Firebaseプロジェクトからユーザーのデバイスにメッセージを送信するためのIDを設定する"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "特定のアプリケーションにメッセージをリンクする"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "Webベースのプッシュメッセージを認証するために使用されるWebプッシュプロトコルのキーを設定する"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "スケジュールされたメッセージの定期ジョブ",
+      "description": "スケジュールされたメッセージ送信ジョブを有効/無効にする"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "スケジュールされたメッセージの定期ジョブのCron式",
+      "description": "自動メッセージをスケジュールするために設定する。'0/5****'は5分ごとにメッセージが送信されることを意味する"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "新しい受信者の追跡定期ジョブ",
+      "description": "受信者追跡ジョブを有効/無効にする"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "新しい受信者の追跡定期ジョブのCron式",
+      "description": "新しい受信者を確認するために設定する。'0 0/1'は毎分メッセージが送信されることを意味する"
+    }
+  }
+}

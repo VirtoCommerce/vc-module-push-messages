@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "打开推送消息菜单",
+    "PushMessages:create": "创建与推送消息相关的数据",
+    "PushMessages:read": "查看与推送消息相关的数据",
+    "PushMessages:update": "更新与推送消息相关的数据",
+    "PushMessages:delete": "删除与推送消息相关的数据"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "推送消息激活",
+      "description": "启用/禁用推送消息"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Firebase云消息（FCM）激活",
+      "description": "启用/禁用Firebase云消息（FCM）。需要额外配置。使用以下链接进行配置 https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "批量大小",
+      "description": "定义每批发送的消息数量"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "授权您的应用访问Firebase服务"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "设置一个域名，用于处理您的Firebase项目的身份验证请求"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "命名您的Firebase项目，以便将所有Firebase服务链接到一个项目下"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "设置您的Firebase云存储的URL，项目相关的文件可以存储在此处"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "设置ID以识别发送者，并将消息从您的Firebase项目发送到用户设备"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "将消息链接到您的特定应用程序"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "设置用于Web推送协议的密钥，以帮助验证从您的应用程序发送的基于Web的推送消息"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "计划消息的定期任务",
+      "description": "启用/禁用计划消息发送任务"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "计划消息定期任务的Cron表达式",
+      "description": "配置以安排自动消息。'0/5****'表示每5分钟发送一次消息"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "跟踪新接收者的定期任务",
+      "description": "启用/禁用接收者跟踪任务"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "跟踪新接收者定期任务的Cron表达式",
+      "description": "配置以检查新接收者。'0 0/1'表示每分钟发送一次消息"
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "Abrir menu de mensagens push",
+    "PushMessages:create": "Criar dados relacionados a mensagens push",
+    "PushMessages:read": "Visualizar dados relacionados a mensagens push",
+    "PushMessages:update": "Atualizar dados relacionados a mensagens push",
+    "PushMessages:delete": "Excluir dados relacionados a mensagens push"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "Ativação de mensagens push",
+      "description": "Ativar/desativar mensagens push"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Ativação do Firebase Cloud Messaging (FCM)",
+      "description": "Ativar/desativar o Firebase Cloud Messaging (FCM). Configuração adicional é necessária. Use o seguinte link para configuração https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "Tamanho do lote",
+      "description": "Defina o número de mensagens enviadas por lote"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "Autorize seu aplicativo a acessar os serviços do Firebase"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "Defina um domínio onde as solicitações de autenticação são processadas para seu projeto Firebase"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "Nomeie seu projeto Firebase para vincular todos os serviços do Firebase sob um único projeto"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "Defina a URL para seu Firebase Cloud Storage, onde os arquivos associados ao projeto podem ser armazenados"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "Defina o ID para identificar o remetente e enviar mensagens do seu projeto Firebase para dispositivos de usuários"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "Vincule mensagens ao seu aplicativo específico"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "Defina a chave usada para protocolos de Web Push para ajudar a autenticar mensagens push baseadas na web enviadas do seu aplicativo"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "Tarefa recorrente de envio de mensagens agendadas",
+      "description": "Ativar/desativar a tarefa de envio de mensagens agendadas"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "Expressão Cron para tarefa recorrente de mensagens agendadas",
+      "description": "Configurar para agendar mensagens automatizadas. '0/5****' significa que as mensagens serão enviadas a cada 5 minutos"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "Tarefa recorrente de rastreamento de novos destinatários",
+      "description": "Ativar/desativar a tarefa de rastreamento de destinatários"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "Expressão Cron para tarefa recorrente de rastreamento de novos destinatários",
+      "description": "Configurar para verificar novos destinatários. '0 0/1' significa que as mensagens serão enviadas a cada minuto"
+    }
+  }
+}

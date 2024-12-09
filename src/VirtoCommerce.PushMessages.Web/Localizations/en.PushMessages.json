@@ -1,67 +1,67 @@
 {
   "permissions": {
-    "PushMessages:access": "Open PushMessages menu",
-    "PushMessages:create": "Create PushMessages related data",
-    "PushMessages:read": "View PushMessages related data",
-    "PushMessages:update": "Update PushMessages related data",
-    "PushMessages:delete": "Delete PushMessages related data"
+    "PushMessages:access": "Open push messages menu",
+    "PushMessages:create": "Create push messages related data",
+    "PushMessages:read": "View push messages related data",
+    "PushMessages:update": "Update push messages related data",
+    "PushMessages:delete": "Delete push messages related data"
   },
   "settings": {
     "PushMessages.Enable": {
-      "title": "Enable push notifications",
-      "description": "Enable or disable push notifications"
+      "title": "Push messages activation",
+      "description": "Enable/ disable push messages"
     },
     "PushMessages.FCM.Enable": {
-      "title": "Enable firebase cloud messaging (FCM)",
-      "description": "Enable or disable Firebase Cloud Messaging (FCM). Additional configuration is required use following link for configuration https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+      "title": "Firebase cloud messaging (FCM) activation",
+      "description": "Enable/ disable Firebase Cloud Messaging (FCM). Additional configuration is required. Use following link for configuration https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
     },
     "PushMessages.BatchSize": {
       "title": "Batch size",
-      "description": ""
+      "description": "Define the number of messages sent per batch"
     },
     "PushMessages.FcmReceiverOptions.ApiKey": {
       "title": "ApiKey",
-      "description": ""
+      "description": "Authorize your app to access Firebase services"
     },
     "PushMessages.FcmReceiverOptions.AuthDomain": {
       "title": "AuthDomain",
-      "description": ""
+      "description": "Set a domain where authentication requests are processed for your Firebase project"
     },
     "PushMessages.FcmReceiverOptions.ProjectId": {
       "title": "ProjectId",
-      "description": ""
+      "description": "Name your Firebase project to link all Fibebase services together under one project"
     },
     "PushMessages.FcmReceiverOptions.StorageBucket": {
       "title": "StorageBucket",
-      "description": ""
+      "description": "Set URL for your Firebase Cloud Storage, where files associated with the project can be stored"
     },
     "PushMessages.FcmReceiverOptions.MessagingSenderId": {
       "title": "MessagingSenderId",
-      "description": ""
+      "description": "Set Id to identify the sender and to send messages from your Firebase project to user devices"
     },
     "PushMessages.FcmReceiverOptions.AppId": {
       "title": "AppId",
-      "description": ""
+      "description": "Link messages to your specific application"
     },
     "PushMessages.FcmReceiverOptions.VapidKey": {
       "title": "VapidKey",
-      "description": ""
+      "description": "Set key used for Web Push protocols to help authenticate web-based push messages sent from your application"
     },
     "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
-      "title": "Send scheduled messages recurring job: enable",
-      "description": ""
+      "title": "Scheduled messages recurring job",
+      "description": "Enable/ disable scheduled message-sending job"
     },
     "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
-      "title": "Send scheduled messages recurring job: cron expression",
-      "description": ""
+      "title": "Cron expression for scheduled messages recurring job",
+      "description": "Configure to schedule automated messages. '0/5****' means that messages will be sent every 5 minutes"
     },
     "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
-      "title": "Track new recipients recurring job: enable",
-      "description": ""
+      "title": "Track new recipients recurring job",
+      "description": "Enable/ disable the recipient-tracking job"
     },
     "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
-      "title": "Track new recipients recurring job: cron expression",
-      "description": ""
+      "title": "Cron expression for tracking new recipients recurring job",
+      "description": "Configure to check for new recipients. '0 0/1' means that messages will be sent every minute"
     }
   }
 }
