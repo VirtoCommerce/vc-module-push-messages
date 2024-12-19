@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "Otwórz menu wiadomości push",
+    "PushMessages:create": "Utwórz dane związane z wiadomościami push",
+    "PushMessages:read": "Wyświetl dane związane z wiadomościami push",
+    "PushMessages:update": "Zaktualizuj dane związane z wiadomościami push",
+    "PushMessages:delete": "Usuń dane związane z wiadomościami push"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "Aktywacja wiadomości push",
+      "description": "Włącz/wyłącz wiadomości push"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Aktywacja Firebase Cloud Messaging (FCM)",
+      "description": "Włącz/wyłącz Firebase Cloud Messaging (FCM). Wymagana jest dodatkowa konfiguracja. Użyj poniższego linku do konfiguracji https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "Rozmiar partii",
+      "description": "Zdefiniuj liczbę wiadomości wysyłanych na partię"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "Autoryzuj swoją aplikację do uzyskiwania dostępu do usług Firebase"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "Ustaw domenę, w której przetwarzane są żądania uwierzytelniania dla Twojego projektu Firebase"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "Nazwij swój projekt Firebase, aby połączyć wszystkie usługi Firebase w jednym projekcie"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "Ustaw URL dla swojego Firebase Cloud Storage, gdzie mogą być przechowywane pliki związane z projektem"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "Ustaw ID do identyfikacji nadawcy i wysyłania wiadomości z Twojego projektu Firebase do urządzeń użytkowników"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "Połącz wiadomości z Twoją konkretną aplikacją"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "Ustaw klucz używany do protokołów Web Push, aby pomóc w uwierzytelnianiu wiadomości push wysyłanych z Twojej aplikacji"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "Cykliczne zadanie wysyłania zaplanowanych wiadomości",
+      "description": "Włącz/wyłącz cykliczne zadanie wysyłania zaplanowanych wiadomości"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "Wyrażenie Cron dla cyklicznego zadania wysyłania zaplanowanych wiadomości",
+      "description": "Skonfiguruj, aby zaplanować automatyczne wiadomości. '0/5****' oznacza, że wiadomości będą wysyłane co 5 minut"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "Cykliczne zadanie śledzenia nowych odbiorców",
+      "description": "Włącz/wyłącz zadanie śledzenia odbiorców"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "Wyrażenie Cron dla cyklicznego zadania śledzenia nowych odbiorców",
+      "description": "Skonfiguruj, aby sprawdzać nowych odbiorców. '0 0/1' oznacza, że wiadomości będą wysyłane co minutę"
+    }
+  }
+}
