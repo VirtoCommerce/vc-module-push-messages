@@ -1,5 +1,6 @@
 using System;
-using GraphQL.Server;
+using GraphQL;
+using GraphQL.MicrosoftDI;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -83,12 +84,15 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddSingleton<IPushMessageJobService, PushMessageJobService>();
 
         // GraphQL
-        var assemblyMarker = typeof(AssemblyMarker);
-        var graphQlBuilder = new CustomGraphQLBuilder(serviceCollection);
-        graphQlBuilder.AddGraphTypes(assemblyMarker);
-        serviceCollection.AddMediatR(assemblyMarker);
-        serviceCollection.AddAutoMapper(assemblyMarker);
-        serviceCollection.AddSchemaBuilders(assemblyMarker);
+        _ = new GraphQLBuilder(serviceCollection, builder =>
+        {
+            var assemblyMarker = typeof(AssemblyMarker);
+            builder.AddGraphTypes(assemblyMarker.Assembly);
+            serviceCollection.AddMediatR(assemblyMarker);
+            serviceCollection.AddAutoMapper(assemblyMarker);
+            serviceCollection.AddSchemaBuilders(assemblyMarker);
+        });
+
         serviceCollection.AddDistributedMessageService(Configuration);
         serviceCollection.AddSingleton<XapiPushMessageRecipientChangedEventHandler>();
         serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();

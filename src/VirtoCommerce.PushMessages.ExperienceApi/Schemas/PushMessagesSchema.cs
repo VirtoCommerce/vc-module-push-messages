@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Resolvers;
-using GraphQL.Subscription;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authorization;
 using VirtoCommerce.PushMessages.ExperienceApi.Authorization;
@@ -20,12 +19,12 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
     {
         public void Build(ISchema schema)
         {
-            var messageAddedEventStreamFieldType = new EventStreamFieldType
+            var messageAddedEventStreamFieldType = new FieldType
             {
                 Name = "pushMessageCreated",
-                Type = GraphTypeExtenstionHelper.GetActualType<NonNullGraphType<PushMessageType>>(),
+                Type = GraphTypeExtensionHelper.GetActualType<NonNullGraphType<PushMessageType>>(),
                 Resolver = new FuncFieldResolver<ExpPushMessage>(ResolveMessage),
-                AsyncSubscriber = new AsyncEventStreamResolver<ExpPushMessage>(Subscribe)
+                StreamResolver = new SourceStreamResolver<ExpPushMessage>(Subscribe)
             };
             schema.Subscription.AddField(messageAddedEventStreamFieldType);
         }
@@ -35,7 +34,7 @@ namespace VirtoCommerce.PushMessages.ExperienceApi.Schemas
             return context.Source as ExpPushMessage;
         }
 
-        private async Task<IObservable<ExpPushMessage>> Subscribe(IResolveEventStreamContext context)
+        private async ValueTask<IObservable<ExpPushMessage>> Subscribe(IResolveFieldContext context)
         {
             var authorizationResult = await authorizationService.AuthorizeAsync(context.GetCurrentPrincipal(), null, new PushMessagesAuthorizationRequirement());
             if (!authorizationResult.Succeeded)
