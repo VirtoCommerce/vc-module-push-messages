@@ -1,12 +1,11 @@
 using System;
-using GraphQL.Server;
-using MediatR;
+using GraphQL;
+using GraphQL.MicrosoftDI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using VirtoCommerce.CustomerModule.Core.Events;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Modularity;
@@ -32,7 +31,6 @@ using VirtoCommerce.PushMessages.ExperienceApi.Handlers;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.Xapi.Core.Extensions;
 using VirtoCommerce.Xapi.Core.Infrastructure;
-using VirtoCommerce.Xapi.Core.Models;
 
 namespace VirtoCommerce.PushMessages.Web;
 
@@ -83,12 +81,11 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddSingleton<IPushMessageJobService, PushMessageJobService>();
 
         // GraphQL
-        var assemblyMarker = typeof(AssemblyMarker);
-        var graphQlBuilder = new CustomGraphQLBuilder(serviceCollection);
-        graphQlBuilder.AddGraphTypes(assemblyMarker);
-        serviceCollection.AddMediatR(assemblyMarker);
-        serviceCollection.AddAutoMapper(assemblyMarker);
-        serviceCollection.AddSchemaBuilders(assemblyMarker);
+        _ = new GraphQLBuilder(serviceCollection, builder =>
+        {
+            builder.AddSchema(serviceCollection, typeof(AssemblyMarker));
+        });
+
         serviceCollection.AddDistributedMessageService(Configuration);
         serviceCollection.AddSingleton<XapiPushMessageRecipientChangedEventHandler>();
         serviceCollection.AddSingleton<IAuthorizationHandler, PushMessagesAuthorizationHandler>();
@@ -99,8 +96,7 @@ public class Module : IModule, IHasConfiguration
     {
         var serviceProvider = appBuilder.ApplicationServices;
 
-        var playgroundOptions = appBuilder.ApplicationServices.GetService<IOptions<GraphQLPlaygroundOptions>>();
-        appBuilder.UseSchemaGraphQL<ScopedSchemaFactory<AssemblyMarker>>(playgroundOptions?.Value?.Enable ?? true, "pushMessages");
+        appBuilder.UseScopedSchema<AssemblyMarker>("pushMessages");
 
         // Register settings
         var settingsRegistrar = serviceProvider.GetRequiredService<ISettingsRegistrar>();
