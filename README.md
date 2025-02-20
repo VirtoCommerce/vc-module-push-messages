@@ -1,12 +1,10 @@
-# Push Messages
-The Push Messages module enables marketers to send custom notifications to selected customers or organizations within the Virto Commerce platform.
-
-## Overview
-The Push Messages module provides a seamless solution for Marketers to customize and send notifications to fronted applications for specific customers or organizations. With options to tailor the Message of the notification, Marketers can effectively communicate with targeted groups. Additionally, the module offers features for displaying delivery status for notifications.
+# Virto Commerce Push Messages Module
+The Push Messages module enables marketers to send custom notifications to selected customers or organizations within the Virto Commerce platform. The Push Messages module provides a seamless solution for Marketers to customize and send notifications to fronted applications for specific customers or organizations. With options to tailor the Message of the notification, Marketers can effectively communicate with targeted groups. Additionally, the module offers features for displaying delivery status for notifications.
 
 ![image](https://github.com/VirtoCommerce/vc-module-push-messages/assets/7639413/cc931ef6-3aca-4b25-b4c7-177ff9157433)
 
-## Features
+## Key features
+
 * Send a Short Message in HTML format. Max length: 1024.
 * Select multiple customers or organizations for notification delivery
 * Check Delivery status display per customer
@@ -101,11 +99,21 @@ mutation markPushMessageUnread($command: InputMarkPushMessageUnreadType!) {
 }
 ```
 
+
+## Documentation
+
+* [Push Meessages module user documentation](https://docs.virtocommerce.org/platform/user-guide/push-messages/overview/)
+* [GraphQL API documentation](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Push-messages/overview/)
+* [REST API](https://virtostart-demo-admin.govirto.com/docs/index.html?urls.primaryName=VirtoCommerce.PushMessages)
+* [Push messages configuration](https://docs.virtocommerce.org/platform/developer-guide/Configuration-Reference/appsettingsjson/#pushmessages)
+* [View on GitHub](https://github.com/VirtoCommerce/vc-module-push-messages)
+
 ## References
-* Home: https://virtocommerce.com
-* Documantation: https://docs.virtocommerce.org
-* Community: https://www.virtocommerce.org
-* [Download Latest Release](https://github.com/VirtoCommerce/vc-module-push-messages/releases)
+* [Deployment](https://docs.virtocommerce.org/platform/developer-guide/Tutorials-and-How-tos/Tutorials/deploy-module-from-source-code/)
+* [Installation](https://docs.virtocommerce.org/platform/user-guide/modules-installation/)
+* [Home](https://virtocommerce.com)
+* [Community](https://www.virtocommerce.org)
+* [Download latest release](https://github.com/VirtoCommerce/vc-module-push-messages/releases)
 
 ## License
 Copyright (c) Virto Solutions LTD.  All rights reserved.
