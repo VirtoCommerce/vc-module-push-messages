@@ -3,15 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "bootstrap": "yarn build:modules-library",
     "serve": "cross-env APP_ENV=development vite --force",
     "preview": "vite preview",
     "build": "yarn build:app && yarn build:types",
     "build:app": "cross-env APP_ENV=production vite build",
     "build:types": "vue-tsc --declaration --emitDeclarationOnly --outDir dist/types",
     "publish": "yarn workspace @virtocommerce/push-messages npm publish",
-    "build:modules-library": "yarn build:modules && yarn build:types-modules",
-    "build:modules": "vite build --config ./src/modules/vite.config.mts",
     "build:types-modules": "vue-tsc --declaration --emitDeclarationOnly --p ./src/modules/tsconfig.json --outDir ./src/modules/dist/types",
     "type-check": "vue-tsc --noEmit",
     "lint-staged": "lint-staged",
@@ -19,10 +16,6 @@
     "generate-api-client": "cross-env api-client-generator --APP_PLATFORM_MODULES='[VirtoCommerce.Customer,VirtoCommerce.PushMessages]' --APP_API_CLIENT_DIRECTORY=./src/api_client/",
     "release": "tsx scripts/release.ts --dry"
   },
-  "workspaces": [
-    "src/api_client",
-    "src/modules"
-  ],
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",

@@ -15,53 +15,10 @@ runs:
   steps:
     - name: Install dependencies for Client App
       shell: bash
-      working-directory: src/VirtoCommerce.PushMessages.Web/App/push-messages-new
+      working-directory: src/VirtoCommerce.PushMessages.Web/push-messages-new
       run: yarn
-
-    - name: Build Module
-      shell: bash
-      working-directory: src/VirtoCommerce.PushMessages.Web/App/push-messages-new
-      run: yarn bootstrap
-
-    - name: Add auth token
-      shell: bash
-      working-directory: src/VirtoCommerce.PushMessages.Web/App/push-messages-new
-      run: |
-        yarn config set --json npmRegistries '{ "//registry.npmjs.org": { "npmAuthToken": "'"${NPM_TOKEN}"'" } }'
-      env:
-        NPM_TOKEN: ${{ inputs.npmToken }}
-
-    - name: Check for NPM tag
-      shell: bash
-      working-directory: "src/VirtoCommerce.PushMessages.Web/App/push-messages-new"
-      run: |
-        # Set default tag
-        NPM_TAG="latest"
-
-        # Check if package.json has npmTag
-        if [ -f "package.json" ]; then
-          NPM_TAG_FROM_PKG=$(node -p "try { const pkg = require('./package.json'); pkg.npmTag || ''; } catch(e) { '' }")
-          if [ ! -z "$NPM_TAG_FROM_PKG" ] && [ "$NPM_TAG_FROM_PKG" != "undefined" ] && [ "$NPM_TAG_FROM_PKG" != "null" ]; then
-            echo "Found npmTag in package.json: $NPM_TAG_FROM_PKG"
-            NPM_TAG="$NPM_TAG_FROM_PKG"
-          fi
-        fi
-
-        # Save to environment for later steps
-        echo "NPM_TAG=$NPM_TAG" >> $GITHUB_ENV
-        echo "Will publish with npm tag: $NPM_TAG"
-
-    - name: Publish module
-      shell: bash
-      working-directory: src/VirtoCommerce.PushMessages.Web/App/push-messages-new
-      run: |
-        if [ "$NPM_TAG" = "latest" ]; then
-          yarn run publish || true
-        else
-          yarn workspace @virtocommerce/push-messages npm publish --tag=$NPM_TAG || true
-        fi
 
     - name: Build Client App
       shell: bash
-      working-directory: src/VirtoCommerce.PushMessages.Web/App/push-messages-new
+      working-directory: src/VirtoCommerce.PushMessages.Web/push-messages-new
       run: yarn build

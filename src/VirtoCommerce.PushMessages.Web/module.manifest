@@ -18,14 +18,14 @@
       <title>Push Messages</title>
       <description>Push Messages</description>
       <iconUrl>/apps/push-messages/img/icons/safari-pinned-tab.svg</iconUrl>
-      <contentPath>App/push-messages/dist</contentPath>
+      <contentPath>push-messages/dist</contentPath>
       <permission>PushMessages:access</permission>
     </app>
     <app id="push-messages-new">
       <title>Push Messages New</title>
       <description>Push Messages New</description>
       <iconUrl>/apps/push-messages/img/icons/safari-pinned-tab.svg</iconUrl>
-      <contentPath>App/push-messages-new/dist</contentPath>
+      <contentPath>push-messages-new/dist</contentPath>
       <permission>PushMessages:access</permission>
     </app>
 
