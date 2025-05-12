@@ -1,0 +1,17 @@
+{
+  "extends": "@vc-shell/ts-config/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "../",
+    "declarationDir": "../../dist/types-modules",
+    "outDir": "../../dist/modules",
+    "types": ["vite/client", "../shims-vue.d.ts"]
+  },
+  "files": ["package.json"],
+  "include": [
+      "../api_client/**/*.ts",
+      "**/*.ts",
+      "**/*.vue",
+      "**/*.json"
+    ]
+}
