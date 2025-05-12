@@ -1,0 +1,119 @@
+{
+  "PUSH_MESSAGES": {
+    "TITLE": "Push Messages",
+    "MENU": {
+      "ALL": "All messages",
+      "TRACK_NEW_RECIPIENTS": "Track new recipients",
+      "SENT": "Sent",
+      "SCHEDULED": "Scheduled",
+      "DRAFTS": "Drafts"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Push Messages",
+        "TOOLBAR": {
+          "REFRESH": "Refresh",
+          "NEW": "New",
+          "DELETE": "Delete selected"
+        },
+        "SEARCH": {
+          "PLACEHOLDER": "Search keywords"
+        },
+        "TABLE": {
+          "TOTALS": "Count:",
+          "HEADER": {
+            "ID": "ID",
+            "CREATED_DATE": "Created date",
+            "MODIFIED_DATE": "Modified date",
+            "START_DATE": "Scheduled date",
+            "CREATED_BY": "Created by",
+            "TRACK_NEW_RECIPIENTS": "Track new recipients",
+            "RECIPIENTS_TOTAL_COUNT": "Recipients, #",
+            "RECIPIENTS_READ_COUNT": "Read, #",
+            "RECIPIENTS_READ_PERCENT": "Read, %",
+            "STATUS": "Status",
+            "TOPIC": "Topic",
+            "SHORT_MESSAGE": "Message"
+          },
+          "EMPTY": {
+            "TITLE": "There are no content yet",
+            "ACTION": "Add content"
+          },
+          "NOT_FOUND": {
+            "TITLE": "No content found.",
+            "ACTION": "Reset search"
+          },
+          "ACTIONS": {
+            "DELETE": "Delete"
+          }
+        },
+        "NOT_FOUND": {
+          "EMPTY": "No messages found."
+        },
+        "EMPTY": {
+          "NO_ITEMS": "There are no items yet"
+        }
+      },
+      "DETAILS": {
+        "TOOLBAR": {
+          "SAVE": "Save",
+          "SAVE_AND_PUBLISH": "Send",
+          "CLONE": "Clone",
+          "DELETE": "Delete"
+        },
+        "FORM": {
+          "MESSAGE": {
+            "LABEL": "Message"
+          },
+          "MEMBER_IDS": {
+            "LABEL": "Recipients list",
+            "PLACEHOLDER": "Select recipients"
+          },
+          "MEMBER_QUERY": {
+            "LABEL": "Recipients query",
+            "PLACEHOLDER": "Enter recipients query"
+          },
+          "COUNT": {
+            "LABEL": "Count"
+          },
+          "TOPIC": {
+            "LABEL": "Topic"
+          },
+          "START_DATE": {
+            "LABEL": "Schedule send"
+          },
+          "TRACK_NEW_RECIPIENTS": {
+            "LABEL": "Track new recipients",
+            "DESCRIPTION": "Periodically check if there are new users matching the specified recipients list or query."
+          }
+        },
+        "WIDGETS": {
+          "RECIPIENTS": "Recipients"
+        }
+      },
+      "RECIPIENTS": {
+        "TITLE": "Recipients",
+        "TABLE": {
+          "TOTALS": "Count:",
+          "HEADER": {
+            "MEMBER_ID": "Member ID",
+            "MEMBER_NAME": "Name",
+            "USER_ID": "User ID",
+            "USER_NAME": "Login",
+            "IS_READ": "Read",
+            "IS_HIDDEN": "Hidden",
+            "CREATED_DATE": "Created date",
+            "MODIFIED_DATE": "Modified date"
+          }
+        }
+      },
+      "ALERTS": {
+        "CLOSE_CONFIRMATION": "You have unsaved changes\nClose anyway?",
+        "DELETE": "Are you sure you want to delete this message?",
+        "DELETE_SELECTED_CONFIRMATION": {
+          "MESSAGE": "Are you sure you want to delete {count} selected messages?"
+        }
+      }
+    }
+  }
+}
