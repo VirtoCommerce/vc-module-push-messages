@@ -1,5 +1,5 @@
 # v2.0.0
-name: Build Push Messages App
+name: Build Push Messages App New
 
 inputs:
   githubToken:
@@ -13,8 +13,7 @@ runs:
   using: composite
 
   steps:
-
-    - name: Install dependencies for Push Messages App
+    - name: Install dependencies for Client App
       shell: bash
       working-directory: src/VirtoCommerce.PushMessages.Web/push-messages
       run: yarn
