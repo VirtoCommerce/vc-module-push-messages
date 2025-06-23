@@ -1,8 +1,6 @@
-@use 'base';
-
 @use 'custom';
 
-@use 'colors';
+@tailwind base;
 
 @tailwind components;
 
