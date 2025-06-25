@@ -110,12 +110,6 @@ jobs:
           repoOrg: ${{ github.repository_owner }}
           sonarOrg: ${{secrets.SONAR_ORG_KEY}}
 
-      - name: Build Custom App
-        uses: ./.github/actions/build-app
-        with:
-          githubToken: ${{ secrets.REPO_TOKEN }}
-          npmToken: ${{ secrets.NPM_TOKEN }}
-
       - name: Build
         run: vc-build Compile
 
