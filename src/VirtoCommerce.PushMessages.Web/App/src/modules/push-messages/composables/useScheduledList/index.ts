@@ -1,56 +1,70 @@
-import { ListBaseBladeScope, useApiClient, useBladeNavigation, useListFactory } from "@vc-shell/framework";
+import { computed, ref, ComputedRef, Ref } from "vue";
+import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
 
 import {
   IPushMessageSearchCriteria,
   PushMessage,
   PushMessageClient,
   PushMessageSearchCriteria,
+  PushMessageSearchResult,
 } from "../../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient } = useApiClient(PushMessageClient);
 
-export interface PushMessageListScope extends ListBaseBladeScope {}
+export interface UseScheduledListOptions {
+  pageSize?: number;
+  sort?: string;
+}
 
-export default () => {
-  const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
-    load: async (_query) => {
-      const criteria = { ...(_query || {}) } as PushMessageSearchCriteria;
-      criteria.statuses = ["Scheduled"];
-      criteria.responseGroup = "None";
-      return (await getApiClient()).search(criteria);
-    },
-    remove: async (_query, customQuery) => {
-      const ids = customQuery.ids;
-      if (ids) {
-        return (await getApiClient()).delete(ids);
-      }
-    },
+export interface IUseScheduledList {
+  items: ComputedRef<PushMessage[]>;
+  totalCount: ComputedRef<number>;
+  pages: ComputedRef<number>;
+  currentPage: ComputedRef<number>;
+  searchQuery: Ref<IPushMessageSearchCriteria>;
+  loadMessages: (query?: IPushMessageSearchCriteria) => Promise<void>;
+  removeMessages: (query?: { ids: string[] }) => Promise<void>;
+  loading: ComputedRef<boolean>;
+}
+
+export function useScheduledList(options?: UseScheduledListOptions): IUseScheduledList {
+  const pageSize = options?.pageSize || 20;
+  const searchQuery = ref({
+    take: pageSize,
+    sort: options?.sort || "modifiedDate:desc",
+    skip: 0,
+    statuses: ["Scheduled"],
+  });
+  const searchResult = ref<PushMessageSearchResult>();
+
+  const { action: loadMessages, loading: loadingMessages } = useAsync<IPushMessageSearchCriteria>(async (_query) => {
+    searchQuery.value = {
+      ...searchQuery.value,
+      ...(_query || {}),
+      statuses: ["Scheduled"], // Always filter for scheduled messages
+    };
+
+    const criteria = new PushMessageSearchCriteria(searchQuery.value);
+    criteria.responseGroup = "None";
+    criteria.statuses = ["Scheduled"];
+    searchResult.value = await (await getApiClient()).search(criteria);
   });
 
-  const { load, remove, items, pagination, loading, query } = listFactory({ sort: "modifiedDate:desc", pageSize: 20 });
-  const { openBlade, resolveBladeByName } = useBladeNavigation();
-
-  async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
-    await openBlade({
-      blade: resolveBladeByName("PushMessageDetails"),
-      ...data,
-    });
-  }
-
-  const scope: PushMessageListScope = {
-    openDetailsBlade,
-    isReadOnly: (data: { item: PushMessage }) => {
-      return data.item.status === "Sent";
-    },
-  };
+  const { action: removeMessages, loading: loadingRemoveMessages } = useAsync<{ ids: string[] }>(async (_query) => {
+    const ids = _query?.ids;
+    if (ids) {
+      await (await getApiClient()).delete(ids);
+    }
+  });
 
   return {
-    items,
-    load,
-    remove,
-    loading,
-    pagination,
-    query,
-    scope,
+    items: computed(() => searchResult.value?.results || []),
+    totalCount: computed(() => searchResult.value?.totalCount || 0),
+    pages: computed(() => Math.ceil((searchResult.value?.totalCount || 1) / pageSize)),
+    currentPage: computed(() => Math.ceil((searchQuery.value?.skip || 0) / Math.max(1, pageSize) + 1)),
+    searchQuery,
+    loadMessages,
+    removeMessages,
+    loading: useLoading(loadingMessages, loadingRemoveMessages),
   };
-};
+}

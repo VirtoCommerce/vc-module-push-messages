@@ -1,56 +1,69 @@
-import { ListBaseBladeScope, useApiClient, useBladeNavigation, useListFactory } from "@vc-shell/framework";
+import {
+  ListBaseBladeScope,
+  useApiClient,
+  useAsync,
+  useBladeNavigation,
+  useListFactory,
+  useLoading,
+  AsyncAction,
+} from "@vc-shell/framework";
 
 import {
   IPushMessageSearchCriteria,
   PushMessage,
   PushMessageClient,
   PushMessageSearchCriteria,
+  PushMessageSearchResult,
 } from "../../../../api_client/virtocommerce.pushmessages";
+import { computed, ComputedRef, Ref, ref } from "vue";
+
+export interface IUseDraftList {
+  items: ComputedRef<PushMessage[]>;
+  totalCount: ComputedRef<number>;
+  pages: ComputedRef<number>;
+  currentPage: ComputedRef<number>;
+  searchQuery: Ref<IPushMessageSearchCriteria>;
+  loadDrafts: (query?: IPushMessageSearchCriteria) => Promise<void>;
+  removeDrafts: (query?: { ids: string[] }) => Promise<void>;
+  loading: ComputedRef<boolean>;
+}
 
 const { getApiClient } = useApiClient(PushMessageClient);
 
-export interface PushMessageListScope extends ListBaseBladeScope {}
+export function useDraftList(options?: { pageSize?: number; sort?: string }): IUseDraftList {
+  const pageSize = options?.pageSize || 20;
+  const searchQuery = ref<IPushMessageSearchCriteria>({
+    take: pageSize,
+    sort: options?.sort,
+  });
+  const searchResult = ref<PushMessageSearchResult>();
 
-export default () => {
-  const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
-    load: async (_query) => {
-      const criteria = { ...(_query || {}) } as PushMessageSearchCriteria;
-      criteria.statuses = ["Draft"];
-      criteria.responseGroup = "None";
-      return (await getApiClient()).search(criteria);
-    },
-    remove: async (_query, customQuery) => {
-      const ids = customQuery.ids;
-      if (ids) {
-        return (await getApiClient()).delete(ids);
-      }
-    },
+  const { action: loadDrafts, loading: loadingDrafts } = useAsync<IPushMessageSearchCriteria>(async (_query) => {
+    searchQuery.value = {
+      ...searchQuery.value,
+      ...(_query || {}),
+    };
+    const criteria = { ...searchQuery.value } as PushMessageSearchCriteria;
+    criteria.statuses = ["Draft"];
+    criteria.responseGroup = "None";
+    searchResult.value = await (await getApiClient()).search(criteria);
   });
 
-  const { load, remove, items, pagination, loading, query } = listFactory({ sort: "modifiedDate:desc", pageSize: 20 });
-  const { openBlade, resolveBladeByName } = useBladeNavigation();
-
-  async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
-    await openBlade({
-      blade: resolveBladeByName("PushMessageDetails"),
-      ...data,
-    });
-  }
-
-  const scope: PushMessageListScope = {
-    openDetailsBlade,
-    isReadOnly: (data: { item: PushMessage }) => {
-      return data.item.status === "Sent";
-    },
-  };
+  const { action: removeDrafts, loading: loadingRemoveDrafts } = useAsync<{ ids: string[] }>(async (_query) => {
+    const ids = _query?.ids;
+    if (ids) {
+      await (await getApiClient()).delete(ids);
+    }
+  });
 
   return {
-    items,
-    load,
-    remove,
-    loading,
-    pagination,
-    query,
-    scope,
+    items: computed(() => searchResult.value?.results || []),
+    totalCount: computed(() => searchResult.value?.totalCount || 0),
+    pages: computed(() => Math.ceil((searchResult.value?.totalCount || 1) / pageSize)),
+    currentPage: computed(() => Math.ceil((searchQuery.value?.skip || 0) / Math.max(1, pageSize) + 1)),
+    searchQuery,
+    loadDrafts,
+    removeDrafts,
+    loading: useLoading(loadingDrafts, loadingRemoveDrafts),
   };
-};
+}
