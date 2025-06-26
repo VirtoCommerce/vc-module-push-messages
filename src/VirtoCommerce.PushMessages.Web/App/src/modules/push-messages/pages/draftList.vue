@@ -223,9 +223,10 @@ const actionBuilder = (item: PushMessage): IActionBuilderResult[] => {
       icon: "material-delete",
       title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE"),
       type: "danger",
-      clickHandler() {
-        if (item.id) {
-          removeDrafts({ ids: [item.id] });
+      clickHandler: async () => {
+        if (item.id && (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE")))) {
+          await removeDrafts({ ids: [item.id] });
+          await reload();
         }
       },
     });

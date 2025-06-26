@@ -224,7 +224,7 @@ const actionBuilder = (item: PushMessage): IActionBuilderResult[] => {
       title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE"),
       type: "danger",
       async clickHandler() {
-        if (item.id && (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE_CONFIRMATION.MESSAGE")))) {
+        if (item.id && (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE")))) {
           await removeMessages({ ids: [item.id] });
           await reload();
         }
