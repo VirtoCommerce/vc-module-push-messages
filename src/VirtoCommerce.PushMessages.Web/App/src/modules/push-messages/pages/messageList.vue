@@ -67,7 +67,6 @@ const columns = useMessageListColumns({
   hiddenColumns: ["recipientsTotalCount", "recipientsReadCount", "recipientsReadPercent"],
 });
 
-// Expose the same API as the original component
 const reload = async () => {
   await loadMessages({
     ...searchQuery.value,
