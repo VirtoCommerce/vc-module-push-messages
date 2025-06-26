@@ -1,70 +1,14 @@
-import { computed, ref, ComputedRef, Ref } from "vue";
-import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
+import { useBaseList, BaseListOptions, IUseBaseList } from "../useBaseList";
 
-import {
-  IPushMessageSearchCriteria,
-  PushMessage,
-  PushMessageClient,
-  PushMessageSearchCriteria,
-  PushMessageSearchResult,
-} from "../../../../api_client/virtocommerce.pushmessages";
+export interface IUseScheduledList extends IUseBaseList {}
 
-const { getApiClient } = useApiClient(PushMessageClient);
-
-export interface UseScheduledListOptions {
-  pageSize?: number;
-  sort?: string;
-}
-
-export interface IUseScheduledList {
-  items: ComputedRef<PushMessage[]>;
-  totalCount: ComputedRef<number>;
-  pages: ComputedRef<number>;
-  currentPage: ComputedRef<number>;
-  searchQuery: Ref<IPushMessageSearchCriteria>;
-  loadMessages: (query?: IPushMessageSearchCriteria) => Promise<void>;
-  removeMessages: (query?: { ids: string[] }) => Promise<void>;
-  loading: ComputedRef<boolean>;
-}
-
-export function useScheduledList(options?: UseScheduledListOptions): IUseScheduledList {
-  const pageSize = options?.pageSize || 20;
-  const searchQuery = ref({
-    take: pageSize,
+export function useScheduledList(options?: { pageSize?: number; sort?: string }): IUseScheduledList {
+  const baseListOptions: BaseListOptions = {
+    pageSize: options?.pageSize || 20,
     sort: options?.sort || "modifiedDate:desc",
-    skip: 0,
     statuses: ["Scheduled"],
-  });
-  const searchResult = ref<PushMessageSearchResult>();
-
-  const { action: loadMessages, loading: loadingMessages } = useAsync<IPushMessageSearchCriteria>(async (_query) => {
-    searchQuery.value = {
-      ...searchQuery.value,
-      ...(_query || {}),
-      statuses: ["Scheduled"], // Always filter for scheduled messages
-    };
-
-    const criteria = new PushMessageSearchCriteria(searchQuery.value);
-    criteria.responseGroup = "None";
-    criteria.statuses = ["Scheduled"];
-    searchResult.value = await (await getApiClient()).search(criteria);
-  });
-
-  const { action: removeMessages, loading: loadingRemoveMessages } = useAsync<{ ids: string[] }>(async (_query) => {
-    const ids = _query?.ids;
-    if (ids) {
-      await (await getApiClient()).delete(ids);
-    }
-  });
-
-  return {
-    items: computed(() => searchResult.value?.results || []),
-    totalCount: computed(() => searchResult.value?.totalCount || 0),
-    pages: computed(() => Math.ceil((searchResult.value?.totalCount || 1) / pageSize)),
-    currentPage: computed(() => Math.ceil((searchQuery.value?.skip || 0) / Math.max(1, pageSize) + 1)),
-    searchQuery,
-    loadMessages,
-    removeMessages,
-    loading: useLoading(loadingMessages, loadingRemoveMessages),
+    responseGroup: "None",
   };
+
+  return useBaseList(baseListOptions);
 }

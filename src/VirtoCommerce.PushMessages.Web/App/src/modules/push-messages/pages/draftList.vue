@@ -1,56 +1,32 @@
 <template>
-  <VcBlade
+  <BaseListBlade
+    v-bind="$props"
     :title="title"
-    width="50%"
-    :expanded="expanded"
-    :closable="closable"
-    :toolbar-items="bladeToolbar"
-    @close="$emit('close:blade')"
-    @expand="$emit('expand:blade')"
-    @collapse="$emit('collapse:blade')"
-  >
-    <!--@vue-generic {PushMessage}-->
-    <VcTable
-      :loading="loading"
-      :expanded="expanded"
-      :items="items"
-      :columns="columns"
-      multiselect
-      :item-action-builder="actionBuilder"
-      enable-item-actions
-      :selected-item-id="selectedItemId"
-      :selected-items="selectedDraftsIds"
-      :sort="sortExpression"
-      :pages="pages"
-      :current-page="currentPage"
-      :search-value="searchValue"
-      :total-count="totalCount"
-      state-key="draft_list"
-      @search:change="onSearchList"
-      @item-click="onItemClick"
-      @header-click="onHeaderClick"
-      @pagination-click="onPaginationClick"
-      @scroll:ptr="reload"
-      @selection-changed="onSelectionChanged"
-    ></VcTable>
-  </VcBlade>
+    state-key="draft_list"
+    :columns="columns"
+    :items="items"
+    :total-count="totalCount"
+    :pages="pages"
+    :current-page="currentPage"
+    :loading="loading"
+    :load-messages="loadDrafts"
+    :remove-messages="removeDrafts"
+    :search-query="searchQuery"
+    @parent:call="$emit('parent:call', $event)"
+    @close:blade="$emit('close:blade')"
+    @collapse:blade="$emit('collapse:blade')"
+    @expand:blade="$emit('expand:blade')"
+  />
 </template>
 
 <script setup lang="ts">
-import {
-  IActionBuilderResult,
-  IBladeToolbar,
-  IParentCallArgs,
-  ITableColumns,
-  useBladeNavigation,
-  usePopup,
-  useTableSort,
-} from "@vc-shell/framework";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { IParentCallArgs, useBladeNavigation } from "@vc-shell/framework";
 import { useDraftList } from "../composables/useDraftList";
-import { debounce } from "lodash-es";
+import { useMessageListColumns } from "../utils/columns";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
+import BaseListBlade from "../components/BaseListBlade.vue";
 
 export interface Props {
   expanded?: boolean;
@@ -66,8 +42,8 @@ export interface Emits {
   (event: "expand:blade"): void;
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+defineProps<Props>();
+defineEmits<Emits>();
 
 defineOptions({
   name: "PushMessageDraftList",
@@ -81,196 +57,25 @@ defineOptions({
 });
 
 const { t } = useI18n({ useScope: "global" });
-const { openBlade } = useBladeNavigation();
-
-const {
-  currentSort,
-  sortExpression,
-  handleSortChange: tableSortHandler,
-  resetSort,
-} = useTableSort({
-  initialDirection: "DESC",
-  initialProperty: "modifiedDate",
-});
-
-const { showConfirmation } = usePopup();
-
-const searchValue = ref();
-
-const selectedItemId = ref<string>();
-
-const selectedDraftsIds = ref<string[]>([]);
 
 const { loadDrafts, searchQuery, currentPage, removeDrafts, totalCount, items, loading, pages } = useDraftList();
 
 const title = computed(() => t("PUSH_MESSAGES.PAGES.LIST.TITLE"));
 
-const bladeToolbar = computed((): IBladeToolbar[] => [
-  {
-    id: "refresh",
-    icon: "material-refresh",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.REFRESH"),
-    clickHandler: async () => {
-      await reload();
-    },
-  },
-  {
-    id: "add",
-    icon: "material-add",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.NEW"),
-    clickHandler: onAddNewDraft,
-  },
-  {
-    id: "deleteSelected",
-    icon: "material-delete",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.DELETE"),
-    disabled: selectedDraftsIds.value.length === 0,
-    clickHandler: async () => {
-      if (
-        await showConfirmation(
-          t("PUSH_MESSAGES.PAGES.ALERTS.DELETE_SELECTED_CONFIRMATION.MESSAGE", {
-            count: selectedDraftsIds.value.length,
-          }),
-        )
-      ) {
-        await removeDrafts({ ids: selectedDraftsIds.value });
-        await reload();
-        selectedDraftsIds.value = [];
-      }
-    },
-  },
-]);
+const columns = useMessageListColumns({
+  hiddenColumns: ["trackNewRecipients", "recipientsTotalCount", "recipientsReadCount", "recipientsReadPercent"],
+});
 
-const columns = computed(() => [
-  {
-    id: "status",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.STATUS"),
-    sortable: true,
-    alwaysVisible: true,
-  },
-  {
-    id: "topic",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.TOPIC"),
-    sortable: true,
-  },
-  {
-    id: "shortMessage",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.SHORT_MESSAGE"),
-    type: "html",
-    alwaysVisible: true,
-  },
-  {
-    id: "startDate",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.START_DATE"),
-    type: "date-time",
-    sortable: true,
-    visible: false,
-  },
-  {
-    id: "createdDate",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.CREATED_DATE"),
-    type: "date-time",
-    sortable: true,
-    visible: false,
-  },
-  {
-    id: "modifiedDate",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.MODIFIED_DATE"),
-    type: "date-time",
-    sortable: true,
-    alwaysVisible: true,
-  },
-  {
-    id: "recipientsTotalCount",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_TOTAL_COUNT"),
-    visible: false,
-  },
-  {
-    id: "recipientsReadCount",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_COUNT"),
-    visible: false,
-  },
-  {
-    id: "recipientsReadPercent",
-    title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.HEADER.RECIPIENTS_READ_PERCENT"),
-    visible: false,
-  },
-]);
-
-watch(
-  () => props.param,
-  (newVal) => {
-    selectedItemId.value = newVal;
-  },
-  { immediate: true },
-);
-
-watch(
-  () => sortExpression.value,
-  async (newVal) => {
-    await loadDrafts({
-      ...searchQuery.value,
-      sort: newVal,
-    });
-  },
-);
-
-const actionBuilder = (item: PushMessage): IActionBuilderResult[] => {
-  const result: IActionBuilderResult[] = [];
-
-  if (item.status !== "Sent") {
-    result.push({
-      icon: "material-delete",
-      title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE"),
-      type: "danger",
-      clickHandler: async () => {
-        if (item.id && (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE")))) {
-          await removeDrafts({ ids: [item.id] });
-          await reload();
-        }
-      },
-    });
-  }
-
-  return result;
-};
-
+// Expose the same API as the original component
 const reload = async () => {
-  selectedDraftsIds.value = [];
-
   await loadDrafts({
     ...searchQuery.value,
-    skip: (currentPage.value - 1) * (searchQuery.value.take ?? 10),
-    sort: sortExpression.value,
+    skip: (currentPage.value - 1) * (searchQuery.value.take ?? 20),
   });
 };
-
-const onSearchList = debounce(async (keyword: string | undefined) => {
-  console.debug(`Drafts list search by ${keyword}`);
-  searchValue.value = keyword;
-  await loadDrafts({
-    ...searchQuery.value,
-    keyword,
-  });
-}, 1000);
-
-function onItemClick(item: PushMessage) {
-  console.log("onItemClick", item);
-  openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
-    param: item.id,
-    onOpen() {
-      selectedItemId.value = item.id;
-    },
-    onClose() {
-      selectedItemId.value = undefined;
-    },
-  });
-}
 
 function onAddNewDraft(...args: unknown[]) {
+  const { openBlade } = useBladeNavigation();
   openBlade({
     blade: {
       name: "PushMessageDetails",
@@ -279,24 +84,15 @@ function onAddNewDraft(...args: unknown[]) {
   });
 }
 
-function onHeaderClick(item: ITableColumns) {
-  tableSortHandler(item.id);
-}
-
-const onPaginationClick = async (page: number) => {
-  await loadDrafts({
-    ...searchQuery.value,
-    skip: (page - 1) * (searchQuery.value.take ?? 10),
+function onItemClick(item: PushMessage) {
+  const { openBlade } = useBladeNavigation();
+  openBlade({
+    blade: {
+      name: "PushMessageDetails",
+    },
+    param: item.id,
   });
-};
-
-const onSelectionChanged = (messages: PushMessage[]) => {
-  selectedDraftsIds.value = messages.map((message) => message.id!);
-};
-
-onMounted(async () => {
-  await loadDrafts();
-});
+}
 
 defineExpose({
   title,
