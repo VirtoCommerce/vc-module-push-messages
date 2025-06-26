@@ -1,14 +1,5 @@
-import { computed, ComputedRef, reactive, Ref, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import {
-  IBladeToolbar,
-  useApiClient,
-  useAsync,
-  useNotifications,
-  useModificationTracker,
-  useLoading,
-  AsyncAction,
-} from "@vc-shell/framework";
+import { computed, ComputedRef, reactive, Ref, ref } from "vue";
+import { useApiClient, useAsync, useModificationTracker, useLoading } from "@vc-shell/framework";
 
 import {
   CustomerModuleClient,
@@ -36,7 +27,7 @@ export interface IUseMessageDetails {
   loadMessage: () => Promise<void>;
   saveMessage: (status?: string) => Promise<PushMessage>;
   deleteMessage: () => Promise<void>;
-  countMembers: (e: Event) => Promise<void>;
+  countMembers: () => Promise<void>;
   countingMembers: Readonly<Ref<boolean>>;
 }
 
@@ -106,7 +97,7 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
 
   async function loadMembers(keyword?: string, skip?: number, ids?: string[]) {
     const apiClient = await getCustomerApiClient();
-    return await apiClient.searchMember({
+    return apiClient.searchMember({
       keyword: keyword,
       objectIds: ids,
       deepSearch: true,
@@ -117,7 +108,7 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
     } as MembersSearchCriteria);
   }
 
-  const { action: countMembers, loading: countingMembers } = useAsync<Event>(async (e) => {
+  const { action: countMembers, loading: countingMembers } = useAsync(async () => {
     if (currentValue.value?.memberQuery) {
       const apiClient = await getCustomerApiClient();
       const result = await apiClient.searchMember({

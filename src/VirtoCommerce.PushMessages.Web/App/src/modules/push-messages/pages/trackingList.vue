@@ -286,8 +286,8 @@ const onPaginationClick = async (page: number) => {
   });
 };
 
-const onSelectionChanged = (items: PushMessage[]) => {
-  selectedMessageIds.value = items.map((item) => item.id!);
+const onSelectionChanged = (messages: PushMessage[]) => {
+  selectedMessageIds.value = messages.map((message) => message.id!);
 };
 
 onMounted(async () => {

@@ -1,11 +1,11 @@
 <template>
   <VcBlade
+    v-loading="loading"
     :title="bladeTitle"
     width="50%"
     :expanded="expanded"
     :closable="closable"
     :toolbar-items="toolbarItems"
-    v-loading="loading"
     :modified="isModified"
     @close="$emit('close:blade')"
     @expand="$emit('expand:blade')"
@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onBeforeUnmount, onMounted, ref, toRef, toRefs, watch } from "vue";
+import { computed, inject, onBeforeUnmount, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   VcBlade,
@@ -146,6 +146,7 @@ import {
 } from "@vc-shell/framework";
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Member, MemberSearchResult } from "../../../api_client/virtocommerce.customer";
 import { Field, useForm } from "vee-validate";
 import RecipientsWidget from "../components/widgets/recipients-widget.vue";

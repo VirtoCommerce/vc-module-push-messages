@@ -33,6 +33,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { ITableColumns, IParentCallArgs, useTableSort } from "@vc-shell/framework";
 import { useRecipientList } from "../composables/useRecipientList";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { PushMessageRecipient } from "../../../api_client/virtocommerce.pushmessages";
 import { debounce } from "lodash-es";
 
