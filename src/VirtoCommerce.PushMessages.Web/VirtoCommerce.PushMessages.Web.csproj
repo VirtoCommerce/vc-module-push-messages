@@ -16,10 +16,4 @@
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Data.SqlServer\VirtoCommerce.PushMessages.Data.SqlServer.csproj" />
     <ProjectReference Include="..\VirtoCommerce.PushMessages.ExperienceApi\VirtoCommerce.PushMessages.ExperienceApi.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PushMessagesApp Include="push-messages\dist\**" />
-  </ItemGroup>
-  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="@(PushMessagesApp)" DestinationFiles="$(PublishDir)\..\%(Identity)" />
-  </Target>
 </Project>
