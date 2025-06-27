@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { IParentCallArgs, useBladeNavigation } from "@vc-shell/framework";
+import { IParentCallArgs } from "@vc-shell/framework";
 import { useMessageList } from "../composables/useMessageList";
 import { useMessageListColumns } from "../utils/columns";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
