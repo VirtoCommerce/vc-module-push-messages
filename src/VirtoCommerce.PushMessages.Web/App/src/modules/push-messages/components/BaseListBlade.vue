@@ -250,7 +250,14 @@ const onSelectionChanged = (messages: PushMessage[]) => {
 };
 
 onMounted(async () => {
-  await props.loadMessages();
+  await props.loadMessages({
+    sort: sortExpression.value,
+  });
+});
+
+defineExpose({
+  reload,
+  onItemClick,
+  onAddNewMessage,
 });
 </script>
- 

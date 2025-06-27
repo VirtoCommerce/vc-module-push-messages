@@ -1,6 +1,7 @@
 <template>
   <BaseListBlade
     v-bind="$props"
+    ref="baseListBladeRef"
     :title="title"
     state-key="tracking_message_list"
     :columns="columns"
@@ -20,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { IParentCallArgs, useBladeNavigation } from "@vc-shell/framework";
 import { useTrackingList } from "../composables/useTrackingList";
@@ -59,6 +60,7 @@ defineOptions({
 const { t } = useI18n({ useScope: "global" });
 
 const { loadMessages, searchQuery, currentPage, removeMessages, totalCount, items, loading, pages } = useTrackingList();
+const baseListBladeRef = useTemplateRef("baseListBladeRef");
 
 const title = computed(() => t("PUSH_MESSAGES.PAGES.LIST.TITLE"));
 
@@ -67,31 +69,16 @@ const columns = useMessageListColumns({
   hiddenColumns: ["trackNewRecipients"],
 });
 
-const reload = async () => {
-  await loadMessages({
-    ...searchQuery.value,
-    skip: (currentPage.value - 1) * (searchQuery.value.take ?? 20),
-  });
+const reload = () => {
+  baseListBladeRef.value?.reload();
+};
+
+const onItemClick = (item: PushMessage) => {
+  baseListBladeRef.value?.onItemClick(item);
 };
 
 function onAddNewMessage(...args: unknown[]) {
-  const { openBlade } = useBladeNavigation();
-  openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
-    ...args,
-  });
-}
-
-function onItemClick(item: PushMessage) {
-  const { openBlade } = useBladeNavigation();
-  openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
-    param: item.id,
-  });
+  baseListBladeRef.value?.onAddNewMessage(...args);
 }
 
 defineExpose({

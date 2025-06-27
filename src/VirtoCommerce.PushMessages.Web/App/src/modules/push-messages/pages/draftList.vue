@@ -1,6 +1,7 @@
 <template>
   <BaseListBlade
     v-bind="$props"
+    ref="baseListBladeRef"
     :title="title"
     state-key="draft_list"
     :columns="columns"
@@ -20,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { IParentCallArgs, useBladeNavigation } from "@vc-shell/framework";
+import { IParentCallArgs } from "@vc-shell/framework";
 import { useDraftList } from "../composables/useDraftList";
 import { useMessageListColumns } from "../utils/columns";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
@@ -60,40 +61,27 @@ const { t } = useI18n({ useScope: "global" });
 
 const { loadDrafts, searchQuery, currentPage, removeDrafts, totalCount, items, loading, pages } = useDraftList();
 
+const baseListBladeRef = useTemplateRef("baseListBladeRef");
+
 const title = computed(() => t("PUSH_MESSAGES.PAGES.LIST.TITLE"));
 
 const columns = useMessageListColumns({
   hiddenColumns: ["trackNewRecipients", "recipientsTotalCount", "recipientsReadCount", "recipientsReadPercent"],
 });
 
-// Expose the same API as the original component
-const reload = async () => {
-  await loadDrafts({
-    ...searchQuery.value,
-    skip: (currentPage.value - 1) * (searchQuery.value.take ?? 20),
-  });
+const reload = () => {
+  baseListBladeRef.value?.reload();
+};
+
+const onItemClick = (item: PushMessage) => {
+  baseListBladeRef.value?.onItemClick(item);
 };
 
 function onAddNewDraft(...args: unknown[]) {
-  const { openBlade } = useBladeNavigation();
-  openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
-    ...args,
-  });
+  baseListBladeRef.value?.onAddNewMessage(...args);
 }
 
-function onItemClick(item: PushMessage) {
-  const { openBlade } = useBladeNavigation();
-  openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
-    param: item.id,
-  });
-}
-
+// Expose the same API as the original component
 defineExpose({
   title,
   reload,

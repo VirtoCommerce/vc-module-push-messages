@@ -178,7 +178,9 @@ const onSearchList = debounce(async (keyword: string | undefined) => {
 
 // Lifecycle
 onMounted(async () => {
-  await loadRecipients();
+  await loadRecipients({
+    sort: sortExpression.value,
+  });
 });
 
 defineExpose({
@@ -186,7 +188,3 @@ defineExpose({
   reload,
 });
 </script>
-
-<style scoped>
-/* Additional custom styles if needed */
-</style>
