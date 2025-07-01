@@ -52,7 +52,7 @@ defineOptions({
   isWorkspace: true,
   menuItem: {
     title: "PUSH_MESSAGES.MENU.DRAFTS",
-    icon: "edit",
+    icon: "material-edit_square",
     priority: 2,
   },
 });
