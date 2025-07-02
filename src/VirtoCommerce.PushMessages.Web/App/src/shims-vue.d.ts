@@ -1,9 +1,8 @@
 /* eslint-disable */
-import { CoreBladeAdditionalSettings, DynamicGridSchema, DynamicDetailsSchema } from "@vc-shell/framework";
 
-import type { Component, Ref, ComponentCustomProperties as _ComponentCustomProperties, } from "vue";
+import { CoreBladeAdditionalSettings } from "@vc-shell/framework";
+import type { Ref } from "vue";
 import type { Composer } from "vue-i18n";
-
 
 declare module "*.vue" {
   import type { DefineComponent } from "vue";
