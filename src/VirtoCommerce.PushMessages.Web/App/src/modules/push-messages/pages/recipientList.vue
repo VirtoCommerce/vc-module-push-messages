@@ -54,7 +54,6 @@ export interface Emits {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
 
 defineOptions({
   name: "PushMessageRecipientList",
@@ -64,11 +63,7 @@ defineOptions({
 
 const { t } = useI18n({ useScope: "global" });
 
-const {
-  currentSort,
-  sortExpression,
-  handleSortChange: tableSortHandler,
-} = useTableSort({
+const { sortExpression, handleSortChange: tableSortHandler } = useTableSort({
   initialDirection: "ASC",
   initialProperty: "MemberName;UserName",
 });

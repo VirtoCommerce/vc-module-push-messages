@@ -84,17 +84,12 @@ export interface Emits {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
 
 const { t } = useI18n({ useScope: "global" });
 const { openBlade } = useBladeNavigation();
 const { showConfirmation } = usePopup();
 
-const {
-  currentSort,
-  sortExpression,
-  handleSortChange: tableSortHandler,
-} = useTableSort({
+const { sortExpression, handleSortChange: tableSortHandler } = useTableSort({
   initialDirection: "DESC",
   initialProperty: "modifiedDate",
 });
