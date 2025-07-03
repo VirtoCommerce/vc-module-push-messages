@@ -24,7 +24,6 @@ onMounted(async () => {
     isReady.value = true;
   }
 });
-
 </script>
 <style lang="scss">
 @use "./../styles/index.scss";

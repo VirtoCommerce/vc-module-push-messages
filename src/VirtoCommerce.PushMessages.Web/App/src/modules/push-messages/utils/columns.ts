@@ -92,5 +92,5 @@ export function useMessageListColumns(config: ColumnConfig = {}): ITableColumns[
   });
 
   // Filter out hidden columns
-  return columns.filter(col => !config.hiddenColumns?.includes(col.id));
+  return columns.filter((col) => !config.hiddenColumns?.includes(col.id));
 }

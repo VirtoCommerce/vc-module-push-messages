@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import { CoreBladeAdditionalSettings } from "@vc-shell/framework";
 import type { Ref } from "vue";
 import type { Composer } from "vue-i18n";

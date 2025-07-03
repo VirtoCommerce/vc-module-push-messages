@@ -20,7 +20,6 @@
       <iconUrl>/apps/push-messages/img/icons/safari-pinned-tab.svg</iconUrl>
       <permission>PushMessages:access</permission>
     </app>
-
   </apps>
 
   <authors>

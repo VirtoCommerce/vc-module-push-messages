@@ -50,7 +50,7 @@ function clickHandler() {
   if (!widgetOpened.value) {
     openBlade({
       blade: {
-        name: "PushMessageRecipientList"
+        name: "PushMessageRecipientList",
       },
       options: {
         messageId: props.itemId,
