@@ -37,15 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IActionBuilderResult,
-  IBladeToolbar,
-  IParentCallArgs,
-  ITableColumns,
-  useBladeNavigation,
-  usePopup,
-  useTableSort,
-} from "@vc-shell/framework";
+import { IActionBuilderResult, IBladeToolbar, IParentCallArgs, ITableColumns, useBladeNavigation, usePopup, useTableSort } from "@vc-shell/framework";
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { debounce } from "lodash-es";
@@ -220,7 +212,7 @@ function onItemClick(item: PushMessage) {
   });
 }
 
-function onAddNewMessage(...args: unknown[]) {
+function onAddNewMessage(args: { options?: Record<string, unknown> }) {
   openBlade({
     blade: {
       name: "PushMessageDetails",

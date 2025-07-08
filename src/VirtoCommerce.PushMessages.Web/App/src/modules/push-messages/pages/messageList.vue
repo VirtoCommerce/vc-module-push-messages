@@ -78,8 +78,8 @@ const onItemClick = (item: PushMessage) => {
   baseListBladeRef.value?.onItemClick(item);
 };
 
-function onAddNewMessage(...args: unknown[]) {
-  baseListBladeRef.value?.onAddNewMessage(...args);
+function onAddNewMessage(args: { options?: Record<string, unknown> }) {
+  baseListBladeRef.value?.onAddNewMessage(args);
 }
 
 defineExpose({

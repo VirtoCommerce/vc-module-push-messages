@@ -77,15 +77,15 @@ const onItemClick = (item: PushMessage) => {
   baseListBladeRef.value?.onItemClick(item);
 };
 
-function onAddNewDraft(...args: unknown[]) {
-  baseListBladeRef.value?.onAddNewMessage(...args);
+function onAddNewMessage(args: { options?: Record<string, unknown> }) {
+  baseListBladeRef.value?.onAddNewMessage(args);
 }
 
 // Expose the same API as the original component
 defineExpose({
   title,
   reload,
-  onAddNewDraft,
+  onAddNewMessage,
   onItemClick,
 });
 </script>

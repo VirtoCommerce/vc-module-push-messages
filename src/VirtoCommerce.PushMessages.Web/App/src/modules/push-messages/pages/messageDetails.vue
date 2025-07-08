@@ -183,23 +183,11 @@ const { showConfirmation } = usePopup();
 const blade = inject(BladeInstance);
 
 // Initialize composable
-const {
-  item,
-  loading,
-  showMemberIds,
-  showMemberQuery,
-  isModified,
-  memberCount,
-  loadMessage,
-  saveMessage,
-  deleteMessage,
-  loadMembers,
-  countMembers,
-  countingMembers,
-} = useMessageDetails({
-  id: props.param,
-  sourceMessage: props.options?.sourceMessage,
-});
+const { item, loading, showMemberIds, showMemberQuery, isModified, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } =
+  useMessageDetails({
+    id: props.param,
+    sourceMessage: props.options?.sourceMessage,
+  });
 
 // Local state
 const itemId = computed(() => item.value?.id);
@@ -231,10 +219,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "saveAndPublish",
     icon: "material-send",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE_AND_PUBLISH"),
-    disabled:
-      !meta.value.valid ||
-      item.value == null ||
-      (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
+    disabled: !meta.value.valid || item.value == null || (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
     isVisible: isEditable.value && item.value != null && item.value.status !== "Scheduled",
     clickHandler: async () => {
       const status = item.value?.startDate ? "Scheduled" : "Sent";
@@ -250,7 +235,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     isVisible: !!props.param,
     clickHandler: () => {
       emit("parent:call", {
-        method: "onAddNewDraft",
+        method: "onAddNewMessage",
         args: {
           options: {
             sourceMessage: item,
