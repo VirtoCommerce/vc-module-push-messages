@@ -27,11 +27,11 @@ on:
       - '**/argoDeploy.json'
       - '**/cloudDeploy.json'
       - samples/**
-    
+
 jobs:
   ci:
-    if: ${{ github.actor != 'dependabot[bot]' && 
-        (github.event.pull_request.head.repo.full_name == github.repository || 
+    if: ${{ github.actor != 'dependabot[bot]' &&
+        (github.event.pull_request.head.repo.full_name == github.repository ||
         github.event.pull_request.head.repo.full_name == '') }}  # Check that PR not from forked repo and not from Dependabot
     runs-on: ubuntu-24.04
     env:
@@ -128,7 +128,7 @@ jobs:
 
       - name: Packaging
         run: vc-build Compress -skip Clean+Restore+Compile+Test
-      
+
       - name: Publish Nuget
         if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
         uses: VirtoCommerce/vc-github-actions/publish-nuget@master
@@ -140,7 +140,7 @@ jobs:
         with:
           blobSAS: ${{ secrets.BLOB_TOKEN }}
           blobUrl: ${{ vars.BLOB_URL }}
-          
+
       - name: Add Jira link
         if: ${{ github.event_name == 'pull_request' }}
         uses: VirtoCommerce/vc-github-actions/publish-jira-link@master
@@ -165,7 +165,7 @@ jobs:
           changelog: ${{ steps.changelog.outputs.changelog }}
           organization: ${{ github.repository_owner }}
         uses: VirtoCommerce/vc-github-actions/publish-github-release@master
-        
+
       - name: Set artifactUrl value
         id: artifactUrl
         run: |
@@ -186,7 +186,7 @@ jobs:
       - name: Check commit message for version number
         id: run-e2e
         run: |
-          if [[ "${{ github.event.head_commit.message }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; 
+          if [[ "${{ github.event.head_commit.message }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]];
           then
             echo "result=false" >> $GITHUB_OUTPUT
           else
@@ -217,9 +217,9 @@ jobs:
       - name: Setup Git Credentials
         if: ${{ (github.ref == 'refs/heads/dev' && github.event_name != 'workflow_dispatch') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
         uses: VirtoCommerce/vc-github-actions/setup-git-credentials-github@master
-        with: 
+        with:
           githubToken: ${{ secrets.REPO_TOKEN }}
-        
+
       - name: Publish Manifest
         if: ${{ (github.ref == 'refs/heads/dev' && github.event_name != 'workflow_dispatch') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
         uses: VirtoCommerce/vc-github-actions/publish-manifest@master

@@ -1,176 +1,155 @@
-import { computed, reactive, ref, watch } from "vue";
-import {
-  DetailsBaseBladeScope,
-  DetailsComposableArgs,
-  IBladeToolbar,
-  useApiClient,
-  useDetailsFactory,
-} from "@vc-shell/framework";
+import { computed, ComputedRef, reactive, Ref, ref } from "vue";
+import { useApiClient, useAsync, useModificationTracker, useLoading } from "@vc-shell/framework";
 
-import { CustomerModuleClient, MembersSearchCriteria } from "../../../../api_client/virtocommerce.customer";
-import { PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
+import {
+  CustomerModuleClient,
+  MemberSearchResult,
+  MembersSearchCriteria,
+} from "../../../../api_client/virtocommerce.customer";
+import { IPushMessage, PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
 const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient);
 
-export interface PushMessageDetailsScope extends DetailsBaseBladeScope {
-  toolbarOverrides: {
-    saveChanges: IBladeToolbar;
-    saveAndPublish: IBladeToolbar;
-    clone: IBladeToolbar;
-    remove: IBladeToolbar;
-  };
+export interface UseMessageDetailsOptions {
+  id?: string;
+  sourceMessage?: PushMessage;
 }
 
-export default (args: DetailsComposableArgs<{ options: { sourceMessage: PushMessage } }>) => {
-  let isNew = !args.props.param;
-  let newStatus: string | undefined;
+export interface IUseMessageDetails {
+  item: Ref<IPushMessage>;
+  isModified: Readonly<Ref<boolean>>;
+  memberCount: Ref<number | undefined>;
+  loading: ComputedRef<boolean>;
+  showMemberIds: ComputedRef<boolean>;
+  showMemberQuery: ComputedRef<boolean>;
+  loadMembers: (keyword?: string, skip?: number, ids?: string[]) => Promise<MemberSearchResult>;
+  loadMessage: () => Promise<void>;
+  saveMessage: (status?: string) => Promise<PushMessage>;
+  deleteMessage: () => Promise<void>;
+  countMembers: () => Promise<void>;
+  countingMembers: Readonly<Ref<boolean>>;
+}
 
-  const detailsFactory = useDetailsFactory<PushMessage>({
-    load: async (message) => {
-      if (message?.id) {
-        return (await getPushMessageApiClient()).get(message.id, "WithMembers");
-      }
-    },
-    saveChanges: async (message) => {
+export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessageDetails {
+  const item = ref<IPushMessage>(new PushMessage());
+  const isNew = ref(!options?.id);
+  const memberCount = ref<number>();
+
+  const { currentValue, isModified, resetModificationState } = useModificationTracker(item);
+
+  // Async actions
+  const { action: loadMessage, loading: loadingMessage } = useAsync(async () => {
+    if (options?.id) {
       const apiClient = await getPushMessageApiClient();
-      if (isNew) {
-        message.status = newStatus;
-        return apiClient.create(message);
-      } else if (message.status !== "Sent") {
-        if (newStatus) {
-          message.status = newStatus;
-        }
-        return apiClient.update(message);
-      }
-      return apiClient.changeTracking(message.id!, message.trackNewRecipients!);
-    },
-    remove: async ({ id }) => {
-      if (id) {
-        return (await getPushMessageApiClient()).delete([id]);
-      }
-    },
+      const result = await apiClient.get(options.id, "WithMembers");
+      currentValue.value = reactive(result);
+    } else if (options?.sourceMessage) {
+      // Clone from source message
+      const cloned = new PushMessage();
+      cloned.topic = options.sourceMessage.topic;
+      cloned.shortMessage = options.sourceMessage.shortMessage;
+      cloned.memberIds = options.sourceMessage.memberIds;
+      cloned.memberQuery = options.sourceMessage.memberQuery;
+      cloned.trackNewRecipients = options.sourceMessage.trackNewRecipients;
+      currentValue.value = reactive(cloned);
+    } else {
+      // New message
+      currentValue.value = reactive(new PushMessage());
+    }
+    resetModificationState();
   });
 
-  const { load, saveChanges, remove, loading, item, validationState } = detailsFactory();
+  const { action: saveMessage, loading: savingMessage } = useAsync(async (status?: string) => {
+    const apiClient = await getPushMessageApiClient();
 
-  const scope: PushMessageDetailsScope = {
-    toolbarOverrides: {
-      saveChanges: {
-        disabled: computed(() => !validationState.value.modified || !validationState.value.valid),
-        async clickHandler() {
-          return saveMessage(item.value);
-        },
-      },
-      saveAndPublish: {
-        isVisible: computed(() => isEditable() && item.value != null && item.value.status !== "Scheduled"),
-        disabled: computed(() => {
-          return (
-            !validationState.value.valid ||
-            item.value == null ||
-            (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0))
-          );
-        }),
-        clickHandler: async () => {
-          await saveMessage(item.value, item.value?.startDate != null ? "Scheduled" : "Sent");
-        },
-      },
-      clone: {
-        isVisible: computed(() => !isNew),
-        clickHandler: async () => {
-          args.emit("parent:call", {
-            method: "openDetailsBlade",
-            args: {
-              options: {
-                sourceMessage: item,
-              },
-            },
-          });
-        },
-      },
-      remove: {
-        isVisible: computed(() => !isNew && isEditable()),
-      },
-    },
-    loadMembers: async (keyword?: string, skip?: number, ids?: string[]) => {
-      return (await getCustomerApiClient()).searchMember({
-        keyword: keyword,
-        objectIds: ids,
-        deepSearch: true,
-        objectType: "Member",
-        sort: "MemberType:desc;Name",
-        skip: skip,
-        take: ids?.length ?? 20,
-      } as MembersSearchCriteria);
-    },
-    isReadOnly: () => !isEditable(),
-    countMembers: countMembers,
-    memberCount: ref(),
-  };
+    let result: PushMessage;
 
-  async function saveMessage(message: PushMessage | undefined, status?: string) {
-    if (message) {
-      newStatus = status;
-      const result = await saveChanges(item.value);
-      newStatus = undefined;
-
-      if (result != null) {
-        isNew = false;
-        validationState.value.resetModified(reactive(result), true);
+    if (isNew.value) {
+      if (status) {
+        currentValue.value.status = status;
       }
-
-      args.emit("parent:call", { method: "reload" });
-      args.emit("parent:call", { method: "updateActiveWidgetCount" });
+      result = await apiClient.create(new PushMessage(currentValue.value));
+    } else if (currentValue.value.status !== "Sent") {
+      if (status) {
+        currentValue.value.status = status;
+      }
+      result = await apiClient.update(new PushMessage(currentValue.value));
+    } else {
+      // Only track new recipients for sent messages
+      result = await apiClient.changeTracking(currentValue.value.id!, currentValue.value.trackNewRecipients!);
     }
+
+    currentValue.value = reactive(result);
+    resetModificationState();
+
+    return result;
+  });
+
+  const { action: deleteMessage, loading: deletingMessage } = useAsync(async () => {
+    if (currentValue.value.id) {
+      const apiClient = await getPushMessageApiClient();
+      await apiClient.delete([currentValue.value.id]);
+
+      console.log("Message deleted successfully");
+    }
+  });
+
+  async function loadMembers(keyword?: string, skip?: number, ids?: string[]) {
+    const apiClient = await getCustomerApiClient();
+    return apiClient.searchMember({
+      keyword: keyword,
+      objectIds: ids,
+      deepSearch: true,
+      objectType: "Member",
+      sort: "MemberType:desc;Name",
+      skip: skip || 0,
+      take: ids?.length ?? 20,
+    } as MembersSearchCriteria);
   }
 
-  async function countMembers() {
-    if (item.value?.memberQuery) {
+  const { action: countMembers, loading: countingMembers } = useAsync(async () => {
+    if (currentValue.value?.memberQuery) {
       const apiClient = await getCustomerApiClient();
       const result = await apiClient.searchMember({
-        keyword: item.value.memberQuery,
+        keyword: currentValue.value.memberQuery,
         deepSearch: true,
         take: 0,
       } as MembersSearchCriteria);
-      scope.memberCount.value = result.totalCount;
+      memberCount.value = result.totalCount;
     }
-  }
-
-  function isEditable(): boolean {
-    return isNew || (item.value != null && item.value.status !== "Sent");
-  }
-
-  const bladeTitle = computed(() => {
-    return isNew ? "New push message" : "Push message details";
   });
 
-  watch(
-    () => args?.mounted.value,
-    async () => {
-      if (isNew) {
-        const message = new PushMessage();
-        item.value = reactive(message);
-        validationState.value.resetModified(item.value, true);
+  // Computed properties
+  const loading = useLoading(loadingMessage, savingMessage, deletingMessage);
 
-        const sourceMessage = args.props.options?.sourceMessage;
-        if (sourceMessage) {
-          message.topic = sourceMessage.topic;
-          message.shortMessage = sourceMessage.shortMessage;
-          message.memberIds = sourceMessage.memberIds;
-          message.memberQuery = sourceMessage.memberQuery;
-        }
-      }
-    },
-  );
+  const showMemberIds = computed(() => {
+    return !currentValue.value?.memberQuery;
+  });
+
+  const showMemberQuery = computed(() => {
+    return !currentValue.value?.memberIds || currentValue.value.memberIds.length === 0;
+  });
 
   return {
-    load,
-    saveChanges,
-    remove,
+    // State
+    item: currentValue,
+    isModified,
+    memberCount,
     loading,
-    item,
-    validationState,
-    bladeTitle,
-    scope,
+
+    // Computed
+    showMemberIds,
+    showMemberQuery,
+
+    // Actions
+    loadMessage,
+    saveMessage,
+    deleteMessage,
+    loadMembers,
+    countMembers,
+
+    // Loading states
+    countingMembers,
   };
-};
+}

@@ -1,55 +1,13 @@
-import { ListBaseBladeScope, useApiClient, useBladeNavigation, useListFactory } from "@vc-shell/framework";
+import { useBaseList, BaseListOptions, IUseBaseList } from "../useBaseList";
 
-import {
-  IPushMessageSearchCriteria,
-  PushMessage,
-  PushMessageClient,
-  PushMessageSearchCriteria,
-} from "../../../../api_client/virtocommerce.pushmessages";
+export interface IUseMessageList extends IUseBaseList {}
 
-const { getApiClient } = useApiClient(PushMessageClient);
-
-export interface PushMessageListScope extends ListBaseBladeScope {}
-
-export default () => {
-  const listFactory = useListFactory<PushMessage[], IPushMessageSearchCriteria>({
-    load: async (_query) => {
-      const criteria = { ...(_query || {}) } as PushMessageSearchCriteria;
-      criteria.responseGroup = "None";
-      return (await getApiClient()).search(criteria);
-    },
-    remove: async (_query, customQuery) => {
-      const ids = customQuery.ids;
-      if (ids) {
-        return (await getApiClient()).delete(ids);
-      }
-    },
-  });
-
-  const { load, remove, items, pagination, loading, query } = listFactory({ sort: "modifiedDate:desc", pageSize: 20 });
-  const { openBlade, resolveBladeByName } = useBladeNavigation();
-
-  async function openDetailsBlade(data?: Omit<Parameters<typeof openBlade>["0"], "blade">) {
-    await openBlade({
-      blade: resolveBladeByName("PushMessageDetails"),
-      ...data,
-    });
-  }
-
-  const scope: PushMessageListScope = {
-    openDetailsBlade,
-    isReadOnly: (data: { item: PushMessage }) => {
-      return data.item.status === "Sent";
-    },
+export function useMessageList(options?: { pageSize?: number; sort?: string }): IUseMessageList {
+  const baseListOptions: BaseListOptions = {
+    pageSize: options?.pageSize || 20,
+    sort: options?.sort || "modifiedDate:desc",
+    responseGroup: "None",
   };
 
-  return {
-    items,
-    load,
-    remove,
-    loading,
-    pagination,
-    query,
-    scope,
-  };
-};
+  return useBaseList(baseListOptions);
+}

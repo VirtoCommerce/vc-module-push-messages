@@ -1,47 +1,35 @@
 <template>
   <VcWidget
-    v-if="modelValue.item?.status === 'Sent'"
     v-loading="loading"
     :value="count"
     :title="$t('PUSH_MESSAGES.PAGES.DETAILS.WIDGETS.RECIPIENTS')"
-    icon="fas fa-user-check"
+    icon="material-how_to_reg"
     @click="clickHandler"
   >
   </VcWidget>
 </template>
 
 <script setup lang="ts">
-import { UnwrapNestedRefs, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useAsync, useApiClient, useBladeNavigation } from "@vc-shell/framework";
-import { useDetails } from "../../composables";
 import {
   PushMessageClient,
   PushMessageRecipientSearchCriteria,
 } from "../../../../api_client/virtocommerce.pushmessages";
 
-const { openBlade, resolveBladeByName } = useBladeNavigation();
+const { openBlade } = useBladeNavigation();
 const { getApiClient } = useApiClient(PushMessageClient);
 
 interface Props {
-  modelValue: UnwrapNestedRefs<ReturnType<typeof useDetails>>;
+  itemId: string;
 }
 
 const props = defineProps<Props>();
 const count = ref(0);
 const widgetOpened = ref(false);
 
-defineExpose({
-  updateActiveWidgetCount: populateCounter,
-});
-
-onMounted(async () => {
-  if (props.modelValue?.item?.id) {
-    await populateCounter();
-  }
-});
-
 async function populateCounter() {
-  const messageId = props.modelValue?.item?.id;
+  const messageId = props.itemId;
   if (!messageId) {
     return;
   }
@@ -61,9 +49,11 @@ const { loading, action: getCount } = useAsync<PushMessageRecipientSearchCriteri
 function clickHandler() {
   if (!widgetOpened.value) {
     openBlade({
-      blade: resolveBladeByName("PushMessageRecipientList"),
+      blade: {
+        name: "PushMessageRecipientList",
+      },
       options: {
-        messageId: props.modelValue?.item?.id,
+        messageId: props.itemId,
       },
       onOpen() {
         widgetOpened.value = true;
@@ -74,4 +64,14 @@ function clickHandler() {
     });
   }
 }
+
+onMounted(async () => {
+  if (props.itemId) {
+    await populateCounter();
+  }
+});
+
+defineExpose({
+  updateActiveWidgetCount: populateCounter,
+});
 </script>

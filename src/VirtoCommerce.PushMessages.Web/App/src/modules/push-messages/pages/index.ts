@@ -1,9 +1,7 @@
-import { grid as messageList } from "./messageList";
-import { grid as draftList } from "./draftList";
-import { grid as scheduledList } from "./scheduledList";
-import { grid as trackingList } from "./trackingList";
-import { grid as sentList } from "./sentList";
-import { details as messageDetails } from "./messageDetails";
-import { grid as recipientList } from "./recipientList";
-
-export { messageList, draftList, scheduledList, trackingList, sentList, messageDetails, recipientList };
+export { default as MessageList } from "./messageList.vue";
+export { default as DraftList } from "./draftList.vue";
+export { default as ScheduledList } from "./scheduledList.vue";
+export { default as TrackingList } from "./trackingList.vue";
+export { default as SentList } from "./sentList.vue";
+export { default as MessageDetails } from "./messageDetails.vue";
+export { default as RecipientList } from "./recipientList.vue";

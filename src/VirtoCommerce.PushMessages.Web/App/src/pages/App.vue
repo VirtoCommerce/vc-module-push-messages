@@ -24,7 +24,7 @@ onMounted(async () => {
     isReady.value = true;
   }
 });
-
-console.debug(`Initializing App`);
 </script>
-<style lang="scss">@import "./../styles/index.scss";</style>
+<style lang="scss">
+@use "./../styles/index.scss";
+</style>
