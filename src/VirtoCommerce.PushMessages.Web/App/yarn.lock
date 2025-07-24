@@ -1601,6 +1601,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fortawesome/fontawesome-free@npm:^6.7.2":
+  version: 6.7.2
+  resolution: "@fortawesome/fontawesome-free@npm:6.7.2"
+  checksum: 10/88101fee12470ede1e7f2588b86121924259d98889b950e2ccde71d934f4f344b592d1360700de4e92d81262014d3ae33fe995c7799f2be2abddcee3102413d6
+  languageName: node
+  linkType: hard
+
 "@headlessui/vue@npm:^1.7.19":
   version: 1.7.23
   resolution: "@headlessui/vue@npm:1.7.23"
@@ -1641,24 +1648,6 @@ __metadata:
   version: 5.0.0
   resolution: "@hutson/parse-repository-url@npm:5.0.0"
   checksum: 10/040bc80dd1be5b12718af8a1d2fc58bbf793d41040ad4cedfe864079fddb542f106aee998beb7e42b7ebf882237e45b559bdf1ed3f6a607a403e51d849f37118
-  languageName: node
-  linkType: hard
-
-"@iconify/types@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@iconify/types@npm:2.0.0"
-  checksum: 10/1b3425ecbc0eef44f23d3f27355ae7ef306d5119c566f013ef1849995b016e1fdcc5af6b74c3bc0554485d70cf5179cb9c1095b14d662a55abcae1148e1a13c9
-  languageName: node
-  linkType: hard
-
-"@iconify/vue@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@iconify/vue@npm:5.0.0"
-  dependencies:
-    "@iconify/types": "npm:^2.0.0"
-  peerDependencies:
-    vue: ">=3"
-  checksum: 10/84a51ff56094c0dc7ada611cbf22619ff286a69bb2d75d2f4cb431d7ed845148305863d4ff1c58d7784438baea779d60679fedfcebc18a7a33c4839de315106a
   languageName: node
   linkType: hard
 
@@ -1775,6 +1764,13 @@ __metadata:
   peerDependencies:
     vite: ^3.0.0 || ^4.0.0 || ^5.0.0
   checksum: 10/5433420af59e476b5b1d3089514d6d64a30cb547e31cf9deb9da9325c699ed724f01f242323d8fab68b681b796f68ca15979afe211447c6eadac840e361a65e7
+  languageName: node
+  linkType: hard
+
+"@material-symbols/font-300@npm:^0.32.0":
+  version: 0.32.0
+  resolution: "@material-symbols/font-300@npm:0.32.0"
+  checksum: 10/2a396ccc3e69a81f44c24b027a165fd66afe714f23b1fcbaad2fefd05d482d696255303930ee1cbade393d8627db153398682b578fe0ceb11018969011dd18de
   languageName: node
   linkType: hard
 
@@ -3334,9 +3330,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vc-shell/api-client-generator@npm:^1.1.56":
-  version: 1.1.56
-  resolution: "@vc-shell/api-client-generator@npm:1.1.56"
+"@vc-shell/api-client-generator@npm:^1.1.61":
+  version: 1.1.61
+  resolution: "@vc-shell/api-client-generator@npm:1.1.61"
   dependencies:
     chalk: "npm:^2.4.2"
     cross-spawn: "npm:^7.0.3"
@@ -3346,31 +3342,32 @@ __metadata:
     vite-plugin-dts: "npm:^3.6.4"
   bin:
     api-client-generator: ./dist/api-client-generator.js
-  checksum: 10/b51105d1b551d909d52a6b74cf10911b059bda7c871a160ed459298c0d9c3c5da0b07a9e62f5f857f2aa496571f7572bd4a5f2e590abec8cb689eca4723a4535
+  checksum: 10/5abe48e6f4bb43495541b466697ef7e6b9adbd8f1e8ea57d399c5dc10d7cc9ac5177414161567014841f93b8173617e28dfe26f7eb12dc305f0f545e46152e8b
   languageName: node
   linkType: hard
 
-"@vc-shell/config-generator@npm:^1.1.56":
-  version: 1.1.56
-  resolution: "@vc-shell/config-generator@npm:1.1.56"
+"@vc-shell/config-generator@npm:^1.1.61":
+  version: 1.1.61
+  resolution: "@vc-shell/config-generator@npm:1.1.61"
   dependencies:
     "@vitejs/plugin-vue": "npm:^5.2.3"
     vite: "npm:^6.3.3"
     vite-plugin-checker: "npm:^0.9.1"
     vite-plugin-mkcert: "npm:^1.17.1"
     vue: "npm:^3.5.13"
-  checksum: 10/7816035a04b6350e53260ddcbba979bd08ec266751cd47ec93cb584e7d26f43d5509a5e1985b59b0705189e1a2da119ea0594e0fe37b9964e7bc88258f8c0bcd
+  checksum: 10/84a2052e888c581ce2193ed6173713d15c9a403bb52411da625ccde2c98c78b7bf90e56e09641b21516af57f343e0d3737bae557d77ff8c805ddfc60d4744f24
   languageName: node
   linkType: hard
 
-"@vc-shell/framework@npm:^1.1.56":
-  version: 1.1.56
-  resolution: "@vc-shell/framework@npm:1.1.56"
+"@vc-shell/framework@npm:^1.1.61":
+  version: 1.1.61
+  resolution: "@vc-shell/framework@npm:1.1.61"
   dependencies:
     "@floating-ui/vue": "npm:^1.0.6"
     "@fontsource/plus-jakarta-sans": "npm:^5.1.0"
+    "@fortawesome/fontawesome-free": "npm:^6.7.2"
     "@headlessui/vue": "npm:^1.7.19"
-    "@iconify/vue": "npm:^5.0.0"
+    "@material-symbols/font-300": "npm:^0.32.0"
     "@microsoft/signalr": "npm:^8.0.0"
     "@tiptap/extension-image": "npm:^2.25.0"
     "@tiptap/extension-link": "npm:^2.25.0"
@@ -3389,9 +3386,11 @@ __metadata:
     "@vueuse/components": "npm:^10.7.1"
     "@vueuse/core": "npm:^10.7.1"
     "@vueuse/integrations": "npm:^10.7.1"
+    bootstrap-icons: "npm:^1.11.3"
     core-js: "npm:^3.35.0"
     dompurify: "npm:^3.0.11"
     iso-639-1: "npm:^3.1.0"
+    lucide-vue-next: "npm:^0.503.0"
     moment: "npm:^2.30.1"
     normalize.css: "npm:^8.0.1"
     swiper: "npm:^6.8.4"
@@ -3405,13 +3404,13 @@ __metadata:
     vue3-application-insights: "npm:^1.1.0"
     vue3-touch-events: "npm:^4.1.8"
     whatwg-fetch: "npm:^3.6.19"
-  checksum: 10/2819e92cdd01dcb0ed8a8c17efea8a1fdb85f50ee521d7ad17875cd5cf35b707a50c416660ceeb9d08bd81f9fb5edc51abd40010439e9542ad0b17e74a8d3d92
+  checksum: 10/9a94bf395c7cd201776396e28cb05702dfc1a0c951f60f8ec6a52418fa6b420df6c38f6a88e1b41c35dcf6ae93f8358b005b8de5aefc930b6863ab87a9291519
   languageName: node
   linkType: hard
 
-"@vc-shell/release-config@npm:^1.1.56":
-  version: 1.1.56
-  resolution: "@vc-shell/release-config@npm:1.1.56"
+"@vc-shell/release-config@npm:^1.1.61":
+  version: 1.1.61
+  resolution: "@vc-shell/release-config@npm:1.1.61"
   dependencies:
     chalk: "npm:^2.4.2"
     cross-spawn: "npm:^7.0.3"
@@ -3419,14 +3418,14 @@ __metadata:
     prompts: "npm:^2.4.2"
     semver: "npm:^7.5.4"
     vite: "npm:^6.3.3"
-  checksum: 10/cbea86a517e5a22c62521dec57e8b151c4deb9cc26b253ce5cfcf412e7367450146ed8d48fe57db602a761a6090d67b1a0b6e5f997526a936bfe22054948b338
+  checksum: 10/f2520703c4bb5723bcfd35d40d52fe3037c23747677b88631d521e6080a3803fd1707f070d6c95b9c62bb8d5043ddf47ee3819381a7f4bfaec696a51b72b50f8
   languageName: node
   linkType: hard
 
-"@vc-shell/ts-config@npm:^1.1.56":
-  version: 1.1.56
-  resolution: "@vc-shell/ts-config@npm:1.1.56"
-  checksum: 10/59cead083ac0fae8d2d3254e5ce5533960ad7881238fc38a5d08872b6450b896c14dd3ffcc60fee4c14874c9c7ede4263c9accbd63f1253a88a80215bf14cccf
+"@vc-shell/ts-config@npm:^1.1.61":
+  version: 1.1.61
+  resolution: "@vc-shell/ts-config@npm:1.1.61"
+  checksum: 10/9fc1b7937fe7e37bf703737fe52ea02a312772dfff83753fb7b41f8a3ee655f07dd6ad3866164aa5b1254687958174df59d2d6dabd4faea7ab694695411911d1
   languageName: node
   linkType: hard
 
@@ -4249,6 +4248,13 @@ __metadata:
   version: 1.0.0
   resolution: "boolbase@npm:1.0.0"
   checksum: 10/3e25c80ef626c3a3487c73dbfc70ac322ec830666c9ad915d11b701142fab25ec1e63eff2c450c74347acfd2de854ccde865cd79ef4db1683f7c7b046ea43bb0
+  languageName: node
+  linkType: hard
+
+"bootstrap-icons@npm:^1.11.3":
+  version: 1.13.1
+  resolution: "bootstrap-icons@npm:1.13.1"
+  checksum: 10/d6a3bb69268c5132acd4b4a3ca40c46c4548f7c8cbb33154d2d5fa4668c42e0b60a2e55abcd08aca9b1e6871ce5b18ce5f7789031486e8807cc552cc52f88dee
   languageName: node
   linkType: hard
 
@@ -7530,6 +7536,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lucide-vue-next@npm:^0.503.0":
+  version: 0.503.0
+  resolution: "lucide-vue-next@npm:0.503.0"
+  peerDependencies:
+    vue: ">=3.0.1"
+  checksum: 10/6cb0c5ffccfec8a9b9a38349e4f9a2b7924fe0eff89d219c95e37333d49e1f4fa5991b9fcb944856b4e6668b4446cfb02ab9be4da4d63f4b3802f2eab6408402
+  languageName: node
+  linkType: hard
+
 "magic-string@npm:^0.25.0, magic-string@npm:^0.25.7":
   version: 0.25.9
   resolution: "magic-string@npm:0.25.9"
@@ -8893,11 +8908,11 @@ __metadata:
     "@types/node": "npm:^20.10.5"
     "@typescript-eslint/eslint-plugin": "npm:^7.4.0"
     "@typescript-eslint/parser": "npm:^7.4.0"
-    "@vc-shell/api-client-generator": "npm:^1.1.56"
-    "@vc-shell/config-generator": "npm:^1.1.56"
-    "@vc-shell/framework": "npm:^1.1.56"
-    "@vc-shell/release-config": "npm:^1.1.56"
-    "@vc-shell/ts-config": "npm:^1.1.56"
+    "@vc-shell/api-client-generator": "npm:^1.1.61"
+    "@vc-shell/config-generator": "npm:^1.1.61"
+    "@vc-shell/framework": "npm:^1.1.61"
+    "@vc-shell/release-config": "npm:^1.1.61"
+    "@vc-shell/ts-config": "npm:^1.1.61"
     "@vitejs/plugin-vue": "npm:5.0.3"
     "@vue/eslint-config-prettier": "npm:^9.0.0"
     "@vue/eslint-config-typescript": "npm:^13.0.0"

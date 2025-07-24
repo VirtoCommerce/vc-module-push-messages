@@ -19,6 +19,7 @@
       <description>Push Messages</description>
       <iconUrl>/apps/push-messages/img/icons/safari-pinned-tab.svg</iconUrl>
       <permission>PushMessages:access</permission>
+      <supportEmbeddedMode>true</supportEmbeddedMode>
     </app>
   </apps>
 
