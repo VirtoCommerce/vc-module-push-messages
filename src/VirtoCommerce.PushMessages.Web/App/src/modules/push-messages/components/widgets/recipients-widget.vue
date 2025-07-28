@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, unref } from "vue";
 import { useAsync, useApiClient, useBladeNavigation } from "@vc-shell/framework";
 import {
   PushMessageClient,
@@ -29,7 +29,7 @@ const count = ref(0);
 const widgetOpened = ref(false);
 
 async function populateCounter() {
-  const messageId = props.itemId;
+  const messageId = unref(props.itemId);
   if (!messageId) {
     return;
   }
@@ -53,7 +53,7 @@ function clickHandler() {
         name: "PushMessageRecipientList",
       },
       options: {
-        messageId: props.itemId,
+        messageId: unref(props.itemId),
       },
       onOpen() {
         widgetOpened.value = true;
@@ -66,7 +66,7 @@ function clickHandler() {
 }
 
 onMounted(async () => {
-  if (props.itemId) {
+  if (unref(props.itemId)) {
     await populateCounter();
   }
 });
