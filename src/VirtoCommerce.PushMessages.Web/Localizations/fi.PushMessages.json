@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "Avaa push-viestien valikko",
+    "PushMessages:create": "Luo push-viesteihin liittyviä tietoja",
+    "PushMessages:read": "Näytä push-viesteihin liittyviä tietoja",
+    "PushMessages:update": "Päivitä push-viesteihin liittyviä tietoja",
+    "PushMessages:delete": "Poista push-viesteihin liittyviä tietoja"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "Push-viestit",
+      "description": "Ota käyttöön tai poista käytöstä push-viestit"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Firebase Cloud Messaging (FCM) -aktivointi",
+      "description": "Ota käyttöön tai poista käytöstä Firebase Cloud Messaging (FCM). Vaatii lisäasetuksia. Käytä seuraavaa linkkiä asetuksiin: https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "Eräkoko",
+      "description": "Määritä lähetettävien viestien määrä per erä"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "Valtuuta sovelluksesi käyttämään Firebase-palveluita"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "Määritä toimialue, jossa todennuspyynnöt käsitellään Firebase-projektissasi"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "Nimeä Firebase-projektisi yhdistääksesi kaikki Firebase-palvelut yhden projektin alle"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "Määritä URL-osoite Firebase Cloud Storage -palvelulle, jossa projektin tiedostot säilytetään"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "Määritä tunniste, joka tunnistaa lähettäjän ja mahdollistaa viestien lähettämisen Firebase-projektista käyttäjien laitteille"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "Yhdistä viestit tiettyyn sovellukseesi"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "Määritä avain, jota käytetään Web Push -protokollassa todennukseen, kun lähetät verkkopohjaisia push-viestejä sovelluksestasi"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "Ajoitettujen viestien toistuva tehtävä",
+      "description": "Ota käyttöön tai poista käytöstä ajoitettujen viestien lähetystehtävä"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "Cron-lauseke ajoitettujen viestien toistuvalle tehtävälle",
+      "description": "Määritä automaattisten viestien lähetysaika. Esimerkki: '0/5 * * * *' tarkoittaa, että viestit lähetetään joka 5. minuutti"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "Uusien vastaanottajien seurannan toistuva tehtävä",
+      "description": "Ota käyttöön tai poista käytöstä vastaanottajien seuranta"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "Cron-lauseke uusien vastaanottajien seurannan toistuvalle tehtävälle",
+      "description": "Määritä uusien vastaanottajien tarkistusaika. Esimerkki: '0 * * * *' tarkoittaa tarkistusta joka minuutti"
+    }
+  }
+}

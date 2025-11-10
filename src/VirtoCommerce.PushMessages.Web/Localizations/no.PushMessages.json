@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "Åpne push-meldingsmenyen",
+    "PushMessages:create": "Opprett data relatert til push-meldinger",
+    "PushMessages:read": "Vis data relatert til push-meldinger",
+    "PushMessages:update": "Oppdater data relatert til push-meldinger",
+    "PushMessages:delete": "Slett data relatert til push-meldinger"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "Push-meldinger",
+      "description": "Aktiver/deaktiver push-meldinger"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Aktivering av Firebase Cloud Messaging (FCM)",
+      "description": "Aktiver/deaktiver Firebase Cloud Messaging (FCM). Ytterligere konfigurasjon kreves. Bruk følgende lenke for konfigurasjon: https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "Batch-størrelse",
+      "description": "Definer antall meldinger som sendes per batch"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "Autoriser appen din til å få tilgang til Firebase-tjenester"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "Angi et domene der autentiseringsforespørsler behandles for Firebase-prosjektet ditt"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "Navngi Firebase-prosjektet ditt for å koble alle Firebase-tjenester sammen under ett prosjekt"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "Angi URL for Firebase Cloud Storage, der filer knyttet til prosjektet kan lagres"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "Angi ID for å identifisere avsenderen og sende meldinger fra Firebase-prosjektet ditt til brukerens enheter"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "Koble meldinger til din spesifikke applikasjon"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "Angi nøkkel brukt for Web Push-protokoller for å autentisere web-baserte push-meldinger sendt fra applikasjonen din"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "Planlagt meldingsutsendelse (gjentakende jobb)",
+      "description": "Aktiver/deaktiver planlagt utsending av meldinger"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "Cron-uttrykk for planlagt meldingsutsendelse",
+      "description": "Konfigurer for å planlegge automatiske meldinger. '0/5 * * * *' betyr at meldinger sendes hvert 5. minutt"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "Sporing av nye mottakere (gjentakende jobb)",
+      "description": "Aktiver/deaktiver sporing av nye mottakere"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "Cron-uttrykk for sporing av nye mottakere",
+      "description": "Konfigurer for å sjekke etter nye mottakere. '0 * * * *' betyr at sjekken kjøres hvert minutt"
+    }
+  }
+}

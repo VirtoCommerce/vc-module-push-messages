@@ -8,12 +8,12 @@
   },
   "settings": {
     "PushMessages.Enable": {
-      "title": "Push messages activation",
-      "description": "Enable/ disable push messages"
+      "title": "Push messages",
+      "description": "Enable/disable push messages"
     },
     "PushMessages.FCM.Enable": {
       "title": "Firebase cloud messaging (FCM) activation",
-      "description": "Enable/ disable Firebase Cloud Messaging (FCM). Additional configuration is required. Use following link for configuration https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+      "description": "Enable/disable Firebase Cloud Messaging (FCM). Additional configuration is required. Use following link for configuration https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
     },
     "PushMessages.BatchSize": {
       "title": "Batch size",
@@ -29,7 +29,7 @@
     },
     "PushMessages.FcmReceiverOptions.ProjectId": {
       "title": "ProjectId",
-      "description": "Name your Firebase project to link all Fibebase services together under one project"
+      "description": "Name your Firebase project to link all Firebase services together under one project"
     },
     "PushMessages.FcmReceiverOptions.StorageBucket": {
       "title": "StorageBucket",
@@ -49,7 +49,7 @@
     },
     "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
       "title": "Scheduled messages recurring job",
-      "description": "Enable/ disable scheduled message-sending job"
+      "description": "Enable/disable scheduled message-sending job"
     },
     "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
       "title": "Cron expression for scheduled messages recurring job",
@@ -57,7 +57,7 @@
     },
     "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
       "title": "Track new recipients recurring job",
-      "description": "Enable/ disable the recipient-tracking job"
+      "description": "Enable/disable the recipient-tracking job"
     },
     "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
       "title": "Cron expression for tracking new recipients recurring job",
