@@ -1,0 +1,67 @@
+{
+  "permissions": {
+    "PushMessages:access": "Öppna push-meddelanden-menyn",
+    "PushMessages:create": "Skapa data relaterad till push-meddelanden",
+    "PushMessages:read": "Visa data relaterad till push-meddelanden",
+    "PushMessages:update": "Uppdatera data relaterad till push-meddelanden",
+    "PushMessages:delete": "Ta bort data relaterad till push-meddelanden"
+  },
+  "settings": {
+    "PushMessages.Enable": {
+      "title": "Push-meddelanden",
+      "description": "Aktivera/inaktivera push-meddelanden"
+    },
+    "PushMessages.FCM.Enable": {
+      "title": "Aktivering av Firebase Cloud Messaging (FCM)",
+      "description": "Aktivera/inaktivera Firebase Cloud Messaging (FCM). Ytterligare konfiguration krävs. Använd följande länk för konfiguration: https://docs.virtocommerce.org/platform/user-guide/push-messages/firebase-cloud-messaging/"
+    },
+    "PushMessages.BatchSize": {
+      "title": "Batchstorlek",
+      "description": "Definiera antalet meddelanden som skickas per batch"
+    },
+    "PushMessages.FcmReceiverOptions.ApiKey": {
+      "title": "ApiKey",
+      "description": "Auktorisera din app att komma åt Firebase-tjänster"
+    },
+    "PushMessages.FcmReceiverOptions.AuthDomain": {
+      "title": "AuthDomain",
+      "description": "Ange en domän där autentiseringsbegäran bearbetas för ditt Firebase-projekt"
+    },
+    "PushMessages.FcmReceiverOptions.ProjectId": {
+      "title": "ProjectId",
+      "description": "Namnge ditt Firebase-projekt för att länka alla Firebase-tjänster under ett projekt"
+    },
+    "PushMessages.FcmReceiverOptions.StorageBucket": {
+      "title": "StorageBucket",
+      "description": "Ange URL för din Firebase Cloud Storage, där filer associerade med projektet kan lagras"
+    },
+    "PushMessages.FcmReceiverOptions.MessagingSenderId": {
+      "title": "MessagingSenderId",
+      "description": "Ange ID för att identifiera avsändaren och skicka meddelanden från ditt Firebase-projekt till användarenheter"
+    },
+    "PushMessages.FcmReceiverOptions.AppId": {
+      "title": "AppId",
+      "description": "Länka meddelanden till din specifika applikation"
+    },
+    "PushMessages.FcmReceiverOptions.VapidKey": {
+      "title": "VapidKey",
+      "description": "Ange nyckel som används för Web Push-protokoll för att autentisera webbaserade push-meddelanden som skickas från din applikation"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.Enable": {
+      "title": "Schemalagt meddelande – återkommande jobb",
+      "description": "Aktivera/inaktivera jobb för schemalagd meddelandeutsändning"
+    },
+    "PushMessages.SendScheduledMessagesRecurringJob.CronExpression": {
+      "title": "Cron-uttryck för schemalagt meddelande – återkommande jobb",
+      "description": "Konfigurera för att schemalägga automatiska meddelanden. '0/5 * * * *' innebär att meddelanden skickas var 5:e minut"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.Enable": {
+      "title": "Spårning av nya mottagare – återkommande jobb",
+      "description": "Aktivera/inaktivera jobb för spårning av mottagare"
+    },
+    "PushMessages.TrackNewRecipientsRecurringJob.CronExpression": {
+      "title": "Cron-uttryck för spårning av nya mottagare – återkommande jobb",
+      "description": "Konfigurera för att kontrollera nya mottagare. '0 * * * *' innebär att kontrollen utförs varje minut"
+    }
+  }
+}
