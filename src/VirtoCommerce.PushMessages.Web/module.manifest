@@ -4,10 +4,10 @@
   <version>3.906.0</version>
   <version-tag></version-tag>
 
-  <platformVersion>3.916.0-alpha.13164-vcst-4203-cleanup</platformVersion>
+  <platformVersion>3.917.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Customer" version="3.846.0-alpha.929-vcst-4203-cleanup" />
-    <dependency id="VirtoCommerce.Xapi" version="3.928.0-alpha.130-vcst-4203-cleanup" />
+    <dependency id="VirtoCommerce.Customer" version="3.846.0" />
+    <dependency id="VirtoCommerce.Xapi" version="3.929.0" />
   </dependencies>
 
   <title>Push Messages</title>

@@ -14,7 +14,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="VirtoCommerce.Platform.Data.PostgreSql" Version="3.916.0-alpha.13164-vcst-4203-cleanup" />
+    <PackageReference Include="VirtoCommerce.Platform.Data.PostgreSql" Version="3.917.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.PushMessages.Data\VirtoCommerce.PushMessages.Data.csproj" />
