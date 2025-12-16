@@ -90,6 +90,15 @@ const searchValue = ref();
 const selectedItemId = ref<string>();
 const selectedMessageIds = ref<string[]>([]);
 
+const deletableMessageIds = computed(() => {
+  if (selectedMessageIds.value.length === 0) {
+    return [];
+  }
+
+  // Filter out messages with status "Sent"
+  return props.items.filter((item) => canDelete(item) && selectedMessageIds.value.includes(item.id!)).map((item) => item.id!);
+});
+
 const bladeToolbar = computed((): IBladeToolbar[] => {
   const defaultItems: IBladeToolbar[] = [
     {
@@ -113,16 +122,16 @@ const bladeToolbar = computed((): IBladeToolbar[] => {
       id: "deleteSelected",
       icon: "material-delete",
       title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.DELETE"),
-      disabled: selectedMessageIds.value.length === 0,
+      disabled: deletableMessageIds.value.length === 0,
       clickHandler: async () => {
         if (
           await showConfirmation(
             t("PUSH_MESSAGES.PAGES.ALERTS.DELETE_SELECTED_CONFIRMATION.MESSAGE", {
-              count: selectedMessageIds.value.length,
+              count: deletableMessageIds.value.length,
             }),
           )
         ) {
-          await props.removeMessages({ ids: selectedMessageIds.value });
+          await props.removeMessages({ ids: deletableMessageIds.value });
           await reload();
           selectedMessageIds.value = [];
         }
@@ -160,7 +169,7 @@ const actionBuilder = (item: PushMessage): IActionBuilderResult[] => {
   // Default action builder
   const result: IActionBuilderResult[] = [];
 
-  if (item.status !== "Sent") {
+  if (canDelete(item)) {
     result.push({
       icon: "material-delete",
       title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE"),
@@ -176,6 +185,10 @@ const actionBuilder = (item: PushMessage): IActionBuilderResult[] => {
 
   return result;
 };
+
+function canDelete(item: PushMessage) {
+  return item.status !== "Sent";
+}
 
 const reload = async () => {
   selectedMessageIds.value = [];
