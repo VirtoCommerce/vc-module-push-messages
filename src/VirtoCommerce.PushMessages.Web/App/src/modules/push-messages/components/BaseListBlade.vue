@@ -1,94 +1,94 @@
 <template>
-  <VcBlade
-    :title="title"
-    width="50%"
-    :expanded="expanded"
-    :closable="closable"
-    :toolbar-items="bladeToolbar"
-    @close="$emit('close:blade')"
-    @expand="$emit('expand:blade')"
-    @collapse="$emit('collapse:blade')"
+  <VcBlade :title="title" width="50%" :toolbar-items="bladeToolbar"
   >
-    <!--@vue-generic {PushMessage}-->
-    <VcTable
+    <VcDataTable
       :loading="loading"
-      :expanded="expanded"
       :items="items"
-      :columns="columns"
-      multiselect
+      :total-count="pagination.totalCount"
+      :pagination="pagination"
+      :selection-mode="'multiple'"
       :item-action-builder="actionBuilder"
       enable-item-actions
-      :selected-item-id="selectedItemId"
-      :selected-items="selectedMessageIds"
-      :sort="sortExpression"
-      :pages="pages"
-      :current-page="currentPage"
-      :search-value="searchValue"
-      :total-count="totalCount"
+      v-model:active-item-id="selectedItemId"
+      v-model:selection="selectedMessages"
+      v-model:sort-field="sortField"
+      v-model:sort-order="sortOrder"
+      :searchable="true"
+      :pull-to-refresh="true"
       :state-key="stateKey"
-      @search:change="onSearchList"
-      @item-click="onItemClick"
-      @header-click="onHeaderClick"
-      @pagination-click="onPaginationClick"
-      @scroll:ptr="reload"
-      @selection-changed="onSelectionChanged"
-    ></VcTable>
+      @search="onSearchList"
+      @row-click="handleRowClick"
+      @pagination-click="pagination.goToPage"
+      @pull-refresh="reload"
+    >
+      <VcColumn
+        v-for="col in columns"
+        :key="col.id"
+        :id="col.id"
+        :title="unref(col.title)"
+        :sortable="col.sortable"
+        :always-visible="col.alwaysVisible"
+        :type="normalizeColumnType(col.type)"
+        :width="col.width"
+        :visible="col.visible"
+        :field="col.id"
+      />
+    </VcDataTable>
   </VcBlade>
 </template>
 
 <script setup lang="ts">
-import { IActionBuilderResult, IBladeToolbar, IParentCallArgs, ITableColumns, useBladeNavigation, usePopup, useTableSort } from "@vc-shell/framework";
-import { computed, onMounted, ref, watch } from "vue";
+import { IActionBuilderResult, IBladeToolbar, ITableColumns, useBlade, usePopup, useDataTableSort } from "@vc-shell/framework";
+import type { VcColumnCellType } from "@vc-shell/framework";
+import { computed, onMounted, ref, unref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { debounce } from "lodash-es";
-import { PushMessage, IPushMessageSearchCriteria } from "../../../api_client/virtocommerce.pushmessages";
+import { PushMessage, PushMessageSearchCriteria } from "../../../api_client/virtocommerce.pushmessages";
+import type { UseDataTablePaginationReturn } from "@vc-shell/framework";
+
+import { VcBlade, VcDataTable, VcColumn } from "@vc-shell/framework/ui";
 
 export interface Props {
-  expanded?: boolean;
-  closable?: boolean;
-  param?: string;
-  options?: unknown;
   // Configuration props
   title: string;
   stateKey: string;
   columns: ITableColumns[];
   // Composable props
   items: PushMessage[];
-  totalCount: number;
-  pages: number;
-  currentPage: number;
+  pagination: UseDataTablePaginationReturn;
   loading: boolean;
   // Methods
-  loadMessages: (query?: IPushMessageSearchCriteria) => Promise<void>;
+  loadMessages: (query?: PushMessageSearchCriteria) => Promise<void>;
   removeMessages: (query?: { ids: string[] }) => Promise<void>;
-  searchQuery: IPushMessageSearchCriteria;
+  searchQuery: PushMessageSearchCriteria;
   // Optional customization
   customActions?: (item: PushMessage) => IActionBuilderResult[];
   hideDeleteSelected?: boolean;
   customToolbarItems?: IBladeToolbar[];
 }
 
-export interface Emits {
-  (event: "parent:call", args: IParentCallArgs): void;
-  (event: "close:blade"): void;
-  (event: "collapse:blade"): void;
-  (event: "expand:blade"): void;
-}
-
 const props = defineProps<Props>();
 
 const { t } = useI18n({ useScope: "global" });
-const { openBlade } = useBladeNavigation();
+const { param, openBlade } = useBlade();
 const { showConfirmation } = usePopup();
 
-const { sortExpression, handleSortChange: tableSortHandler } = useTableSort({
+const { sortField, sortOrder, sortExpression } = useDataTableSort({
   initialDirection: "DESC",
-  initialProperty: "modifiedDate",
+  initialField: "modifiedDate",
 });
 
-const searchValue = ref();
 const selectedItemId = ref<string>();
-const selectedMessageIds = ref<string[]>([]);
+const selectedMessages = ref<PushMessage[]>([]);
+
+const selectedMessageIds = computed(() => selectedMessages.value.map((message) => message.id!));
+
+function normalizeColumnType(type?: string): VcColumnCellType | undefined {
+  if (!type) {
+    return undefined;
+  }
+  return (type === "date-time" ? "datetime" : type) as VcColumnCellType;
+}
 
 const deletableMessageIds = computed(() => {
   if (selectedMessageIds.value.length === 0) {
@@ -103,7 +103,7 @@ const bladeToolbar = computed((): IBladeToolbar[] => {
   const defaultItems: IBladeToolbar[] = [
     {
       id: "refresh",
-      icon: "material-refresh",
+      icon: "lucide-refresh-cw",
       title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.REFRESH"),
       clickHandler: async () => {
         await reload();
@@ -111,7 +111,7 @@ const bladeToolbar = computed((): IBladeToolbar[] => {
     },
     {
       id: "add",
-      icon: "material-add",
+      icon: "lucide-plus",
       title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.NEW"),
       clickHandler: onAddNewMessage,
     },
@@ -120,7 +120,7 @@ const bladeToolbar = computed((): IBladeToolbar[] => {
   if (!props.hideDeleteSelected) {
     defaultItems.push({
       id: "deleteSelected",
-      icon: "material-delete",
+      icon: "lucide-trash-2",
       title: t("PUSH_MESSAGES.PAGES.LIST.TOOLBAR.DELETE"),
       disabled: deletableMessageIds.value.length === 0,
       clickHandler: async () => {
@@ -133,7 +133,7 @@ const bladeToolbar = computed((): IBladeToolbar[] => {
         ) {
           await props.removeMessages({ ids: deletableMessageIds.value });
           await reload();
-          selectedMessageIds.value = [];
+          selectedMessages.value = [];
         }
       },
     });
@@ -143,7 +143,7 @@ const bladeToolbar = computed((): IBladeToolbar[] => {
 });
 
 watch(
-  () => props.param,
+  () => param.value,
   (newVal) => {
     selectedItemId.value = newVal;
   },
@@ -171,7 +171,7 @@ const actionBuilder = (item: PushMessage): IActionBuilderResult[] => {
 
   if (canDelete(item)) {
     result.push({
-      icon: "material-delete",
+      icon: "lucide-trash-2",
       title: t("PUSH_MESSAGES.PAGES.LIST.TABLE.ACTIONS.DELETE"),
       type: "danger",
       async clickHandler() {
@@ -191,30 +191,31 @@ function canDelete(item: PushMessage) {
 }
 
 const reload = async () => {
-  selectedMessageIds.value = [];
+  selectedMessages.value = [];
 
   await props.loadMessages({
     ...props.searchQuery,
-    skip: (props.currentPage - 1) * (props.searchQuery.take ?? 10),
+    skip: props.pagination.skip,
     sort: sortExpression.value,
   });
 };
 
 const onSearchList = debounce(async (keyword: string | undefined) => {
   console.debug(`List search by ${keyword}`);
-  searchValue.value = keyword;
   await props.loadMessages({
     ...props.searchQuery,
     keyword,
   });
 }, 1000);
 
+function handleRowClick(event: { data: PushMessage }) {
+  onItemClick(event.data);
+}
+
 function onItemClick(item: PushMessage) {
   console.log("onItemClick", item);
   openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
+    name: "PushMessageDetails",
     param: item.id,
     onOpen() {
       selectedItemId.value = item.id;
@@ -227,27 +228,10 @@ function onItemClick(item: PushMessage) {
 
 function onAddNewMessage(args: { options?: Record<string, unknown> }) {
   openBlade({
-    blade: {
-      name: "PushMessageDetails",
-    },
+    name: "PushMessageDetails",
     ...args,
   });
 }
-
-function onHeaderClick(item: ITableColumns) {
-  tableSortHandler(item.id);
-}
-
-const onPaginationClick = async (page: number) => {
-  await props.loadMessages({
-    ...props.searchQuery,
-    skip: (page - 1) * (props.searchQuery.take ?? 10),
-  });
-};
-
-const onSelectionChanged = (messages: PushMessage[]) => {
-  selectedMessageIds.value = messages.map((message) => message.id!);
-};
 
 onMounted(async () => {
   await props.loadMessages({

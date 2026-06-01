@@ -1,8 +1,7 @@
 import { computed, ref, ComputedRef, Ref } from "vue";
-import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
+import { useApiClient, useAsync, useLoading, useDataTablePagination, type UseDataTablePaginationReturn } from "@vc-shell/framework";
 
 import {
-  IPushMessageSearchCriteria,
   PushMessage,
   PushMessageClient,
   PushMessageSearchCriteria,
@@ -22,11 +21,9 @@ export interface BaseListOptions {
 
 export interface IUseBaseList {
   items: ComputedRef<PushMessage[]>;
-  totalCount: ComputedRef<number>;
-  pages: ComputedRef<number>;
-  currentPage: ComputedRef<number>;
-  searchQuery: Ref<IPushMessageSearchCriteria>;
-  loadMessages: (query?: IPushMessageSearchCriteria) => Promise<void>;
+  pagination: UseDataTablePaginationReturn;
+  searchQuery: Ref<PushMessageSearchCriteria>;
+  loadMessages: (query?: PushMessageSearchCriteria) => Promise<void>;
   removeMessages: (query?: { ids: string[] }) => Promise<void>;
   loading: ComputedRef<boolean>;
 }
@@ -35,7 +32,7 @@ export function useBaseList(options?: BaseListOptions): IUseBaseList {
   const pageSize = options?.pageSize || 20;
   const defaultSort = options?.sort || "modifiedDate:desc";
 
-  const searchQuery = ref<IPushMessageSearchCriteria>({
+  const searchQuery = ref<PushMessageSearchCriteria>({
     take: pageSize,
     sort: defaultSort,
     skip: 0,
@@ -46,7 +43,7 @@ export function useBaseList(options?: BaseListOptions): IUseBaseList {
 
   const searchResult = ref<PushMessageSearchResult>();
 
-  const { action: loadMessages, loading: loadingMessages } = useAsync<IPushMessageSearchCriteria>(async (_query) => {
+  const { action: loadMessages, loading: loadingMessages } = useAsync<PushMessageSearchCriteria>(async (_query) => {
     searchQuery.value = {
       ...searchQuery.value,
       ...(_query || {}),
@@ -56,7 +53,9 @@ export function useBaseList(options?: BaseListOptions): IUseBaseList {
       ...(options?.isDraft !== undefined && { isDraft: options.isDraft }),
     };
 
-    const criteria = new PushMessageSearchCriteria(searchQuery.value);
+    const criteria = {
+      ...searchQuery.value
+    } as PushMessageSearchCriteria;
 
     // Apply response group if specified
     if (options?.responseGroup) {
@@ -87,11 +86,15 @@ export function useBaseList(options?: BaseListOptions): IUseBaseList {
     }
   });
 
+  const pagination = useDataTablePagination({
+    pageSize,
+    totalCount: computed(() => searchResult.value?.totalCount ?? 0),
+    onPageChange: ({ skip }) => loadMessages({ ...searchQuery.value, skip }),
+  });
+
   return {
     items: computed(() => searchResult.value?.results || []),
-    totalCount: computed(() => searchResult.value?.totalCount || 0),
-    pages: computed(() => Math.ceil((searchResult.value?.totalCount || 1) / pageSize)),
-    currentPage: computed(() => Math.ceil((searchQuery.value?.skip || 0) / Math.max(1, pageSize) + 1)),
+    pagination,
     searchQuery,
     loadMessages,
     removeMessages,

@@ -6,60 +6,40 @@
     state-key="draft_list"
     :columns="columns"
     :items="items"
-    :total-count="totalCount"
-    :pages="pages"
-    :current-page="currentPage"
+    :pagination="pagination"
     :loading="loading"
     :load-messages="loadDrafts"
     :remove-messages="removeDrafts"
-    :search-query="searchQuery"
-    @parent:call="$emit('parent:call', $event)"
-    @close:blade="$emit('close:blade')"
-    @collapse:blade="$emit('collapse:blade')"
-    @expand:blade="$emit('expand:blade')"
-  />
+    :search-query="searchQuery"  />
 </template>
 
 <script setup lang="ts">
 import { computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { IParentCallArgs } from "@vc-shell/framework";
 import { useDraftList } from "../composables/useDraftList";
 import { useMessageListColumns } from "../utils/columns";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
 import BaseListBlade from "../components/BaseListBlade.vue";
+import { useBlade } from "@vc-shell/framework";
 
-export interface Props {
-  expanded?: boolean;
-  closable?: boolean;
-  param?: string;
-  options?: unknown;
-}
+const {
+  exposeToChildren
+} = useBlade();
 
-export interface Emits {
-  (event: "parent:call", args: IParentCallArgs): void;
-  (event: "close:blade"): void;
-  (event: "collapse:blade"): void;
-  (event: "expand:blade"): void;
-}
-
-defineProps<Props>();
-defineEmits<Emits>();
-
-defineOptions({
+defineBlade({
   name: "PushMessageDraftList",
   url: "/drafts",
   isWorkspace: true,
   menuItem: {
     title: "PUSH_MESSAGES.MENU.DRAFTS",
-    icon: "material-edit_square",
+    icon: "lucide-square-pen",
     priority: 2,
   },
 });
 
 const { t } = useI18n({ useScope: "global" });
 
-const { loadDrafts, searchQuery, currentPage, removeDrafts, totalCount, items, loading, pages } = useDraftList();
+const { loadDrafts, searchQuery, removeDrafts, items, loading, pagination } = useDraftList();
 
 const baseListBladeRef = useTemplateRef("baseListBladeRef");
 
@@ -82,10 +62,9 @@ function onAddNewMessage(args: { options?: Record<string, unknown> }) {
 }
 
 // Expose the same API as the original component
-defineExpose({
-  title,
+exposeToChildren({
   reload,
   onAddNewMessage,
-  onItemClick,
+  onItemClick
 });
 </script>
