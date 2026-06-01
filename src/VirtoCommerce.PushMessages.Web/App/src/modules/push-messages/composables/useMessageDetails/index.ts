@@ -6,7 +6,7 @@ import {
   MemberSearchResult,
   MembersSearchCriteria,
 } from "../../../../api_client/virtocommerce.customer";
-import { IPushMessage, PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
+import { PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
 const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient);
@@ -17,7 +17,7 @@ export interface UseMessageDetailsOptions {
 }
 
 export interface IUseMessageDetails {
-  item: Ref<IPushMessage>;
+  item: Ref<PushMessage>;
   isModified: Readonly<Ref<boolean>>;
   memberCount: Ref<number | undefined>;
   loading: ComputedRef<boolean>;
@@ -32,7 +32,7 @@ export interface IUseMessageDetails {
 }
 
 export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessageDetails {
-  const item = ref<IPushMessage>(new PushMessage());
+  const item = ref<PushMessage>({} as PushMessage);
   const isNew = ref(!options?.id);
   const memberCount = ref<number>();
 
@@ -46,16 +46,17 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
       currentValue.value = reactive(result);
     } else if (options?.sourceMessage) {
       // Clone from source message
-      const cloned = new PushMessage();
-      cloned.topic = options.sourceMessage.topic;
-      cloned.shortMessage = options.sourceMessage.shortMessage;
-      cloned.memberIds = options.sourceMessage.memberIds;
-      cloned.memberQuery = options.sourceMessage.memberQuery;
-      cloned.trackNewRecipients = options.sourceMessage.trackNewRecipients;
+      const cloned = {
+        topic: options.sourceMessage.topic,
+        shortMessage: options.sourceMessage.shortMessage,
+        memberIds: options.sourceMessage.memberIds,
+        memberQuery: options.sourceMessage.memberQuery,
+        trackNewRecipients: options.sourceMessage.trackNewRecipients,
+      } as PushMessage;
       currentValue.value = reactive(cloned);
     } else {
       // New message
-      currentValue.value = reactive(new PushMessage());
+      currentValue.value = reactive({} as PushMessage);
     }
     resetModificationState();
   });
@@ -69,12 +70,16 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
       if (status) {
         currentValue.value.status = status;
       }
-      result = await apiClient.create(new PushMessage(currentValue.value));
+      result = await apiClient.create({
+        ...currentValue.value
+      } as PushMessage);
     } else if (currentValue.value.status !== "Sent") {
       if (status) {
         currentValue.value.status = status;
       }
-      result = await apiClient.update(new PushMessage(currentValue.value));
+      result = await apiClient.update({
+        ...currentValue.value
+      } as PushMessage);
     } else {
       // Only track new recipients for sent messages
       result = await apiClient.changeTracking(currentValue.value.id!, currentValue.value.trackNewRecipients!);
