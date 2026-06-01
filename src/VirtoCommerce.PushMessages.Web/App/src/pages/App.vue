@@ -14,6 +14,8 @@ import { onMounted, ref } from "vue";
 // eslint-disable-next-line import/no-unresolved
 import logoImage from "/img/icons/safari-pinned-tab.svg";
 
+import { VcApp } from "@vc-shell/framework/ui";
+
 const isReady = ref(false);
 const version = import.meta.env.PACKAGE_VERSION;
 

@@ -1,12 +1,7 @@
 import { computed, ref, ComputedRef, Ref } from "vue";
 import { useApiClient, useAsync, useLoading, useDataTablePagination, type UseDataTablePaginationReturn } from "@vc-shell/framework";
 
-import {
-  PushMessage,
-  PushMessageClient,
-  PushMessageSearchCriteria,
-  PushMessageSearchResult,
-} from "../../../api_client/virtocommerce.pushmessages";
+import { PushMessage, PushMessageClient, PushMessageSearchCriteria, PushMessageSearchResult } from "../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient } = useApiClient(PushMessageClient);
 
@@ -54,7 +49,7 @@ export function useBaseList(options?: BaseListOptions): IUseBaseList {
     };
 
     const criteria = {
-      ...searchQuery.value
+      ...searchQuery.value,
     } as PushMessageSearchCriteria;
 
     // Apply response group if specified

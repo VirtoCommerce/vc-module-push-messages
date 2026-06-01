@@ -10,7 +10,8 @@
     :loading="loading"
     :load-messages="loadMessages"
     :remove-messages="removeMessages"
-    :search-query="searchQuery"  />
+    :search-query="searchQuery"
+  />
 </template>
 
 <script setup lang="ts">
@@ -22,9 +23,7 @@ import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
 import BaseListBlade from "../components/BaseListBlade.vue";
 import { useBlade } from "@vc-shell/framework";
 
-const {
-  exposeToChildren
-} = useBlade();
+const { exposeToChildren } = useBlade();
 
 defineBlade({
   name: "PushMessageScheduledList",
@@ -64,6 +63,6 @@ function onAddNewMessage(args: { options?: Record<string, unknown> }) {
 exposeToChildren({
   reload,
   onAddNewMessage,
-  onItemClick
+  onItemClick,
 });
 </script>

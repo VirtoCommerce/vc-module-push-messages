@@ -1,11 +1,7 @@
 import { computed, ComputedRef, reactive, Ref, ref } from "vue";
 import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
 
-import {
-  CustomerModuleClient,
-  MemberSearchResult,
-  MembersSearchCriteria,
-} from "../../../../api_client/virtocommerce.customer";
+import { CustomerModuleClient, MemberSearchResult, MembersSearchCriteria } from "../../../../api_client/virtocommerce.customer";
 import { PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
@@ -67,14 +63,14 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
         item.value.status = status;
       }
       result = await apiClient.create({
-        ...item.value
+        ...item.value,
       } as PushMessage);
     } else if (item.value.status !== "Sent") {
       if (status) {
         item.value.status = status;
       }
       result = await apiClient.update({
-        ...item.value
+        ...item.value,
       } as PushMessage);
     } else {
       // Only track new recipients for sent messages

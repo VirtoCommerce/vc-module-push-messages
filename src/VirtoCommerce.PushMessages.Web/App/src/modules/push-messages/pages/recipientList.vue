@@ -1,5 +1,7 @@
 <template>
-  <VcBlade :title="title" width="50%"
+  <VcBlade
+    :title="title"
+    width="50%"
   >
     <VcDataTable
       :loading="loading"
@@ -89,10 +91,7 @@ import { debounce } from "lodash-es";
 
 import { VcBlade, VcDataTable, VcColumn } from "@vc-shell/framework/ui";
 
-const {
-  options,
-  exposeToChildren,
-} = useBlade<{ messageId: string }>();
+const { options, exposeToChildren } = useBlade<{ messageId: string }>();
 defineBlade({
   name: "PushMessageRecipientList",
   url: "/recipients",

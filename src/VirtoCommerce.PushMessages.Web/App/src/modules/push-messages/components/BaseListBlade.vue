@@ -1,5 +1,8 @@
 <template>
-  <VcBlade :title="title" width="50%" :toolbar-items="bladeToolbar"
+  <VcBlade
+    :title="title"
+    width="50%"
+    :toolbar-items="bladeToolbar"
   >
     <VcDataTable
       :loading="loading"

@@ -1,10 +1,7 @@
 import { computed, ref, type ComputedRef, type Ref } from "vue";
 import { useBladeWidgets, useBlade, useApiClient } from "@vc-shell/framework";
 import type { UseBladeWidgetsReturn } from "@vc-shell/framework";
-import {
-  PushMessageClient,
-  PushMessageRecipientSearchCriteria,
-} from "../../../api_client/virtocommerce.pushmessages";
+import { PushMessageClient, PushMessageRecipientSearchCriteria } from "../../../api_client/virtocommerce.pushmessages";
 
 interface UseRecipientsWidgetsOptions {
   itemId: Ref<string | undefined> | ComputedRef<string | undefined>;

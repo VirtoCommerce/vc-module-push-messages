@@ -1,5 +1,9 @@
 <template>
-  <VcBlade :loading="loading" :title="bladeTitle" width="50%" :toolbar-items="toolbarItems"
+  <VcBlade
+    :loading="loading"
+    :title="bladeTitle"
+    width="50%"
+    :toolbar-items="toolbarItems"
   >
     <VcForm>
       <div class="tw-p-6 tw-space-y-6">
@@ -133,20 +137,14 @@ defineBlade({
 });
 
 const { t } = useI18n({ useScope: "global" });
-const {
-  param,
-  options,
-  callParent,
-  closeSelf,
-} = useBlade<{ sourceMessage?: PushMessage }>();
+const { param, options, callParent, closeSelf } = useBlade<{ sourceMessage?: PushMessage }>();
 const { showConfirmation } = usePopup();
 
 // Initialize composable
-const { item, loading, showMemberIds, showMemberQuery, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } =
-  useMessageDetails({
-    id: param.value,
-    sourceMessage: options.value?.sourceMessage,
-  });
+const { item, loading, showMemberIds, showMemberQuery, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } = useMessageDetails({
+  id: param.value,
+  sourceMessage: options.value?.sourceMessage,
+});
 
 const { canSave, setBaseline, formMeta } = useBladeForm({
   data: item,

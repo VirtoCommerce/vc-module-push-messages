@@ -24,7 +24,7 @@ async function startApp() {
       },
     })
     // Dynamic module based on page schemas
-    .use(DynamicModule, { router })
+    .use(DynamicModule)
     .use(router);
 
   bootstrap(app);
