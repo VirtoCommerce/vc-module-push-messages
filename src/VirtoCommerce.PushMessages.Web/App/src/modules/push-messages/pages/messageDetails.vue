@@ -1,15 +1,5 @@
 <template>
-  <VcBlade
-    v-loading="loading"
-    :title="bladeTitle"
-    width="50%"
-    :expanded="expanded"
-    :closable="closable"
-    :toolbar-items="toolbarItems"
-    :modified="isModified"
-    @close="$emit('close:blade')"
-    @expand="$emit('expand:blade')"
-    @collapse="$emit('collapse:blade')"
+  <VcBlade :loading="loading" :title="bladeTitle" width="50%" :toolbar-items="toolbarItems"
   >
     <VcForm>
       <div class="tw-p-6 tw-space-y-6">
@@ -35,7 +25,7 @@
         </Field>
 
         <!-- Member Selection - Show either IDs or Query -->
-        <!-- @vue-generic {Member, MemberSearchResult}-->
+        <!-- @vue-generic {string[], Member, MemberSearchResult}-->
         <VcSelect
           v-if="showMemberIds"
           v-model="item.memberIds"
@@ -69,7 +59,7 @@
           >
             <template #append>
               <VcButton
-                icon="material-calculate"
+                icon="lucide-calculator"
                 variant="secondary"
                 size="sm"
                 :loading="countingMembers"
@@ -91,7 +81,7 @@
         <VcSwitch
           v-model="item.trackNewRecipients"
           :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TRACK_NEW_RECIPIENTS.LABEL')"
-          :tooltip="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TRACK_NEW_RECIPIENTS.DESCRIPTION')"
+          :hint="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TRACK_NEW_RECIPIENTS.DESCRIPTION')"
         />
 
         <!-- Topic -->
@@ -126,140 +116,112 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onBeforeUnmount, onMounted, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  VcBlade,
-  VcForm,
-  VcField,
-  VcEditor,
-  VcSelect,
-  VcInput,
-  VcSwitch,
-  VcButton,
-  useBladeNavigation,
-  useWidgets,
-  BladeInstance,
-  IBladeToolbar,
-  usePopup,
-  IParentCallArgs,
-} from "@vc-shell/framework";
+import { useBlade, useBladeForm, IBladeToolbar, usePopup } from "@vc-shell/framework";
 import { useMessageDetails } from "../composables/useMessageDetails";
+import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Member, MemberSearchResult } from "../../../api_client/virtocommerce.customer";
-import { Field, useForm } from "vee-validate";
-import RecipientsWidget from "../components/widgets/recipients-widget.vue";
+import { Field } from "vee-validate";
 
-export interface Props {
-  expanded?: boolean;
-  closable?: boolean;
-  param?: string;
-  options?: {
-    sourceMessage?: PushMessage;
-  };
-}
-
-export interface Emits {
-  (event: "close:blade"): void;
-  (event: "collapse:blade"): void;
-  (event: "expand:blade"): void;
-  (event: "parent:call", args: IParentCallArgs): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
-
-defineOptions({
+import { VcBlade, VcButton, VcEditor, VcField, VcForm, VcInput, VcSelect, VcSwitch } from "@vc-shell/framework/ui";
+defineBlade({
   name: "PushMessageDetails",
   url: "/details",
 });
 
 const { t } = useI18n({ useScope: "global" });
-const { onBeforeClose } = useBladeNavigation();
-const { meta } = useForm({ validateOnMount: false });
-const { registerWidget, clearBladeWidgets, updateActiveWidget } = useWidgets();
+const {
+  param,
+  options,
+  callParent,
+  closeSelf,
+} = useBlade<{ sourceMessage?: PushMessage }>();
 const { showConfirmation } = usePopup();
-const blade = inject(BladeInstance);
 
 // Initialize composable
-const { item, loading, showMemberIds, showMemberQuery, isModified, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } =
+const { item, loading, showMemberIds, showMemberQuery, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } =
   useMessageDetails({
-    id: props.param,
-    sourceMessage: props.options?.sourceMessage,
+    id: param.value,
+    sourceMessage: options.value?.sourceMessage,
   });
 
-// Local state
-const itemId = computed(() => item.value?.id);
-const itemStatus = computed(() => item.value?.status);
+const { canSave, setBaseline, formMeta } = useBladeForm({
+  data: item,
+  closeConfirmMessage: () => t("PUSH_MESSAGES.PAGES.ALERTS.CLOSE_CONFIRMATION"),
+});
 
+// Widgets
+const { refreshAll } = useRecipientsWidgets({
+  itemId: computed(() => item.value?.id),
+  isVisible: computed(() => item.value?.status === "Sent"),
+});
+
+// Local state
 const isReadOnly = computed(() => {
-  return !!props.param && item.value?.status === "Sent";
+  return !!param.value && item.value?.status === "Sent";
 });
 const isEditable = computed(() => {
-  return !props.param || (item.value != null && item.value.status !== "Sent");
+  return !param.value || (item.value != null && item.value.status !== "Sent");
 });
 
 const bladeTitle = computed(() => {
-  return !props.param ? "New push message" : "Push message details";
+  return !param.value ? "New push message" : "Push message details";
 });
 
 // Toolbar items
 const toolbarItems = computed((): IBladeToolbar[] => [
   {
     id: "save",
-    icon: "material-save",
+    icon: "lucide-save",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE"),
-    disabled: !isModified.value || !meta.value.valid,
+    disabled: !canSave.value,
     clickHandler: async () => {
       await handleSave();
     },
   },
   {
     id: "saveAndPublish",
-    icon: "material-send",
+    icon: "lucide-send",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE_AND_PUBLISH"),
-    disabled: !meta.value.valid || item.value == null || (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
+    disabled: !formMeta.value.valid || item.value == null || (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
     isVisible: isEditable.value && item.value != null && item.value.status !== "Scheduled",
     clickHandler: async () => {
       const status = item.value?.startDate ? "Scheduled" : "Sent";
       await handleSave(status);
 
-      updateActiveWidget();
+      refreshAll();
     },
   },
   {
     id: "clone",
-    icon: "material-content_copy",
+    icon: "lucide-copy",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.CLONE"),
-    isVisible: !!props.param,
+    isVisible: !!param.value,
     clickHandler: () => {
-      emit("parent:call", {
-        method: "onAddNewMessage",
-        args: {
-          options: {
-            sourceMessage: item,
-          },
+      callParent("onAddNewMessage", {
+        options: {
+          sourceMessage: item,
         },
       });
     },
   },
   {
     id: "delete",
-    icon: "material-delete",
+    icon: "lucide-trash-2",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.DELETE"),
-    isVisible: !!props.param && isEditable.value,
+    isVisible: !!param.value && isEditable.value,
     clickHandler: async () => {
       if (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE"))) {
         await deleteMessage();
 
-        emit("parent:call", {
-          method: "reload",
-        });
+        callParent("reload");
 
-        updateActiveWidget();
+        refreshAll();
 
-        emit("close:blade");
+        closeSelf();
       }
     },
   },
@@ -269,57 +231,32 @@ const toolbarItems = computed((): IBladeToolbar[] => [
 async function handleSave(status?: string) {
   const message = await saveMessage(status);
 
-  emit("parent:call", { method: "reload" });
+  setBaseline();
+
+  callParent("reload");
 
   if (item.value.id || message.id) {
-    emit("parent:call", { method: "onItemClick", args: message.id ? message : item.value });
+    callParent("onItemClick", message.id ? message : item.value);
   }
 }
 
 // Watchers
 watch(
-  () => props.param,
-  (newParam) => {
+  () => param.value,
+  async (newParam) => {
     if (newParam) {
-      loadMessage();
+      await loadMessage();
+      setBaseline();
+      refreshAll();
     }
   },
-  { immediate: true },
 );
 
 // Lifecycle
 onMounted(async () => {
   await loadMessage();
-});
-
-onBeforeUnmount(() => {
-  if (blade?.value.id) {
-    clearBladeWidgets(blade.value.id);
-  }
-});
-
-onBeforeClose(async () => {
-  if (isModified.value) {
-    return showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.CLOSE_CONFIRMATION"));
-  }
-});
-
-registerWidget(
-  {
-    id: "RecipientsWidget",
-    component: RecipientsWidget,
-    isVisible: computed(() => item.value?.status === "Sent"),
-    props: {
-      itemId: itemId,
-      status: itemStatus,
-    },
-    updateFunctionName: "updateActiveWidgetCount",
-  },
-  blade?.value.id ?? "",
-);
-
-defineExpose({
-  title: bladeTitle,
+  setBaseline();
+  refreshAll();
 });
 </script>
 
