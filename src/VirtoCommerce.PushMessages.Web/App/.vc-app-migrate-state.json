@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "fromVersion": "1.1.61",
+  "toVersion": "2.0.6",
+  "completedAt": "2026-06-01",
+  "topics": {
+    "nswag-class-to-interface": {
+      "status": "completed",
+      "affectedFiles": [
+        "src/modules/push-messages/composables/useMessageDetails/index.ts",
+        "src/modules/push-messages/components/widgets/recipients-widget.vue"
+      ]
+    },
+    "remove-deprecated-aliases": {
+      "status": "completed",
+      "affectedFiles": ["src/modules/push-messages/pages/messageDetails.vue"]
+    },
+    "use-blade-form": {
+      "status": "completed",
+      "affectedFiles": [
+        "src/modules/push-messages/pages/messageDetails.vue",
+        "src/modules/push-messages/composables/useMessageDetails/index.ts"
+      ]
+    },
+    "widgets-migration": {
+      "status": "completed",
+      "affectedFiles": [
+        "src/modules/push-messages/pages/messageDetails.vue",
+        "src/modules/push-messages/widgets/useRecipientsWidgets.ts"
+      ]
+    },
+    "vctable-audit": {
+      "status": "completed",
+      "affectedFiles": [
+        "src/modules/push-messages/components/BaseListBlade.vue",
+        "src/modules/push-messages/pages/recipientList.vue"
+      ]
+    },
+    "use-data-table-pagination-audit": {
+      "status": "completed",
+      "affectedFiles": [
+        "src/modules/push-messages/components/BaseListBlade.vue",
+        "src/modules/push-messages/composables/useBaseList.ts",
+        "src/modules/push-messages/composables/useRecipientList/index.ts",
+        "src/modules/push-messages/pages/recipientList.vue"
+      ]
+    },
+    "blade-props-simplification": {
+      "status": "completed",
+      "affectedFiles": ["src/modules/push-messages/components/BaseListBlade.vue"]
+    },
+    "icon-audit": {
+      "status": "completed",
+      "affectedFiles": ["src/modules/push-messages/pages/messageDetails.vue"]
+    },
+    "notification-migration": {
+      "status": "completed",
+      "affectedFiles": ["src/modules/push-messages/index.ts"]
+    }
+  }
+}

@@ -1,12 +1,8 @@
 import { computed, ComputedRef, reactive, Ref, ref } from "vue";
-import { useApiClient, useAsync, useModificationTracker, useLoading } from "@vc-shell/framework";
+import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
 
-import {
-  CustomerModuleClient,
-  MemberSearchResult,
-  MembersSearchCriteria,
-} from "../../../../api_client/virtocommerce.customer";
-import { IPushMessage, PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
+import { CustomerModuleClient, MemberSearchResult, MembersSearchCriteria } from "../../../../api_client/virtocommerce.customer";
+import { PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
 const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient);
@@ -17,8 +13,7 @@ export interface UseMessageDetailsOptions {
 }
 
 export interface IUseMessageDetails {
-  item: Ref<IPushMessage>;
-  isModified: Readonly<Ref<boolean>>;
+  item: Ref<PushMessage>;
   memberCount: Ref<number | undefined>;
   loading: ComputedRef<boolean>;
   showMemberIds: ComputedRef<boolean>;
@@ -32,32 +27,30 @@ export interface IUseMessageDetails {
 }
 
 export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessageDetails {
-  const item = ref<IPushMessage>(new PushMessage());
+  const item = ref<PushMessage>({} as PushMessage);
   const isNew = ref(!options?.id);
   const memberCount = ref<number>();
-
-  const { currentValue, isModified, resetModificationState } = useModificationTracker(item);
 
   // Async actions
   const { action: loadMessage, loading: loadingMessage } = useAsync(async () => {
     if (options?.id) {
       const apiClient = await getPushMessageApiClient();
       const result = await apiClient.get(options.id, "WithMembers");
-      currentValue.value = reactive(result);
+      item.value = reactive(result);
     } else if (options?.sourceMessage) {
       // Clone from source message
-      const cloned = new PushMessage();
-      cloned.topic = options.sourceMessage.topic;
-      cloned.shortMessage = options.sourceMessage.shortMessage;
-      cloned.memberIds = options.sourceMessage.memberIds;
-      cloned.memberQuery = options.sourceMessage.memberQuery;
-      cloned.trackNewRecipients = options.sourceMessage.trackNewRecipients;
-      currentValue.value = reactive(cloned);
+      const cloned = {
+        topic: options.sourceMessage.topic,
+        shortMessage: options.sourceMessage.shortMessage,
+        memberIds: options.sourceMessage.memberIds,
+        memberQuery: options.sourceMessage.memberQuery,
+        trackNewRecipients: options.sourceMessage.trackNewRecipients,
+      } as PushMessage;
+      item.value = reactive(cloned);
     } else {
       // New message
-      currentValue.value = reactive(new PushMessage());
+      item.value = reactive({} as PushMessage);
     }
-    resetModificationState();
   });
 
   const { action: saveMessage, loading: savingMessage } = useAsync(async (status?: string) => {
@@ -67,29 +60,32 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
 
     if (isNew.value) {
       if (status) {
-        currentValue.value.status = status;
+        item.value.status = status;
       }
-      result = await apiClient.create(new PushMessage(currentValue.value));
-    } else if (currentValue.value.status !== "Sent") {
+      result = await apiClient.create({
+        ...item.value,
+      } as PushMessage);
+    } else if (item.value.status !== "Sent") {
       if (status) {
-        currentValue.value.status = status;
+        item.value.status = status;
       }
-      result = await apiClient.update(new PushMessage(currentValue.value));
+      result = await apiClient.update({
+        ...item.value,
+      } as PushMessage);
     } else {
       // Only track new recipients for sent messages
-      result = await apiClient.changeTracking(currentValue.value.id!, currentValue.value.trackNewRecipients!);
+      result = await apiClient.changeTracking(item.value.id!, item.value.trackNewRecipients!);
     }
 
-    currentValue.value = reactive(result);
-    resetModificationState();
+    item.value = reactive(result);
 
     return result;
   });
 
   const { action: deleteMessage, loading: deletingMessage } = useAsync(async () => {
-    if (currentValue.value.id) {
+    if (item.value.id) {
       const apiClient = await getPushMessageApiClient();
-      await apiClient.delete([currentValue.value.id]);
+      await apiClient.delete([item.value.id]);
 
       console.log("Message deleted successfully");
     }
@@ -109,10 +105,10 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
   }
 
   const { action: countMembers, loading: countingMembers } = useAsync(async () => {
-    if (currentValue.value?.memberQuery) {
+    if (item.value?.memberQuery) {
       const apiClient = await getCustomerApiClient();
       const result = await apiClient.searchMember({
-        keyword: currentValue.value.memberQuery,
+        keyword: item.value.memberQuery,
         deepSearch: true,
         take: 0,
       } as MembersSearchCriteria);
@@ -124,17 +120,16 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
   const loading = useLoading(loadingMessage, savingMessage, deletingMessage);
 
   const showMemberIds = computed(() => {
-    return !currentValue.value?.memberQuery;
+    return !item.value?.memberQuery;
   });
 
   const showMemberQuery = computed(() => {
-    return !currentValue.value?.memberIds || currentValue.value.memberIds.length === 0;
+    return !item.value?.memberIds || item.value.memberIds.length === 0;
   });
 
   return {
     // State
-    item: currentValue,
-    isModified,
+    item,
     memberCount,
     loading,
 

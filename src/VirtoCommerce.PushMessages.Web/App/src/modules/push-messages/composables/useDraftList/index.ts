@@ -1,8 +1,8 @@
 import { useBaseList, BaseListOptions, IUseBaseList } from "../useBaseList";
-import { IPushMessageSearchCriteria } from "../../../../api_client/virtocommerce.pushmessages";
+import { PushMessageSearchCriteria } from "../../../../api_client/virtocommerce.pushmessages";
 
 export interface IUseDraftList extends IUseBaseList {
-  loadDrafts: (query?: IPushMessageSearchCriteria) => Promise<void>;
+  loadDrafts: (query?: PushMessageSearchCriteria) => Promise<void>;
   removeDrafts: (query?: { ids: string[] }) => Promise<void>;
 }
 

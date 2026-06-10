@@ -1,13 +1,7 @@
 import { computed, ref, ComputedRef, Ref } from "vue";
-import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
+import { useApiClient, useAsync, useLoading, useDataTablePagination, type UseDataTablePaginationReturn } from "@vc-shell/framework";
 
-import {
-  IPushMessageRecipientSearchCriteria,
-  PushMessageClient,
-  PushMessageRecipient,
-  PushMessageRecipientSearchCriteria,
-  PushMessageRecipientSearchResult,
-} from "../../../../api_client/virtocommerce.pushmessages";
+import { PushMessageClient, PushMessageRecipient, PushMessageRecipientSearchCriteria, PushMessageRecipientSearchResult } from "../../../../api_client/virtocommerce.pushmessages";
 
 const { getApiClient } = useApiClient(PushMessageClient);
 
@@ -19,11 +13,9 @@ export interface UseRecipientListOptions {
 
 export interface IUseRecipientList {
   items: ComputedRef<PushMessageRecipient[]>;
-  totalCount: ComputedRef<number>;
-  pages: ComputedRef<number>;
-  currentPage: ComputedRef<number>;
-  searchQuery: Ref<IPushMessageRecipientSearchCriteria>;
-  loadRecipients: (query?: IPushMessageRecipientSearchCriteria) => Promise<void>;
+  pagination: UseDataTablePaginationReturn;
+  searchQuery: Ref<PushMessageRecipientSearchCriteria>;
+  loadRecipients: (query?: PushMessageRecipientSearchCriteria) => Promise<void>;
   loading: ComputedRef<boolean>;
 }
 
@@ -38,25 +30,29 @@ export function useRecipientList(options: UseRecipientListOptions): IUseRecipien
   });
   const searchResult = ref<PushMessageRecipientSearchResult>();
 
-  const { action: loadRecipients, loading: loadingRecipients } = useAsync<IPushMessageRecipientSearchCriteria>(
-    async (_query) => {
-      searchQuery.value = {
-        ...searchQuery.value,
-        ...(_query || {}),
-        messageId: options.messageId, // Always preserve messageId
-        withHidden: true,
-      };
+  const { action: loadRecipients, loading: loadingRecipients } = useAsync<PushMessageRecipientSearchCriteria>(async (_query) => {
+    searchQuery.value = {
+      ...searchQuery.value,
+      ...(_query || {}),
+      messageId: options.messageId, // Always preserve messageId
+      withHidden: true,
+    };
 
-      const criteria = new PushMessageRecipientSearchCriteria(searchQuery.value);
-      searchResult.value = await (await getApiClient()).searchRecipients(criteria);
-    },
-  );
+    const criteria = {
+      ...searchQuery.value,
+    } as PushMessageRecipientSearchCriteria;
+    searchResult.value = await (await getApiClient()).searchRecipients(criteria);
+  });
+
+  const pagination = useDataTablePagination({
+    pageSize,
+    totalCount: computed(() => searchResult.value?.totalCount ?? 0),
+    onPageChange: ({ skip }) => loadRecipients({ ...searchQuery.value, skip }),
+  });
 
   return {
     items: computed(() => searchResult.value?.results || []),
-    totalCount: computed(() => searchResult.value?.totalCount || 0),
-    pages: computed(() => Math.ceil((searchResult.value?.totalCount || 1) / pageSize)),
-    currentPage: computed(() => Math.ceil((searchQuery.value?.skip || 0) / Math.max(1, pageSize) + 1)),
+    pagination,
     searchQuery,
     loadRecipients,
     loading: useLoading(loadingRecipients),

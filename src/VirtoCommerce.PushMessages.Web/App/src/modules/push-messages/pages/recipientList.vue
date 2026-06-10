@@ -2,60 +2,97 @@
   <VcBlade
     :title="title"
     width="50%"
-    :expanded="expanded"
-    :closable="closable"
-    @close="$emit('close:blade')"
-    @expand="$emit('expand:blade')"
-    @collapse="$emit('collapse:blade')"
   >
-    <!--@vue-generic {PushMessageRecipient}-->
-    <VcTable
+    <VcDataTable
       :loading="loading"
-      :expanded="expanded"
       :items="items"
-      :columns="columns"
-      :sort="sortExpression"
-      :pages="pages"
-      :current-page="currentPage"
-      :total-count="totalCount"
-      :search-value="searchValue"
+      :total-count="pagination.totalCount"
+      :pagination="pagination"
+      v-model:sort-field="sortField"
+      v-model:sort-order="sortOrder"
+      :searchable="true"
+      :pull-to-refresh="true"
       state-key="recipient_list"
-      @header-click="onHeaderClick"
-      @pagination-click="onPaginationClick"
-      @scroll:ptr="reload"
-      @search:change="onSearchList"
-    ></VcTable>
+      @pagination-click="pagination.goToPage"
+      @pull-refresh="reload"
+      @search="onSearchList"
+    >
+      <VcColumn
+        id="memberId"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_ID')"
+        :sortable="true"
+        width="21em"
+        :visible="false"
+        field="memberId"
+      />
+      <VcColumn
+        id="memberName"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_NAME')"
+        :sortable="true"
+        field="memberName"
+      />
+      <VcColumn
+        id="userId"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.USER_ID')"
+        :sortable="true"
+        width="21em"
+        :visible="false"
+        field="userId"
+      />
+      <VcColumn
+        id="userName"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.USER_NAME')"
+        :sortable="true"
+        field="userName"
+      />
+      <VcColumn
+        id="isRead"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.IS_READ')"
+        :sortable="true"
+        width="6em"
+        field="isRead"
+      />
+      <VcColumn
+        id="isHidden"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.IS_HIDDEN')"
+        :sortable="true"
+        width="6em"
+        :visible="false"
+        field="isHidden"
+      />
+      <VcColumn
+        id="createdDate"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.CREATED_DATE')"
+        type="datetime"
+        :sortable="true"
+        :visible="false"
+        field="createdDate"
+      />
+      <VcColumn
+        id="modifiedDate"
+        :title="t('PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MODIFIED_DATE')"
+        type="datetime"
+        :sortable="true"
+        :visible="false"
+        field="modifiedDate"
+      />
+    </VcDataTable>
   </VcBlade>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { ITableColumns, IParentCallArgs, useTableSort } from "@vc-shell/framework";
+import { useDataTableSort, useBlade } from "@vc-shell/framework";
 import { useRecipientList } from "../composables/useRecipientList";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { PushMessageRecipient } from "../../../api_client/virtocommerce.pushmessages";
 import { debounce } from "lodash-es";
 
-export interface Props {
-  expanded?: boolean;
-  closable?: boolean;
-  param?: string;
-  options: {
-    messageId: string;
-  };
-}
+import { VcBlade, VcDataTable, VcColumn } from "@vc-shell/framework/ui";
 
-export interface Emits {
-  (event: "close:blade"): void;
-  (event: "collapse:blade"): void;
-  (event: "expand:blade"): void;
-  (event: "parent:call", args: IParentCallArgs): void;
-}
-
-const props = defineProps<Props>();
-
-defineOptions({
+const { options, exposeToChildren } = useBlade<{ messageId: string }>();
+defineBlade({
   name: "PushMessageRecipientList",
   url: "/recipients",
   routable: false,
@@ -63,73 +100,17 @@ defineOptions({
 
 const { t } = useI18n({ useScope: "global" });
 
-const { sortExpression, handleSortChange: tableSortHandler } = useTableSort({
+const { sortField, sortOrder, sortExpression } = useDataTableSort({
   initialDirection: "ASC",
-  initialProperty: "MemberName;UserName",
+  initialField: "MemberName;UserName",
 });
 
-const { items, totalCount, pages, currentPage, loadRecipients, loading, searchQuery } = useRecipientList({
-  messageId: props.options.messageId,
+const { items, pagination, loadRecipients, loading, searchQuery } = useRecipientList({
+  messageId: options.value?.messageId ?? "",
   pageSize: 20,
 });
 
-const searchValue = ref();
-
 const title = computed(() => t("PUSH_MESSAGES.PAGES.RECIPIENTS.TITLE"));
-
-const columns = computed(() => [
-  {
-    id: "memberId",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_ID"),
-    sortable: true,
-    width: "21em",
-    visible: false,
-  },
-  {
-    id: "memberName",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MEMBER_NAME"),
-    sortable: true,
-  },
-  {
-    id: "userId",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.USER_ID"),
-    sortable: true,
-    width: "21em",
-    visible: false,
-  },
-  {
-    id: "userName",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.USER_NAME"),
-    sortable: true,
-  },
-  {
-    id: "isRead",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.IS_READ"),
-    sortable: true,
-    width: "6em",
-  },
-  {
-    id: "isHidden",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.IS_HIDDEN"),
-    sortable: true,
-    width: "6em",
-    visible: false,
-  },
-  {
-    id: "createdDate",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.CREATED_DATE"),
-    type: "date-time",
-    sortable: true,
-    visible: false,
-  },
-  {
-    id: "modifiedDate",
-    title: t("PUSH_MESSAGES.PAGES.RECIPIENTS.TABLE.HEADER.MODIFIED_DATE"),
-    type: "date-time",
-    sortable: true,
-    visible: false,
-  },
-]);
 
 // Watch for sort changes
 watch(
@@ -146,25 +127,13 @@ watch(
 const reload = async () => {
   await loadRecipients({
     ...searchQuery.value,
-    skip: (currentPage.value - 1) * (searchQuery.value.take ?? 20),
+    skip: pagination.skip,
     sort: sortExpression.value,
-  });
-};
-
-function onHeaderClick(item: ITableColumns) {
-  tableSortHandler(item.id);
-}
-
-const onPaginationClick = async (page: number) => {
-  await loadRecipients({
-    ...searchQuery.value,
-    skip: (page - 1) * (searchQuery.value.take ?? 20),
   });
 };
 
 const onSearchList = debounce(async (keyword: string | undefined) => {
   console.debug(`Recipients list search by ${keyword}`);
-  searchValue.value = keyword;
   await loadRecipients({
     ...searchQuery.value,
     keyword,
@@ -178,8 +147,7 @@ onMounted(async () => {
   });
 });
 
-defineExpose({
-  title,
+exposeToChildren({
   reload,
 });
 </script>
