@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module>
   <id>VirtoCommerce.PushMessages</id>
-  <version>3.1001.0</version>
+  <version>3.1002.0</version>
   <version-tag></version-tag>
 
   <platformVersion>3.1007.10</platformVersion>
@@ -17,7 +17,7 @@
     <app id="push-messages">
       <title>Push Messages</title>
       <description>Push Messages</description>
-      <iconUrl>/apps/push-messages/img/icons/safari-pinned-tab.svg</iconUrl>
+      <iconUrl>/apps/push-messages/img/icons/logo.svg</iconUrl>
       <permission>PushMessages:access</permission>
       <supportEmbeddedMode>true</supportEmbeddedMode>
     </app>
