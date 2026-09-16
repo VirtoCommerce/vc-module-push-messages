@@ -116,6 +116,31 @@ public class AudienceResolutionTests
         Assert.Empty(result.Results);
     }
 
+    [Fact]
+    public async Task TakeZero_CountsWithoutBuildingRecipients_VCST5944()
+    {
+        // The estimate asks for counters on every keystroke; building a recipient per login
+        // would make that walk far more expensive than the counting it actually needs.
+        var contacts = Enumerable.Range(1, 7)
+            .Select(i => NewContact($"c{i}", i == 1 ? 2 : i == 7 ? 0 : 1))
+            .Cast<Member>()
+            .ToList();
+
+        var org = new Organization { Id = "org1", Name = "Acme" };
+
+        var service = NewService(
+            members: new Dictionary<string, Member> { ["org1"] = org },
+            childrenByParentId: new Dictionary<string, IList<Member>> { ["org1"] = contacts });
+
+        var counted = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org1"], Take = 0 });
+        var listed = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org1"], Take = int.MaxValue });
+
+        Assert.Empty(counted.Results);
+        Assert.Equal(listed.TotalCount, counted.TotalCount);
+        Assert.Equal(listed.PeopleInScope, counted.PeopleInScope);
+        Assert.Equal(listed.ExtraLogins, counted.ExtraLogins);
+    }
+
     private static PushMessageAudienceService NewService(
         IDictionary<string, Member> members = null,
         IDictionary<string, IList<Member>> childrenByParentId = null,

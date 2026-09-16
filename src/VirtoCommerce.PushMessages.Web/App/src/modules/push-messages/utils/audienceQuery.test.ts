@@ -94,6 +94,21 @@ describe("round trip", () => {
     });
   });
 
+  it("gives up on a clause that is nothing but a wildcard", () => {
+    // It used to parse as startsWith with an empty value, which buildQuery then dropped —
+    // reopening and saving such a message erased its audience.
+    expect(parseQuery('name:"*"')).toBeNull();
+    expect(parseQuery('name:""')).toBeNull();
+  });
+
+  it("survives a quote inside a wildcard value", () => {
+    const row: ConditionRow = { field: "name", operator: "contains", value: 'a"b' };
+    const phrase = buildQuery(state({ rows: [row] }));
+
+    expect(phrase).toBe('name:"*a\\"b*"');
+    expect(parseQuery(phrase)).toEqual({ join: "all", rows: [row] });
+  });
+
   it("gives up on parentheses", () => {
     expect(parseQuery("(role:Purchaser OR role:Installer) status:Approved")).toBeNull();
   });

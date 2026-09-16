@@ -208,6 +208,14 @@
       </template>
     </VcSelect>
 
+    <VcHint
+      v-for="problem in problems"
+      :key="problem"
+      class="tw-text-[color:var(--danger-500)]"
+    >
+      {{ $t(problem) }}
+    </VcHint>
+
     <!-- Estimate -->
     <div class="tw-border tw-border-[color:var(--primary-300)] tw-rounded tw-p-4 tw-space-y-3">
       <div class="tw-flex tw-items-baseline tw-gap-2">
@@ -253,6 +261,9 @@
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", { count: preview?.totalCount ?? 0 }) }}
         </p>
         <VcLoading v-if="loadingPage" active />
+        <p v-else-if="previewFailed" class="tw-text-sm tw-text-[color:var(--danger-500)]">
+          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_FAILED") }}
+        </p>
         <p v-else-if="!previewRows.length" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
         </p>
@@ -303,7 +314,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useApiClient } from "@vc-shell/framework";
@@ -314,7 +325,7 @@ import { VcButton, VcButtonGroup, VcHint, VcIcon, VcInput, VcLabel, VcLoading, V
 import { CustomerModuleClient, Member, MemberSearchResult, MembersSearchCriteria } from "../../../api_client/virtocommerce.customer";
 import { useAudiencePreview } from "../composables/useAudiencePreview";
 import { AUDIENCE_FIELDS, AudienceField, ConditionOperator, findField, OPERATORS_BY_TYPE, WILDCARD_OPERATORS } from "../utils/audienceFields";
-import { AudienceMode, blankRow, buildQuery, ConditionRow, combineDuplicateFields, detectAudience, hasContradiction, parseQuery, validateRow } from "../utils/audienceQuery";
+import { AudienceMode, blankRow, buildQuery, ConditionRow, combineDuplicateFields, detectAudience, hasContradiction, MAX_QUERY_LENGTH, parseQuery, validateRow } from "../utils/audienceQuery";
 
 const props = defineProps<{
   memberQuery?: string;
@@ -325,6 +336,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:memberQuery": [value: string | undefined];
   "update:memberIds": [value: string[] | undefined];
+  "update:invalid": [value: boolean];
 }>();
 
 const { t } = useI18n({ useScope: "global" });
@@ -337,6 +349,7 @@ const memberCounts = ref<Record<string, number>>({});
 const showPreview = ref(false);
 const showQuery = ref(false);
 const loadingPage = ref(false);
+const previewFailed = ref(false);
 interface PreviewRow {
   name: string;
   email: string;
@@ -414,12 +427,35 @@ const rawQuery = ref("");
 /** What we last told the parent, so an echo of our own emit is not mistaken for an edit. */
 let emittedQuery: string | undefined;
 let emittedIds: string[] | undefined;
+/** True while a stored audience is being read in, so that read is not mistaken for an edit. */
+let applying = false;
 
 const fieldOptions = computed(() =>
   AUDIENCE_FIELDS.map((field) => ({ ...field, label: t(field.labelKey) })),
 );
 
 const contradiction = computed(() => hasContradiction(join.value, rows.value));
+
+/** Reasons the audience cannot be saved, in the author's words. */
+const problems = computed<string[]>(() => {
+  const found: string[] = [];
+
+  if (mode.value === "conditions") {
+    for (const row of rows.value) {
+      const error = row.value ? validateRow(row) : null;
+
+      if (error && !found.includes(error)) {
+        found.push(error);
+      }
+    }
+  }
+
+  if (generatedQuery.value.length > MAX_QUERY_LENGTH) {
+    found.push(`${A_PREFIX}.VALIDATION.QUERY_TOO_LONG`);
+  }
+
+  return found;
+});
 
 const canReturnToConditions = computed(() => parseQuery(rawQuery.value) !== null);
 
@@ -567,11 +603,15 @@ function removeRow(index: number) {
 }
 
 function setMode(next: AudienceMode) {
+  const previous = mode.value;
+
   if (next === "query") {
     rawQuery.value = buildQuery(currentState());
   }
 
-  if (next === "conditions") {
+  // Only a phrase the author just edited by hand may replace the rows. Coming back from any
+  // other mode, rawQuery is stale and the rows are what the author last worked on.
+  if (next === "conditions" && previous === "query") {
     const parsed = parseQuery(rawQuery.value);
 
     if (parsed) {
@@ -625,21 +665,38 @@ async function loadOrganizations(keyword?: string, skip?: number, ids?: string[]
 function applyIncoming(memberQuery?: string, memberIds?: string[]) {
   const detected = detectAudience(memberQuery, memberIds);
 
+  // Reading a stored audience is not an edit. Without this the rebuilt phrase would be written
+  // straight back over the stored one — normalising it, marking the blade dirty before the
+  // author has touched anything, and erasing audiences whose phrase rebuilds to nothing.
+  applying = true;
+
   picked.value = [...(memberIds ?? [])];
   rawQuery.value = memberQuery ?? "";
   join.value = detected.join;
   rows.value = detected.rows;
   mode.value = detected.mode;
+
+  nextTick(() => {
+    applying = false;
+  });
 }
 
 watch(
   picked,
   async (ids) => {
-    pickedMembers.value = ids.length ? (await loadMembers(undefined, 0, ids)).results ?? [] : [];
+    try {
+      pickedMembers.value = ids.length ? (await loadMembers(undefined, 0, ids)).results ?? [] : [];
+    } catch {
+      pickedMembers.value = [];
+    }
 
     for (const id of ids) {
       if (memberCounts.value[id] === undefined) {
-        memberCounts.value[id] = await countFor(id);
+        try {
+          memberCounts.value[id] = await countFor(id);
+        } catch {
+          // A chip without a count still names the company; the estimate is the number that counts.
+        }
       }
     }
   },
@@ -712,6 +769,7 @@ const summaryParts = computed<SummaryPart[]>(() => {
 async function openPreview() {
   showPreview.value = true;
   loadingPage.value = true;
+  previewFailed.value = false;
   try {
     const page = await fetchPage({ memberQuery: emittedQuery, memberIds: emittedIds });
     const recipients = page.results ?? [];
@@ -726,6 +784,9 @@ async function openPreview() {
       email: (r.memberId && emailByMember.get(r.memberId)) || "",
       login: r.userName ?? "",
     }));
+  } catch {
+    previewFailed.value = true;
+    previewRows.value = [];
   } finally {
     loadingPage.value = false;
   }
@@ -776,14 +837,20 @@ watch(
 watch(
   [mode, join, rows, picked, rawQuery],
   () => {
+    if (applying) {
+      return;
+    }
+
     const phrase = buildQuery(currentState());
-    const ids = [...picked.value];
+    // Everyone hides the picker, so anything left in it is not part of that audience.
+    const ids = mode.value === "everyone" ? [] : [...picked.value];
 
     emittedQuery = phrase || undefined;
     emittedIds = ids.length ? ids : undefined;
 
     emit("update:memberQuery", emittedQuery);
     emit("update:memberIds", emittedIds);
+    emit("update:invalid", problems.value.length > 0);
 
     refreshPreview(emittedQuery, emittedIds);
   },

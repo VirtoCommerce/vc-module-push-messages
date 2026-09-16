@@ -19,6 +19,9 @@ export interface AudienceState {
 
 export const EVERYONE_QUERY = "membertype:Contact";
 
+/** Matches [StringLength(1024)] on PushMessageEntity.MemberQuery. */
+export const MAX_QUERY_LENGTH = 1024;
+
 const VALIDATION_PREFIX = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.VALIDATION";
 
 /** Mirrors the ANTLR lexer rule SimpleString : [\p{L}\p{N}_\-./@+]+ */
@@ -29,8 +32,12 @@ const CLAUSE = /^(!?)([A-Za-z][A-Za-z0-9_]*):(.+)$/;
 
 const RANGE = /^\[(.*)\s+TO\s*\]$|^\[\s*TO\s+(.*)\]$/;
 
+function escape(value: string): string {
+  return value.replace(/(["\\])/g, "\\$1");
+}
+
 function quote(value: string): string {
-  return SIMPLE_STRING.test(value) ? value : `"${value.replace(/(["\\])/g, "\\$1")}"`;
+  return SIMPLE_STRING.test(value) ? value : `"${escape(value)}"`;
 }
 
 function unquote(value: string): string {
@@ -53,11 +60,11 @@ function rowToQuery(row: ConditionRow): string {
         .map((part) => quote(part.trim()))
         .join(",")}`;
     case "startsWith":
-      return `${field}:"${value}*"`;
+      return `${field}:"${escape(value)}*"`;
     case "endsWith":
-      return `${field}:"*${value}"`;
+      return `${field}:"*${escape(value)}"`;
     case "contains":
-      return `${field}:"*${value}*"`;
+      return `${field}:"*${escape(value)}*"`;
     case "onOrAfter":
       return `${field}:[${value} TO]`;
     case "onOrBefore":
@@ -196,15 +203,15 @@ function clauseToRow(clause: string): ConditionRow | null {
     return negation ? null : { field, operator: "contains", value: value.slice(1, -1) };
   }
 
-  if (wasQuoted && value.endsWith("*")) {
+  if (wasQuoted && value.endsWith("*") && value.length > 1) {
     return negation ? null : { field, operator: "startsWith", value: value.slice(0, -1) };
   }
 
-  if (wasQuoted && value.startsWith("*")) {
+  if (wasQuoted && value.startsWith("*") && value.length > 1) {
     return negation ? null : { field, operator: "endsWith", value: value.slice(1) };
   }
 
-  if (value.includes("*") || value.includes("?")) {
+  if (!value || value.includes("*") || value.includes("?")) {
     return null;
   }
 

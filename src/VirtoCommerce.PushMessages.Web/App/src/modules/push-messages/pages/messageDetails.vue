@@ -31,6 +31,7 @@
         <AudienceBuilder
           v-model:member-query="item.memberQuery"
           v-model:member-ids="item.memberIds"
+          v-model:invalid="audienceInvalid"
           :disabled="isReadOnly"
         />
 
@@ -74,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBlade, useBladeForm, IBladeToolbar, usePopup } from "@vc-shell/framework";
 import { useMessageDetails } from "../composables/useMessageDetails";
@@ -98,6 +99,9 @@ const { item, loading, loadMessage, saveMessage, deleteMessage } = useMessageDet
   id: param.value,
   sourceMessage: options.value?.sourceMessage,
 });
+
+/** The audience rows are outside vee-validate, so the form asks the builder directly. */
+const audienceInvalid = ref(false);
 
 const { canSave, setBaseline, formMeta } = useBladeForm({
   data: item,
@@ -128,7 +132,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "save",
     icon: "lucide-save",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE"),
-    disabled: !canSave.value,
+    disabled: !canSave.value || audienceInvalid.value,
     clickHandler: async () => {
       await handleSave();
     },
@@ -137,7 +141,11 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "saveAndPublish",
     icon: "lucide-send",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE_AND_PUBLISH"),
-    disabled: !formMeta.value.valid || item.value == null || (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
+    disabled:
+      !formMeta.value.valid ||
+      audienceInvalid.value ||
+      item.value == null ||
+      (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
     isVisible: isEditable.value && item.value != null && item.value.status !== "Scheduled",
     clickHandler: async () => {
       const status = item.value?.startDate ? "Scheduled" : "Sent";

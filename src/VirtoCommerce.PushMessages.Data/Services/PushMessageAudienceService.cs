@@ -37,6 +37,9 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         ISet<string> excludedUserIds = null)
     {
         var result = AbstractTypeFactory<PushMessageAudienceResult>.TryCreateInstance();
+        // Counting needs the whole walk, but building a recipient per login does not: the
+        // estimate asks for counters alone on every keystroke.
+        var collect = criteria.Take != 0;
         var recipients = new List<PushMessageRecipient>();
         var userIds = new HashSet<string>(excludedUserIds ?? new HashSet<string>());
         var memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -69,13 +72,18 @@ public class PushMessageAudienceService : IPushMessageAudienceService
                 {
                     if (userIds.Add(user.Id))
                     {
-                        recipients.Add(GetRecipient(messageId, member, user));
+                        if (collect)
+                        {
+                            recipients.Add(GetRecipient(messageId, member, user));
+                        }
+
                         added++;
                     }
                 }
 
                 if (added > 0)
                 {
+                    result.TotalCount += added;
                     result.PeopleInScope++;
                     result.ExtraLogins += added - 1;
                 }
@@ -90,10 +98,9 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             }
         }
 
-        result.TotalCount = recipients.Count;
-        result.Results = criteria.Take == 0
-            ? []
-            : recipients.Skip(criteria.Skip).Take(criteria.Take).ToList();
+        result.Results = collect
+            ? recipients.Skip(criteria.Skip).Take(criteria.Take).ToList()
+            : [];
 
         return result;
 

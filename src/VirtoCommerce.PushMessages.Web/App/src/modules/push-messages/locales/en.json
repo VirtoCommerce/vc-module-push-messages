@@ -152,7 +152,8 @@
               "QUERY_LEAD": "This is what gets stored in PushMessage.MemberQuery and sent to the member index:",
               "QUERY_NONE": "No query — this audience is a plain list of people and companies.",
               "QUERY_PLUS": "Plus {count} explicitly selected in MemberIds. The send job unions the two sets.",
-              "CLOSE": "Close"
+              "CLOSE": "Close",
+              "PREVIEW_FAILED": "Could not load the recipients. Try again."
             },
             "FIELDS": {
               "NAME": "Name",
@@ -180,7 +181,8 @@
             },
             "VALIDATION": {
               "VALUE_REQUIRED": "Enter a value",
-              "WILDCARD_SINGLE_VALUE": "This operator takes a single value"
+              "WILDCARD_SINGLE_VALUE": "This operator takes a single value",
+              "QUERY_TOO_LONG": "This audience is too long to store. Use fewer values, or pick the people directly."
             }
           },
           "TOPIC": {
