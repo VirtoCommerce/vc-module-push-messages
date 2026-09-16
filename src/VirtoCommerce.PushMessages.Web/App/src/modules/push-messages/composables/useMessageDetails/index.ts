@@ -1,10 +1,8 @@
-import { computed, ComputedRef, reactive, Ref, ref } from "vue";
+import { ComputedRef, reactive, Ref, ref } from "vue";
 import { useApiClient, useAsync, useLoading } from "@vc-shell/framework";
 
-import { CustomerModuleClient, MemberSearchResult, MembersSearchCriteria } from "../../../../api_client/virtocommerce.customer";
 import { PushMessage, PushMessageClient } from "../../../../api_client/virtocommerce.pushmessages";
 
-const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
 const { getApiClient: getPushMessageApiClient } = useApiClient(PushMessageClient);
 
 export interface UseMessageDetailsOptions {
@@ -14,22 +12,15 @@ export interface UseMessageDetailsOptions {
 
 export interface IUseMessageDetails {
   item: Ref<PushMessage>;
-  memberCount: Ref<number | undefined>;
   loading: ComputedRef<boolean>;
-  showMemberIds: ComputedRef<boolean>;
-  showMemberQuery: ComputedRef<boolean>;
-  loadMembers: (keyword?: string, skip?: number, ids?: string[]) => Promise<MemberSearchResult>;
   loadMessage: () => Promise<void>;
   saveMessage: (status?: string) => Promise<PushMessage>;
   deleteMessage: () => Promise<void>;
-  countMembers: () => Promise<void>;
-  countingMembers: Readonly<Ref<boolean>>;
 }
 
 export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessageDetails {
   const item = ref<PushMessage>({} as PushMessage);
   const isNew = ref(!options?.id);
-  const memberCount = ref<number>();
 
   // Async actions
   const { action: loadMessage, loading: loadingMessage } = useAsync(async () => {
@@ -91,60 +82,17 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
     }
   });
 
-  async function loadMembers(keyword?: string, skip?: number, ids?: string[]) {
-    const apiClient = await getCustomerApiClient();
-    return apiClient.searchMember({
-      keyword: keyword,
-      objectIds: ids,
-      deepSearch: true,
-      objectType: "Member",
-      sort: "MemberType:desc;Name",
-      skip: skip || 0,
-      take: ids?.length ?? 20,
-    } as MembersSearchCriteria);
-  }
-
-  const { action: countMembers, loading: countingMembers } = useAsync(async () => {
-    if (item.value?.memberQuery) {
-      const apiClient = await getCustomerApiClient();
-      const result = await apiClient.searchMember({
-        keyword: item.value.memberQuery,
-        deepSearch: true,
-        take: 0,
-      } as MembersSearchCriteria);
-      memberCount.value = result.totalCount;
-    }
-  });
-
   // Computed properties
   const loading = useLoading(loadingMessage, savingMessage, deletingMessage);
-
-  const showMemberIds = computed(() => {
-    return !item.value?.memberQuery;
-  });
-
-  const showMemberQuery = computed(() => {
-    return !item.value?.memberIds || item.value.memberIds.length === 0;
-  });
 
   return {
     // State
     item,
-    memberCount,
     loading,
-
-    // Computed
-    showMemberIds,
-    showMemberQuery,
 
     // Actions
     loadMessage,
     saveMessage,
     deleteMessage,
-    loadMembers,
-    countMembers,
-
-    // Loading states
-    countingMembers,
   };
 }

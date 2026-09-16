@@ -2,7 +2,7 @@
   <VcBlade
     :loading="loading"
     :title="bladeTitle"
-    width="50%"
+    width="70%"
     :toolbar-items="toolbarItems"
   >
     <VcForm>
@@ -28,58 +28,11 @@
           />
         </Field>
 
-        <!-- Member Selection - Show either IDs or Query -->
-        <!-- @vue-generic {string[], Member, MemberSearchResult}-->
-        <VcSelect
-          v-if="showMemberIds"
-          v-model="item.memberIds"
-          emit-value
-          searchable
-          multiple
-          option-value="id"
-          option-label="name"
-          :options="loadMembers"
-          :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_IDS.LABEL')"
-          :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_IDS.PLACEHOLDER')"
+        <AudienceBuilder
+          v-model:member-query="item.memberQuery"
+          v-model:member-ids="item.memberIds"
           :disabled="isReadOnly"
         />
-
-        <Field
-          v-if="showMemberQuery"
-          v-slot="{ errorMessage, handleChange, errors }"
-          name="memberQuery"
-          :model-value="item.memberQuery"
-          :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_QUERY.LABEL')"
-          rules="max:1024"
-        >
-          <VcInput
-            v-model="item.memberQuery"
-            type="text"
-            :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_QUERY.PLACEHOLDER')"
-            :disabled="isReadOnly"
-            :error="errors.length > 0"
-            :error-message="errorMessage"
-            @update:model-value="handleChange"
-          >
-            <template #append>
-              <VcButton
-                icon="lucide-calculator"
-                variant="secondary"
-                size="sm"
-                :loading="countingMembers"
-                @click="countMembers"
-              >
-                {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.COUNT.LABEL") }}
-              </VcButton>
-            </template>
-            <template #append-inner>
-              <VcField
-                variant="text"
-                :model-value="memberCount"
-              />
-            </template>
-          </VcInput>
-        </Field>
 
         <!-- Track New Recipients -->
         <VcSwitch
@@ -101,6 +54,7 @@
             type="text"
             :disabled="isReadOnly"
             :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TOPIC.LABEL')"
+            :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TOPIC.PLACEHOLDER')"
             :error="errors.length > 0"
             :error-message="errorMessage"
             @update:model-value="handleChange"
@@ -126,11 +80,10 @@ import { useBlade, useBladeForm, IBladeToolbar, usePopup } from "@vc-shell/frame
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Member, MemberSearchResult } from "../../../api_client/virtocommerce.customer";
+import { AudienceBuilder } from "../components";
 import { Field } from "vee-validate";
 
-import { VcBlade, VcButton, VcEditor, VcField, VcForm, VcInput, VcSelect, VcSwitch } from "@vc-shell/framework/ui";
+import { VcBlade, VcEditor, VcForm, VcInput, VcSwitch } from "@vc-shell/framework/ui";
 defineBlade({
   name: "PushMessageDetails",
   url: "/details",
@@ -141,7 +94,7 @@ const { param, options, callParent, closeSelf } = useBlade<{ sourceMessage?: Pus
 const { showConfirmation } = usePopup();
 
 // Initialize composable
-const { item, loading, showMemberIds, showMemberQuery, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } = useMessageDetails({
+const { item, loading, loadMessage, saveMessage, deleteMessage } = useMessageDetails({
   id: param.value,
   sourceMessage: options.value?.sourceMessage,
 });

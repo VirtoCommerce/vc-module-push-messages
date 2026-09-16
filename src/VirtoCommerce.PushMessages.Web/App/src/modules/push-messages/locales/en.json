@@ -65,26 +65,134 @@
           "MESSAGE": {
             "LABEL": "Message"
           },
-          "MEMBER_IDS": {
-            "LABEL": "Recipients list",
-            "PLACEHOLDER": "Select recipients"
-          },
-          "MEMBER_QUERY": {
-            "LABEL": "Recipients query",
-            "PLACEHOLDER": "Enter recipients query"
-          },
-          "COUNT": {
-            "LABEL": "Count"
+          "AUDIENCE": {
+            "LABEL": "Audience",
+            "MODES": {
+              "EVERYONE": {
+                "TITLE": "Everyone",
+                "HINT": "All registered customers"
+              },
+              "LIST": {
+                "TITLE": "Specific people or companies",
+                "HINT": "Pick them from a list"
+              },
+              "CONDITIONS": {
+                "TITLE": "Match by conditions",
+                "HINT": "Build a rule from customer data"
+              },
+              "QUERY": {
+                "TITLE": "Advanced query",
+                "HINT": "Write the search query by hand"
+              }
+            },
+            "MATCH": "Match",
+            "ALL": "ALL",
+            "ANY": "ANY",
+            "OF_THESE_CONDITIONS": "of these conditions",
+            "CONTRADICTION": "Two conditions on the same field can never both be true — switch to ANY, or combine them.",
+            "COMBINE": "Combine into one condition",
+            "JOINER": {
+              "AND": "AND",
+              "OR": "OR"
+            },
+            "ADD_CONDITION": "Add condition",
+            "EDIT_AS_QUERY": "Edit as query",
+            "STARTERS": {
+              "LABEL": "Start from a common audience",
+              "ALL_CUSTOMERS": "All customers",
+              "ONE_COMPANY": "One company's users",
+              "BY_ROLE": "By role",
+              "EMAIL_DOMAIN": "Email domain",
+              "REGISTERED_SINCE": "Registered since",
+              "TAGGED": "Tagged"
+            },
+            "BACK_TO_CONDITIONS": "Back to conditions",
+            "RECIPIENTS_PICKER": {
+              "LABEL": "Recipients — people or whole companies",
+              "ALSO_INCLUDE": "Also include specific people or companies",
+              "PLACEHOLDER": "Add a person or company...",
+              "HINT": "Adding a company includes everyone in it, and in the companies under it.",
+              "COMPANY": "Company",
+              "PERSON": "Person",
+              "COUNT": "{count} recipients"
+            },
+            "QUERY_FIELD": {
+              "LABEL": "Recipients query",
+              "VALID": "Query is valid — {count} recipients."
+            },
+            "ESTIMATE": {
+              "RECIPIENTS": "recipients",
+              "MEMBERS_MATCHED": "members matched",
+              "COMPANIES_EXPANDED": "{count} company expanded",
+              "PEOPLE_IN_SCOPE": "people in scope",
+              "EXTRA_LOGINS": "extra logins",
+              "PREVIEW": "Preview recipients",
+              "SHOW_QUERY": "Show generated query",
+              "PREVIEW_TITLE": "Recipients",
+              "PREVIEW_EMPTY": "Nobody matches this audience yet.",
+              "QUERY_TITLE": "Generated query",
+              "SUMMARY": {
+                "EVERYONE": "Everyone — all registered customers",
+                "LIST": "The {count} selected, plus everyone in any company chosen",
+                "QUERY": "Custom query",
+                "QUERY_EMPTY": "No query written yet",
+                "NO_CONDITIONS": "No conditions set",
+                "AND": "and",
+                "OR": "or",
+                "CONDITIONS_PREFIX": "Customers where",
+                "PLUS_PREFIX": ", plus",
+                "WHOLE_COMPANY_SUFFIX": "(whole company)"
+              },
+              "PREVIEW_LEAD": "Resolved from the audience as it stands — {count} recipients.",
+              "COLUMN": {
+                "NAME": "Name",
+                "EMAIL": "Email",
+                "LOGIN": "Login"
+              },
+              "QUERY_LEAD": "This is what gets stored in PushMessage.MemberQuery and sent to the member index:",
+              "QUERY_NONE": "No query — this audience is a plain list of people and companies.",
+              "QUERY_PLUS": "Plus {count} explicitly selected in MemberIds. The send job unions the two sets.",
+              "CLOSE": "Close"
+            },
+            "FIELDS": {
+              "NAME": "Name",
+              "EMAIL": "Email",
+              "USERNAME": "Username",
+              "CUSTOMER_TYPE": "Customer type",
+              "STATUS": "Status",
+              "TAG": "Tag",
+              "ROLE": "Role",
+              "COMPANY": "Company",
+              "BELONGS_TO_COMPANY": "Belongs to a company",
+              "BUSINESS_CATEGORY": "Business category",
+              "REGISTERED": "Registered",
+              "PREFERRED_LANGUAGE": "Preferred language"
+            },
+            "OPERATORS": {
+              "IS": "is",
+              "IS_NOT": "is not",
+              "ANY_OF": "is any of",
+              "STARTS_WITH": "starts with",
+              "ENDS_WITH": "ends with",
+              "CONTAINS": "contains",
+              "ON_OR_AFTER": "on or after",
+              "ON_OR_BEFORE": "on or before"
+            },
+            "VALIDATION": {
+              "VALUE_REQUIRED": "Enter a value",
+              "WILDCARD_SINGLE_VALUE": "This operator takes a single value"
+            }
           },
           "TOPIC": {
-            "LABEL": "Topic"
+            "LABEL": "Topic",
+            "PLACEHOLDER": "e.g. Maintenance"
           },
           "START_DATE": {
-            "LABEL": "Schedule send"
+            "LABEL": "Schedule send — leave empty to send now"
           },
           "TRACK_NEW_RECIPIENTS": {
-            "LABEL": "Track new recipients",
-            "DESCRIPTION": "Periodically check if there are new users matching the specified recipients list or query."
+            "LABEL": "Keep sending to new matches",
+            "DESCRIPTION": "New customers matching this audience will receive this message too. Checked hourly."
           }
         },
         "WIDGETS": {
