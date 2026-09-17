@@ -182,7 +182,8 @@
             "VALIDATION": {
               "VALUE_REQUIRED": "Enter a value",
               "WILDCARD_SINGLE_VALUE": "This operator takes a single value",
-              "QUERY_TOO_LONG": "This audience is too long to store. Use fewer values, or pick the people directly."
+              "QUERY_TOO_LONG": "This audience is too long to store. Use fewer values, or pick the people directly.",
+              "INCOMPLETE": "Pick a field and an operator for every condition."
             }
           },
           "TOPIC": {

@@ -153,6 +153,16 @@ describe("validateRow", () => {
     expect(validateRow(row)).toBe("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.VALIDATION.VALUE_REQUIRED");
   });
 
+  it("rejects a row whose operator was cleared", () => {
+    const row = { field: "role", operator: undefined, value: "Purchaser" } as unknown as ConditionRow;
+    expect(validateRow(row)).toBe("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.VALIDATION.INCOMPLETE");
+  });
+
+  it("builds nothing from a row whose operator was cleared", () => {
+    const row = { field: "role", operator: undefined, value: "Purchaser" } as unknown as ConditionRow;
+    expect(buildQuery(state({ rows: [row] }))).toBe("");
+  });
+
   it("accepts a single wildcard value", () => {
     const row: ConditionRow = { field: "emails", operator: "contains", value: "acme" };
     expect(validateRow(row)).toBeNull();
@@ -218,6 +228,15 @@ describe("hasContradiction", () => {
 
   it("ignores rows with no value yet", () => {
     expect(hasContradiction("all", [company("a"), company("")])).toBe(false);
+  });
+
+  it("flags an is-any-of row against another condition on the same field", () => {
+    // After combining, adding one more company lands here — still impossible under ALL.
+    const rows: ConditionRow[] = [
+      { field: "parentorganizations", operator: "anyOf", value: "a,b" },
+      company("c"),
+    ];
+    expect(hasContradiction("all", rows)).toBe(true);
   });
 
   it("does not flag a single is-any-of row, which is the way to express it", () => {

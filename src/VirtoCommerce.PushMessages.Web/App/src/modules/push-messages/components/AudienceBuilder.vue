@@ -66,6 +66,7 @@
           <VcSelect
             v-model="row.field"
             emit-value
+            :clearable="false"
             option-value="id"
             option-label="label"
             class="tw-w-1/3"
@@ -76,6 +77,7 @@
           <VcSelect
             v-model="row.operator"
             emit-value
+            :clearable="false"
             option-value="id"
             option-label="label"
             class="tw-w-1/4"
@@ -492,6 +494,12 @@ function fieldOf(row: ConditionRow): AudienceField {
   return findField(row.field) ?? AUDIENCE_FIELDS[0];
 }
 
+function operatorLabel(operator: ConditionOperator): string {
+  const key = OPERATOR_KEYS[operator];
+
+  return key ? t(`${A_PREFIX}.OPERATORS.${key}`) : "";
+}
+
 function operatorOptions(row: ConditionRow): OperatorOption[] {
   const available = OPERATORS_BY_TYPE[fieldOf(row).type];
 
@@ -728,7 +736,7 @@ const summaryParts = computed<SummaryPart[]>(() => {
     return [{ text: rawQuery.value.trim() ? t(`${prefix}.QUERY`) : t(`${prefix}.QUERY_EMPTY`) }];
   }
 
-  const filled = rows.value.filter((row) => row.field && row.value);
+  const filled = rows.value.filter((row) => row.field && row.operator && row.value);
 
   if (!filled.length && !picked.value.length) {
     return [{ text: t(`${prefix}.NO_CONDITIONS`) }];
@@ -747,7 +755,7 @@ const summaryParts = computed<SummaryPart[]>(() => {
       }
 
       parts.push({ text: t(fieldOf(row).labelKey), strong: true });
-      parts.push({ text: ` ${t(`${A_PREFIX}.OPERATORS.${OPERATOR_KEYS[row.operator]}`)} ` });
+      parts.push({ text: ` ${operatorLabel(row.operator)} ` });
       parts.push({ text: labelForValue(row), strong: true });
     });
   }

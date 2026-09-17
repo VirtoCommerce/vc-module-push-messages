@@ -50,6 +50,8 @@ function rowToQuery(row: ConditionRow): string {
   const { field, value } = row;
 
   switch (row.operator) {
+    default:
+      return "";
     case "is":
       return `${field}:${quote(value)}`;
     case "isNot":
@@ -272,6 +274,10 @@ export function validateRow(row: ConditionRow): string | null {
   // A cleared control hands back undefined, not an empty string.
   const value = row.value ?? "";
 
+  if (!row.field || !row.operator) {
+    return `${VALIDATION_PREFIX}.INCOMPLETE`;
+  }
+
   if (!value.trim()) {
     return `${VALIDATION_PREFIX}.VALUE_REQUIRED`;
   }
@@ -328,7 +334,11 @@ export function hasContradiction(join: "all" | "any", rows: ConditionRow[]): boo
     return false;
   }
 
-  const fields = rows.filter((row) => row.operator === "is" && row.value).map((row) => row.field);
+  // "is" and "is any of" both pin a field to a value; two such rows on one field under ALL can
+  // never both hold, whichever of the two forms they take.
+  const fields = rows
+    .filter((row) => (row.operator === "is" || row.operator === "anyOf") && row.value)
+    .map((row) => row.field);
 
   return new Set(fields).size !== fields.length;
 }
