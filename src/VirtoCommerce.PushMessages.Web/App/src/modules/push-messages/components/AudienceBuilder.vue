@@ -39,98 +39,100 @@
 
     <!-- Match by conditions -->
     <div v-if="mode === 'conditions'" class="tw-space-y-3">
-      <div class="tw-flex tw-items-center tw-gap-2">
-        <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.MATCH") }}</span>
-        <VcButtonGroup attached size="sm">
-          <VcButton
-            v-for="candidate in JOINS"
-            :key="candidate"
-            :variant="join === candidate ? 'primary' : 'outline'"
-            :disabled="disabled"
-            @click="join = candidate"
-          >
-            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.${candidate === "all" ? "ALL" : "ANY"}`) }}
-          </VcButton>
-        </VcButtonGroup>
-        <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.OF_THESE_CONDITIONS") }}</span>
-      </div>
-
-      <div v-for="(row, index) in rows" :key="index" class="tw-space-y-1">
-        <div
-          v-if="index > 0"
-          class="tw-text-xs tw-font-semibold tw-tracking-wider tw-text-[color:var(--neutrals-400)]"
-        >
-          {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.JOINER.${join === "any" ? "OR" : "AND"}`) }}
-        </div>
+      <div v-if="started" class="tw-space-y-3">
         <div class="tw-flex tw-items-center tw-gap-2">
-          <VcSelect
-            v-model="row.field"
-            emit-value
-            :clearable="false"
-            option-value="id"
-            option-label="label"
-            class="tw-w-1/3"
-            :options="fieldOptions"
-            :disabled="disabled"
-            @update:model-value="onFieldChange(row)"
-          />
-          <VcSelect
-            v-model="row.operator"
-            emit-value
-            :clearable="false"
-            option-value="id"
-            option-label="label"
-            class="tw-w-1/4"
-            :options="operatorOptions(row)"
-            :disabled="disabled"
-          />
-          <component
-            :is="valueControl(row).is"
-            v-bind="valueControl(row).props"
-            class="tw-flex-1"
-            :model-value="controlValue(row)"
-            :disabled="disabled"
-            @update:model-value="(value: unknown) => (row.value = toRowValue(value))"
-          />
-          <VcButton
-            icon="lucide-x"
-            variant="ghost"
-            size="icon-sm"
-            :disabled="disabled"
-            @click="removeRow(index)"
-          />
+          <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.MATCH") }}</span>
+          <VcButtonGroup attached size="sm">
+            <VcButton
+              v-for="candidate in JOINS"
+              :key="candidate"
+              :variant="join === candidate ? 'primary' : 'outline'"
+              :disabled="disabled"
+              @click="join = candidate"
+            >
+              {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.${candidate === "all" ? "ALL" : "ANY"}`) }}
+            </VcButton>
+          </VcButtonGroup>
+          <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.OF_THESE_CONDITIONS") }}</span>
         </div>
-        <VcHint v-if="rowError(row)" class="tw-text-[color:var(--danger-500)]">
-          {{ $t(rowError(row) as string) }}
-        </VcHint>
+
+        <div v-for="(row, index) in rows" :key="index" class="tw-space-y-1">
+          <div
+            v-if="index > 0"
+            class="tw-text-xs tw-font-semibold tw-tracking-wider tw-text-[color:var(--neutrals-400)]"
+          >
+            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.JOINER.${join === "any" ? "OR" : "AND"}`) }}
+          </div>
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <VcSelect
+              v-model="row.field"
+              emit-value
+              :clearable="false"
+              option-value="id"
+              option-label="label"
+              class="tw-w-1/3"
+              :options="fieldOptions"
+              :disabled="disabled"
+              @update:model-value="onFieldChange(row)"
+            />
+            <VcSelect
+              v-model="row.operator"
+              emit-value
+              :clearable="false"
+              option-value="id"
+              option-label="label"
+              class="tw-w-1/4"
+              :options="operatorOptions(row)"
+              :disabled="disabled"
+            />
+            <component
+              :is="valueControl(row).is"
+              v-bind="valueControl(row).props"
+              class="tw-flex-1"
+              :model-value="controlValue(row)"
+              :disabled="disabled"
+              @update:model-value="(value: unknown) => (row.value = toRowValue(value))"
+            />
+            <VcButton
+              icon="lucide-x"
+              variant="ghost"
+              size="icon-sm"
+              :disabled="disabled"
+              @click="removeRow(index)"
+            />
+          </div>
+          <VcHint v-if="rowError(row)" class="tw-text-[color:var(--danger-500)]">
+            {{ $t(rowError(row) as string) }}
+          </VcHint>
+        </div>
+
+        <div v-if="contradiction" class="tw-space-y-2">
+          <VcHint class="tw-text-[color:var(--warning-600)]">
+            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.CONTRADICTION") }}
+          </VcHint>
+          <VcButton
+            v-if="canCombine"
+            variant="outline"
+            size="sm"
+            icon="lucide-merge"
+            :disabled="disabled"
+            @click="combineDuplicates"
+          >
+            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.COMBINE") }}
+          </VcButton>
+        </div>
+
+        <div class="tw-flex tw-gap-4">
+          <VcButton variant="outline" size="sm" icon="lucide-plus" :disabled="disabled" @click="addRow">
+            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ADD_CONDITION") }}
+          </VcButton>
+          <VcButton variant="link" size="sm" icon="lucide-arrow-right" :disabled="disabled" @click="setMode('query')">
+            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.EDIT_AS_QUERY") }}
+          </VcButton>
+        </div>
       </div>
 
-      <div v-if="contradiction" class="tw-space-y-2">
-        <VcHint class="tw-text-[color:var(--warning-600)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.CONTRADICTION") }}
-        </VcHint>
-        <VcButton
-          v-if="canCombine"
-          variant="outline"
-          size="sm"
-          icon="lucide-merge"
-          :disabled="disabled"
-          @click="combineDuplicates"
-        >
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.COMBINE") }}
-        </VcButton>
-      </div>
-
-      <div class="tw-flex tw-gap-4">
-        <VcButton variant="outline" size="sm" icon="lucide-plus" :disabled="disabled" @click="addRow">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ADD_CONDITION") }}
-        </VcButton>
-        <VcButton variant="link" size="sm" icon="lucide-arrow-right" :disabled="disabled" @click="setMode('query')">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.EDIT_AS_QUERY") }}
-        </VcButton>
-      </div>
-
-      <div class="tw-space-y-2">
+      <div v-else class="tw-space-y-2">
         <p class="tw-text-xs tw-uppercase tw-tracking-wider tw-text-[color:var(--neutrals-400)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.LABEL") }}
         </p>
@@ -418,6 +420,7 @@ const STARTERS: Starter[] = [
   { key: "EMAIL_DOMAIN", mode: "conditions", row: { field: "emails", operator: "endsWith", value: "" } },
   { key: "REGISTERED_SINCE", mode: "conditions", row: { field: "createddate", operator: "onOrAfter", value: "" } },
   { key: "TAGGED", mode: "conditions", row: { field: "groups", operator: "is", value: "" } },
+  { key: "CUSTOM", mode: "conditions" },
 ];
 
 interface OperatorOption {
@@ -428,6 +431,12 @@ interface OperatorOption {
 const mode = ref<AudienceMode>("conditions");
 const join = ref<"all" | "any">("all");
 const rows = ref<ConditionRow[]>([blankRow()]);
+/**
+ * Whether the condition editor is open. The starting points replace the rows outright, so they
+ * are only offered while there is nothing to lose — picking one, Custom included, opens the
+ * editor and puts them away until the last condition is removed again.
+ */
+const started = ref(false);
 const picked = ref<string[]>([]);
 const rawQuery = ref("");
 
@@ -600,6 +609,7 @@ function applyStarter(starter: Starter) {
   join.value = "all";
   rows.value = starter.row ? [{ ...starter.row }] : [blankRow()];
   mode.value = "conditions";
+  started.value = true;
 }
 
 function combineDuplicates() {
@@ -615,6 +625,7 @@ function removeRow(index: number) {
 
   if (rows.value.length === 0) {
     rows.value.push(blankRow());
+    started.value = false;
   }
 }
 
@@ -634,6 +645,10 @@ function setMode(next: AudienceMode) {
       join.value = parsed.join;
       rows.value = parsed.rows;
     }
+  }
+
+  if (next === "conditions") {
+    started.value = rows.value.some((row) => row.value);
   }
 
   mode.value = next;
@@ -691,6 +706,7 @@ function applyIncoming(memberQuery?: string, memberIds?: string[]) {
   join.value = detected.join;
   rows.value = detected.rows;
   mode.value = detected.mode;
+  started.value = detected.rows.some((row) => row.value);
 
   nextTick(() => {
     applying = false;

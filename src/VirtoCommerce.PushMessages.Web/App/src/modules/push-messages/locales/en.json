@@ -104,7 +104,8 @@
               "BY_ROLE": "By role",
               "EMAIL_DOMAIN": "Email domain",
               "REGISTERED_SINCE": "Registered since",
-              "TAGGED": "Tagged"
+              "TAGGED": "Tagged",
+              "CUSTOM": "Custom conditions"
             },
             "BACK_TO_CONDITIONS": "Back to conditions",
             "RECIPIENTS_PICKER": {
