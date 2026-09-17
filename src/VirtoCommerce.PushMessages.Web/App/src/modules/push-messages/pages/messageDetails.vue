@@ -5,7 +5,11 @@
     width="70%"
     :toolbar-items="toolbarItems"
   >
-    <VcForm>
+    <VcHint v-if="missing" class="tw-p-6">
+      {{ $t("PUSH_MESSAGES.PAGES.DETAILS.MISSING") }}
+    </VcHint>
+
+    <VcForm v-else>
       <div class="tw-p-6 tw-space-y-6">
         <!-- Short Message Field -->
         <Field
@@ -84,7 +88,7 @@ import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
 import { AudienceBuilder } from "../components";
 import { Field } from "vee-validate";
 
-import { VcBlade, VcEditor, VcForm, VcInput, VcSwitch } from "@vc-shell/framework/ui";
+import { VcBlade, VcEditor, VcForm, VcHint, VcInput, VcSwitch } from "@vc-shell/framework/ui";
 defineBlade({
   name: "PushMessageDetails",
   url: "/details",
@@ -121,6 +125,9 @@ const isReadOnly = computed(() => {
 const isEditable = computed(() => {
   return !param.value || (item.value != null && item.value.status !== "Sent");
 });
+
+/** A link can outlive the message it points at; there is nothing to edit then. */
+const missing = computed(() => !!param.value && !loading.value && !item.value?.id);
 
 const bladeTitle = computed(() => {
   return !param.value ? "New push message" : "Push message details";

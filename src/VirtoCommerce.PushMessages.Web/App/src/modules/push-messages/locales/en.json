@@ -55,6 +55,7 @@
         }
       },
       "DETAILS": {
+        "MISSING": "This message no longer exists.",
         "TOOLBAR": {
           "SAVE": "Save",
           "SAVE_AND_PUBLISH": "Send",

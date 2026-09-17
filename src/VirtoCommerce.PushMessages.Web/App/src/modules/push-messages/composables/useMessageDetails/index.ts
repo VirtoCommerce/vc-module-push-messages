@@ -27,7 +27,9 @@ export function useMessageDetails(options?: UseMessageDetailsOptions): IUseMessa
     if (options?.id) {
       const apiClient = await getPushMessageApiClient();
       const result = await apiClient.get(options.id, "WithMembers");
-      item.value = reactive(result);
+
+      // A link can outlive the message it points at, and the endpoint answers that with null.
+      item.value = reactive(result ?? ({} as PushMessage));
     } else if (options?.sourceMessage) {
       // Clone from source message
       const cloned = {
