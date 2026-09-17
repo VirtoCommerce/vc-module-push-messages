@@ -250,7 +250,7 @@
         >{{ part.text }}</span></template>
       </p>
 
-      <div v-if="preview?.totalCount" class="tw-flex tw-gap-2">
+      <div v-if="hasAudience" class="tw-flex tw-gap-2">
         <VcButton variant="outline" size="sm" icon="lucide-eye" @click="openPreview">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW") }}
         </VcButton>
@@ -371,6 +371,12 @@ const previewRows = ref<PreviewRow[]>([]);
 const pickedMembers = ref<Member[]>([]);
 
 const generatedQuery = computed(() => buildQuery(currentState()));
+
+/**
+ * Whether the audience is defined at all. An audience that matches nobody is still worth looking
+ * at — seeing the query and the empty preview is how the author finds out why.
+ */
+const hasAudience = computed(() => generatedQuery.value.trim().length > 0 || picked.value.length > 0);
 
 /** Reference fields store ids; the summary has to say the name the author picked. */
 const refNames = ref<Record<string, string>>({});
@@ -716,6 +722,13 @@ function applyIncoming(memberQuery?: string, memberIds?: string[]) {
   rows.value = detected.rows;
   mode.value = detected.mode;
   started.value = detected.rows.some((row) => row.value);
+
+  // The state watcher stands down while a stored audience is read in, so the estimate has to be
+  // asked for here. Without this a saved message reads "0 recipients" until something is touched,
+  // and the preview popup opens on an audience nobody defined.
+  emittedQuery = memberQuery || undefined;
+  emittedIds = memberIds?.length ? [...memberIds] : undefined;
+  refreshPreview(emittedQuery, emittedIds);
 
   nextTick(() => {
     applying = false;
