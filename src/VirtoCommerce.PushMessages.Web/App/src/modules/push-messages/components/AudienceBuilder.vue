@@ -39,6 +39,24 @@
 
     <!-- Match by conditions -->
     <div v-if="mode === 'conditions'" class="tw-space-y-3">
+      <div class="tw-space-y-2">
+        <p class="tw-text-xs tw-uppercase tw-tracking-wider tw-text-[color:var(--neutrals-400)]">
+          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.LABEL") }}
+        </p>
+        <div class="tw-flex tw-flex-wrap tw-gap-2">
+          <VcButton
+            v-for="starter in STARTERS"
+            :key="starter.key"
+            variant="outline"
+            size="xs"
+            :disabled="disabled"
+            @click="applyStarter(starter)"
+          >
+            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.${starter.key}`) }}
+          </VcButton>
+        </div>
+      </div>
+
       <div v-if="started" class="tw-space-y-3">
         <div class="tw-flex tw-items-center tw-gap-2">
           <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.MATCH") }}</span>
@@ -132,23 +150,6 @@
         </div>
       </div>
 
-      <div v-else class="tw-space-y-2">
-        <p class="tw-text-xs tw-uppercase tw-tracking-wider tw-text-[color:var(--neutrals-400)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.LABEL") }}
-        </p>
-        <div class="tw-flex tw-flex-wrap tw-gap-2">
-          <VcButton
-            v-for="starter in STARTERS"
-            :key="starter.key"
-            variant="outline"
-            size="xs"
-            :disabled="disabled"
-            @click="applyStarter(starter)"
-          >
-            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.${starter.key}`) }}
-          </VcButton>
-        </div>
-      </div>
     </div>
 
     <!-- Advanced query -->
@@ -404,8 +405,8 @@ const MODES: { mode: AudienceMode; key: string; icon: string }[] = [
 const JOINS = ["all", "any"] as const;
 
 /**
- * One-click starting points, from the design. Each replaces the current rows with a single
- * condition and leaves the value empty for the author to fill.
+ * One-click starting points, from the design. Each contributes a single condition with the
+ * value left empty for the author to fill.
  */
 interface Starter {
   key: string;
@@ -432,9 +433,8 @@ const mode = ref<AudienceMode>("conditions");
 const join = ref<"all" | "any">("all");
 const rows = ref<ConditionRow[]>([blankRow()]);
 /**
- * Whether the condition editor is open. The starting points replace the rows outright, so they
- * are only offered while there is nothing to lose — picking one, Custom included, opens the
- * editor and puts them away until the last condition is removed again.
+ * Whether the condition editor is open. It opens on a choice from the starting points, Custom
+ * included, and closes again when the last condition is removed.
  */
 const started = ref(false);
 const picked = ref<string[]>([]);
@@ -606,8 +606,17 @@ function applyStarter(starter: Starter) {
     return;
   }
 
-  join.value = "all";
-  rows.value = starter.row ? [{ ...starter.row }] : [blankRow()];
+  const row = starter.row ? { ...starter.row } : blankRow();
+
+  // The starting points stay on screen while the conditions are edited, so one can be picked
+  // with work already on the page. It is added to that work rather than put in place of it.
+  if (started.value && rows.value.some((existing) => existing.value)) {
+    rows.value.push(row);
+  } else {
+    join.value = "all";
+    rows.value = [row];
+  }
+
   mode.value = "conditions";
   started.value = true;
 }
