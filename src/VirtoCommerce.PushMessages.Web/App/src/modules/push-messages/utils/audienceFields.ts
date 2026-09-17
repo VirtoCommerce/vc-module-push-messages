@@ -17,13 +17,17 @@ export interface AudienceField {
   type: AudienceFieldType;
   /** Fixed choices. Absent means the value is typed in — the choices live in customer data. */
   options?: string[];
+  /** Where a `ref` field's choices come from. */
+  source?: "organizations" | "roles";
 }
 
 const FIELDS_PREFIX = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.FIELDS";
 
 /**
  * Field names come from MemberDocumentBuilder.BuildSchemaAsync() in vc-module-customer.
- * Two are worth knowing about:
+ * Three are worth knowing about:
+ * - `roleid` holds role ids. The sibling `role` field holds NormalizedName — the upper-cased
+ *   name — so a role typed the way it reads in the admin never matches; ids are picked instead.
  * - `defaultlanguage` is the real field for preferred language; there is no `preferredlanguage`.
  * - `businesscategory` is indexed on organization documents only, so matching it selects
  *   companies, whose members the send job then expands.
@@ -49,8 +53,8 @@ export const AUDIENCE_FIELDS: AudienceField[] = [
     options: ["Approved", "New", "Rejected"],
   },
   { id: "groups", labelKey: `${FIELDS_PREFIX}.TAG`, type: "enum" },
-  { id: "role", labelKey: `${FIELDS_PREFIX}.ROLE`, type: "enum" },
-  { id: "parentorganizations", labelKey: `${FIELDS_PREFIX}.COMPANY`, type: "ref" },
+  { id: "roleid", labelKey: `${FIELDS_PREFIX}.ROLE`, type: "ref", source: "roles" },
+  { id: "parentorganizations", labelKey: `${FIELDS_PREFIX}.COMPANY`, type: "ref", source: "organizations" },
   { id: "hasparentorganizations", labelKey: `${FIELDS_PREFIX}.BELONGS_TO_COMPANY`, type: "bool" },
   { id: "businesscategory", labelKey: `${FIELDS_PREFIX}.BUSINESS_CATEGORY`, type: "enum" },
   { id: "createddate", labelKey: `${FIELDS_PREFIX}.REGISTERED`, type: "date" },

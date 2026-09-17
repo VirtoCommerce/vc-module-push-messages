@@ -115,16 +115,16 @@
               "HINT": "Adding a company includes everyone in it, and in the companies under it.",
               "COMPANY": "Company",
               "PERSON": "Person",
-              "COUNT": "{count} recipients"
+              "COUNT": "{count} recipient | {count} recipients"
             },
             "QUERY_FIELD": {
               "LABEL": "Recipients query",
               "VALID": "Query is valid — {count} recipients."
             },
             "ESTIMATE": {
-              "RECIPIENTS": "recipients",
+              "RECIPIENTS": "recipient | recipients",
               "MEMBERS_MATCHED": "members matched",
-              "COMPANIES_EXPANDED": "{count} company expanded",
+              "COMPANIES_EXPANDED": "{count} company expanded | {count} companies expanded",
               "PEOPLE_IN_SCOPE": "people in scope",
               "EXTRA_LOGINS": "extra logins",
               "PREVIEW": "Preview recipients",
@@ -134,7 +134,7 @@
               "QUERY_TITLE": "Generated query",
               "SUMMARY": {
                 "EVERYONE": "Everyone — all registered customers",
-                "LIST": "The {count} selected, plus everyone in any company chosen",
+                "LIST": "The one selected, plus everyone in any company chosen | The {count} selected, plus everyone in any company chosen",
                 "QUERY": "Custom query",
                 "QUERY_EMPTY": "No query written yet",
                 "NO_CONDITIONS": "No conditions set",
@@ -142,9 +142,10 @@
                 "OR": "or",
                 "CONDITIONS_PREFIX": "Customers where",
                 "PLUS_PREFIX": ", plus",
+                "ONLY_PICKED_PREFIX": "Sending to",
                 "WHOLE_COMPANY_SUFFIX": "(whole company)"
               },
-              "PREVIEW_LEAD": "Resolved from the audience as it stands — {count} recipients.",
+              "PREVIEW_LEAD": "Resolved from the audience as it stands — {count} recipient. | Resolved from the audience as it stands — {count} recipients.",
               "COLUMN": {
                 "NAME": "Name",
                 "EMAIL": "Email",

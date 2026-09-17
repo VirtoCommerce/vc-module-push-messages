@@ -105,6 +105,7 @@
             />
             <component
               :is="valueControl(row).is"
+              :key="fieldOf(row).type"
               v-bind="valueControl(row).props"
               class="tw-flex-1"
               :model-value="controlValue(row)"
@@ -205,7 +206,7 @@
           </VcStatus>
           <span class="tw-text-sm tw-text-[color:var(--neutrals-800)]">{{ opt.name }}</span>
           <span v-if="countOf(opt) !== undefined" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
-            · {{ $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COUNT', { count: countOf(opt) }) }}
+            · {{ $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COUNT', countOf(opt) as number) }}
           </span>
           <VcButton
             icon="lucide-x"
@@ -218,25 +219,21 @@
       </template>
     </VcSelect>
 
-    <VcHint
-      v-for="problem in problems"
-      :key="problem"
-      class="tw-text-[color:var(--danger-500)]"
-    >
-      {{ $t(problem) }}
+    <VcHint v-if="queryTooLong" class="tw-text-[color:var(--danger-500)]">
+      {{ $t(`${A_PREFIX}.VALIDATION.QUERY_TOO_LONG`) }}
     </VcHint>
 
     <!-- Estimate -->
     <div class="tw-border tw-border-[color:var(--primary-300)] tw-rounded tw-p-4 tw-space-y-3">
       <div class="tw-flex tw-items-baseline tw-gap-2">
         <span class="tw-text-3xl tw-font-semibold">{{ preview?.totalCount ?? 0 }}</span>
-        <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.RECIPIENTS") }}</span>
+        <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.RECIPIENTS", preview?.totalCount ?? 0) }}</span>
         <VcLoading v-if="loadingPreview" active class="tw-ml-2" />
       </div>
 
       <dl class="tw-font-mono tw-text-sm tw-space-y-1">
-        <div v-for="line in estimateLines" :key="line.labelKey" class="tw-flex tw-justify-between">
-          <dt>{{ $t(line.labelKey, line.labelArgs) }}</dt>
+        <div v-for="line in estimateLines" :key="line.label" class="tw-flex tw-justify-between">
+          <dt>{{ line.label }}</dt>
           <dd>{{ line.value }}</dd>
         </div>
       </dl>
@@ -268,7 +265,7 @@
       <template #content>
         <div class="tw-w-full">
         <p class="tw-mb-3 tw-text-sm tw-text-[color:var(--neutrals-600)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", { count: preview?.totalCount ?? 0 }) }}
+          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", preview?.totalCount ?? 0) }}
         </p>
         <VcLoading v-if="loadingPage" active />
         <p v-else-if="previewFailed" class="tw-text-sm tw-text-[color:var(--danger-500)]">
@@ -327,7 +324,7 @@
 import { computed, nextTick, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { useApiClient } from "@vc-shell/framework";
+import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient } from "@vc-shell/framework";
 import { VcButton, VcButtonGroup, VcHint, VcIcon, VcInput, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
 
 // Member is referenced by the @vue-generic annotations on the pickers.
@@ -335,7 +332,7 @@ import { VcButton, VcButtonGroup, VcHint, VcIcon, VcInput, VcLabel, VcLoading, V
 import { CustomerModuleClient, Member, MemberSearchResult, MembersSearchCriteria } from "../../../api_client/virtocommerce.customer";
 import { useAudiencePreview } from "../composables/useAudiencePreview";
 import { AUDIENCE_FIELDS, AudienceField, ConditionOperator, findField, OPERATORS_BY_TYPE, WILDCARD_OPERATORS } from "../utils/audienceFields";
-import { AudienceMode, blankRow, buildQuery, ConditionRow, combineDuplicateFields, detectAudience, hasContradiction, MAX_QUERY_LENGTH, parseQuery, validateRow } from "../utils/audienceQuery";
+import { AudienceMode, blankRow, buildQuery, ConditionRow, combineDuplicateFields, detectAudience, hasContradiction, MAX_QUERY_LENGTH, parseQuery, toRowValue, validateRow } from "../utils/audienceQuery";
 
 const props = defineProps<{
   memberQuery?: string;
@@ -351,6 +348,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n({ useScope: "global" });
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
+const { getApiClient: getSecurityApiClient } = useApiClient(SecurityClient);
 const { preview, refresh, countFor, fetchPage, loading: loadingPreview } = useAudiencePreview();
 
 /** Recipient count per picked member, so a chip can say what a company actually brings in. */
@@ -423,7 +421,7 @@ interface Starter {
 const STARTERS: Starter[] = [
   { key: "ALL_CUSTOMERS", mode: "everyone" },
   { key: "ONE_COMPANY", mode: "conditions", row: { field: "parentorganizations", operator: "is", value: "" } },
-  { key: "BY_ROLE", mode: "conditions", row: { field: "role", operator: "is", value: "" } },
+  { key: "BY_ROLE", mode: "conditions", row: { field: "roleid", operator: "is", value: "" } },
   { key: "EMAIL_DOMAIN", mode: "conditions", row: { field: "emails", operator: "endsWith", value: "" } },
   { key: "REGISTERED_SINCE", mode: "conditions", row: { field: "createddate", operator: "onOrAfter", value: "" } },
   { key: "TAGGED", mode: "conditions", row: { field: "groups", operator: "is", value: "" } },
@@ -461,7 +459,10 @@ const contradiction = computed(() => hasContradiction(join.value, rows.value));
 /** Some contradictions cannot be folded — a yes/no field has no "is any of" to fold into. */
 const canCombine = computed(() => combineDuplicateFields(rows.value).length < rows.value.length);
 
-/** Reasons the audience cannot be saved, in the author's words. */
+/** The stored phrase has a length limit, and nothing in the rows themselves shows it. */
+const queryTooLong = computed(() => generatedQuery.value.length > MAX_QUERY_LENGTH);
+
+/** Reasons the audience cannot be saved. Each row shows its own; this drives the Save button. */
 const problems = computed<string[]>(() => {
   const found: string[] = [];
 
@@ -475,7 +476,7 @@ const problems = computed<string[]>(() => {
     }
   }
 
-  if (generatedQuery.value.length > MAX_QUERY_LENGTH) {
+  if (queryTooLong.value) {
     found.push(`${A_PREFIX}.VALIDATION.QUERY_TOO_LONG`);
   }
 
@@ -492,22 +493,21 @@ const estimateLines = computed(() => {
   }
 
   const prefix = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE";
-  const lines: { labelKey: string; labelArgs?: Record<string, unknown>; value: string }[] = [
-    { labelKey: `${prefix}.MEMBERS_MATCHED`, value: `${value.membersMatched ?? 0}` },
+  const lines: { label: string; value: string }[] = [
+    { label: t(`${prefix}.MEMBERS_MATCHED`), value: `${value.membersMatched ?? 0}` },
   ];
 
   if (value.companiesExpanded) {
     lines.push({
-      labelKey: `${prefix}.COMPANIES_EXPANDED`,
-      labelArgs: { count: value.companiesExpanded },
+      label: t(`${prefix}.COMPANIES_EXPANDED`, value.companiesExpanded),
       value: `+${value.peopleFromCompanies ?? 0}`,
     });
   }
 
-  lines.push({ labelKey: `${prefix}.PEOPLE_IN_SCOPE`, value: `${value.peopleInScope ?? 0}` });
+  lines.push({ label: t(`${prefix}.PEOPLE_IN_SCOPE`), value: `${value.peopleInScope ?? 0}` });
 
   if (value.extraLogins) {
-    lines.push({ labelKey: `${prefix}.EXTRA_LOGINS`, value: `+${value.extraLogins}` });
+    lines.push({ label: t(`${prefix}.EXTRA_LOGINS`), value: `+${value.extraLogins}` });
   }
 
   return lines;
@@ -565,7 +565,7 @@ function valueControl(row: ConditionRow) {
         multiple: row.operator === "anyOf",
         optionValue: "id",
         optionLabel: "name",
-        options: loadOrganizations,
+        options: field.source === "roles" ? loadRoles : loadOrganizations,
       },
     };
   }
@@ -582,14 +582,6 @@ function controlValue(row: ConditionRow): string | string[] {
   const value = row.value ?? "";
 
   return row.operator === "anyOf" ? value.split(",").filter(Boolean) : value;
-}
-
-function toRowValue(value: unknown): string {
-  if (value == null) {
-    return "";
-  }
-
-  return Array.isArray(value) ? value.join(",") : String(value);
 }
 
 function rowError(row: ConditionRow): string | null {
@@ -708,6 +700,27 @@ async function loadOrganizations(keyword?: string, skip?: number, ids?: string[]
   } as MembersSearchCriteria);
 }
 
+/**
+ * The roles endpoint ignores objectIds — asking for one id answers with the first role instead —
+ * so a role is found by reading the list and picking from it here. An installation has tens of
+ * roles, not thousands.
+ */
+async function loadRoles(keyword?: string, skip?: number, ids?: string[]): Promise<RoleSearchResult> {
+  const apiClient = await getSecurityApiClient();
+
+  const result = await apiClient.searchRoles({
+    keyword: ids?.length ? undefined : keyword,
+    skip: 0,
+    take: 200,
+  } as RoleSearchCriteria);
+
+  const roles = result.results ?? [];
+  const matched = ids?.length ? roles.filter((role) => role.id && ids.includes(role.id)) : roles;
+  const from = skip || 0;
+
+  return { results: matched.slice(from, from + 20), totalCount: matched.length };
+}
+
 function applyIncoming(memberQuery?: string, memberIds?: string[]) {
   const detected = detectAudience(memberQuery, memberIds);
 
@@ -775,7 +788,7 @@ const summaryParts = computed<SummaryPart[]>(() => {
   }
 
   if (mode.value === "list") {
-    return [{ text: t(`${prefix}.LIST`, { count: picked.value.length }) }];
+    return [{ text: t(`${prefix}.LIST`, picked.value.length) }];
   }
 
   if (mode.value === "query") {
@@ -807,7 +820,9 @@ const summaryParts = computed<SummaryPart[]>(() => {
   }
 
   pickedMembers.value.forEach((member, index) => {
-    parts.push({ text: index === 0 ? t(`${prefix}.PLUS_PREFIX`) + " " : ", " });
+    const opening = filled.length ? `${t(`${prefix}.PLUS_PREFIX`)} ` : `${t(`${prefix}.ONLY_PICKED_PREFIX`)} `;
+
+    parts.push({ text: index === 0 ? opening : ", " });
     parts.push({ text: member.name ?? "", strong: true });
 
     if (isCompany(member)) {
@@ -849,20 +864,31 @@ async function openPreview() {
 watch(
   rows,
   async (current) => {
-    const ids = current
-      .filter((row) => fieldOf(row).type === "ref" && row.value)
-      .flatMap((row) => (row.value ?? "").split(","))
-      .filter((id) => id && refNames.value[id] === undefined);
+    const unresolved = (source: AudienceField["source"]) => [
+      ...new Set(
+        current
+          .filter((row) => fieldOf(row).type === "ref" && fieldOf(row).source === source && row.value)
+          .flatMap((row) => (row.value ?? "").split(","))
+          .filter((id) => id && refNames.value[id] === undefined),
+      ),
+    ];
 
-    if (!ids.length) {
-      return;
+    const companyIds = unresolved("organizations");
+    const roleIds = unresolved("roles");
+
+    if (companyIds.length) {
+      for (const member of (await loadMembers(undefined, 0, companyIds)).results ?? []) {
+        if (member.id) {
+          refNames.value[member.id] = member.name ?? member.id;
+        }
+      }
     }
 
-    const members = (await loadMembers(undefined, 0, [...new Set(ids)])).results ?? [];
-
-    for (const member of members) {
-      if (member.id) {
-        refNames.value[member.id] = member.name ?? member.id;
+    if (roleIds.length) {
+      for (const role of (await loadRoles(undefined, 0, roleIds)).results ?? []) {
+        if (role.id) {
+          refNames.value[role.id] = role.name ?? role.id;
+        }
       }
     }
   },

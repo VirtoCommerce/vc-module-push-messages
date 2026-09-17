@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AUDIENCE_FIELDS, findField, OPERATORS_BY_TYPE } from "./audienceFields";
-import { buildQuery, combineDuplicateFields, detectAudience, hasContradiction, parseQuery, validateRow } from "./audienceQuery";
+import { buildQuery, combineDuplicateFields, detectAudience, hasContradiction, parseQuery, toRowValue, validateRow } from "./audienceQuery";
 import type { AudienceState, ConditionRow } from "./audienceQuery";
 
 function state(partial: Partial<AudienceState>): AudienceState {
@@ -322,5 +322,40 @@ describe("operators the builder can produce are operators it offers", () => {
       { field: "hasparentorganizations", operator: "is", value: "false" },
     ];
     expect(combineDuplicateFields(rows)).toEqual(rows);
+  });
+});
+
+describe("toRowValue", () => {
+  it("writes a picked date as the plain date the search phrase understands", () => {
+    // The control hands back a Date; its own toString is a locale sentence the parser rejects.
+    expect(toRowValue(new Date(2026, 8, 10))).toBe("2026-09-10");
+  });
+
+  it("keeps a date picked late in the day on that day", () => {
+    // toISOString would move any evening east of UTC to the next morning.
+    expect(toRowValue(new Date(2026, 0, 31, 23, 30))).toBe("2026-01-31");
+  });
+
+  it("joins a multi-value control and empties a cleared one", () => {
+    expect(toRowValue(["a", "b"])).toBe("a,b");
+    expect(toRowValue(null)).toBe("");
+    expect(toRowValue(undefined)).toBe("");
+  });
+});
+
+describe("a date condition", () => {
+  it("builds a range the parser accepts", () => {
+    const state: AudienceState = {
+      mode: "conditions",
+      join: "all",
+      rows: [{ field: "createddate", operator: "onOrAfter", value: toRowValue(new Date(2026, 8, 10)) }],
+      memberIds: [],
+      query: "",
+    };
+    expect(buildQuery(state)).toBe("createddate:[2026-09-10 TO]");
+    expect(parseQuery(buildQuery(state))).toEqual({
+      join: "all",
+      rows: [{ field: "createddate", operator: "onOrAfter", value: "2026-09-10" }],
+    });
   });
 });

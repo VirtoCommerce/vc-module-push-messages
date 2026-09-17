@@ -270,6 +270,26 @@ export function parseQuery(phrase: string): { join: "all" | "any"; rows: Conditi
   return { join: hasOr ? "any" : "all", rows };
 }
 
+/**
+ * Normalises whatever a value control hands back into the string a row stores. The date control
+ * hands back a Date, whose default string is a locale sentence; the search phrase needs the plain
+ * date, read in local terms — toISOString would shift it a day east.
+ */
+export function toRowValue(value: unknown): string {
+  if (value == null) {
+    return "";
+  }
+
+  if (value instanceof Date) {
+    const month = `${value.getMonth() + 1}`.padStart(2, "0");
+    const day = `${value.getDate()}`.padStart(2, "0");
+
+    return `${value.getFullYear()}-${month}-${day}`;
+  }
+
+  return Array.isArray(value) ? value.join(",") : String(value);
+}
+
 export function validateRow(row: ConditionRow): string | null {
   // A cleared control hands back undefined, not an empty string.
   const value = row.value ?? "";
