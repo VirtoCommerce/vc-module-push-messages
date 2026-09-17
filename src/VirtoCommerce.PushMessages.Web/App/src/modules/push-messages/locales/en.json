@@ -108,8 +108,7 @@
             },
             "BACK_TO_CONDITIONS": "Back to conditions",
             "RECIPIENTS_PICKER": {
-              "LABEL": "Recipients — people or whole companies",
-              "ALSO_INCLUDE": "Also include specific people or companies",
+              "LABEL": "Add specific recipients (people or whole companies)",
               "PLACEHOLDER": "Add a person or company...",
               "HINT": "Adding a company includes everyone in it, and in the companies under it.",
               "COMPANY": "Company",
@@ -191,7 +190,7 @@
             "PLACEHOLDER": "e.g. Maintenance"
           },
           "START_DATE": {
-            "LABEL": "Schedule send — leave empty to send now"
+            "LABEL": "Schedule start date (leave empty to send now)"
           },
           "TRACK_NEW_RECIPIENTS": {
             "LABEL": "Keep sending to new matches",
