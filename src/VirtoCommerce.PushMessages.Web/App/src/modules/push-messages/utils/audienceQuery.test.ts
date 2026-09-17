@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AUDIENCE_FIELDS, findField, OPERATORS_BY_TYPE } from "./audienceFields";
 import { buildQuery, combineDuplicateFields, detectAudience, hasContradiction, parseQuery, validateRow } from "./audienceQuery";
 import type { AudienceState, ConditionRow } from "./audienceQuery";
 
@@ -289,5 +290,37 @@ describe("combineDuplicateFields", () => {
     const phrase = buildQuery({ mode: "conditions", join: "all", rows: merged, memberIds: [], query: "" });
     expect(phrase).toBe("parentorganizations:acme,vdberg");
     expect(parseQuery(phrase)).toEqual({ join: "all", rows: merged });
+  });
+});
+
+describe("operators the builder can produce are operators it offers", () => {
+  // Combining rows produces "is any of". A field type that does not offer it leaves the select
+  // unable to name its own value, which is how a raw "anyOf" ended up on screen.
+  it.each(AUDIENCE_FIELDS)("$id never ends up with an operator it cannot name", (field) => {
+    const operator = OPERATORS_BY_TYPE[field.type][0];
+    const combined = combineDuplicateFields([
+      { field: field.id, operator, value: "a" },
+      { field: field.id, operator, value: "b" },
+    ]);
+
+    for (const row of combined) {
+      expect(OPERATORS_BY_TYPE[field.type]).toContain(row.operator);
+    }
+  });
+
+  it("folds a text field, which offers is any of", () => {
+    const rows: ConditionRow[] = [
+      { field: "name", operator: "is", value: "a" },
+      { field: "name", operator: "is", value: "b" },
+    ];
+    expect(combineDuplicateFields(rows)).toEqual([{ field: "name", operator: "anyOf", value: "a,b" }]);
+  });
+
+  it("leaves a yes/no field alone, because it has nothing to fold into", () => {
+    const rows: ConditionRow[] = [
+      { field: "hasparentorganizations", operator: "is", value: "true" },
+      { field: "hasparentorganizations", operator: "is", value: "false" },
+    ];
+    expect(combineDuplicateFields(rows)).toEqual(rows);
   });
 });

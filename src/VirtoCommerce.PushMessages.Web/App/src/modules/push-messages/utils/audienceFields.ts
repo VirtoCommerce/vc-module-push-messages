@@ -58,7 +58,7 @@ export const AUDIENCE_FIELDS: AudienceField[] = [
 ];
 
 export const OPERATORS_BY_TYPE: Record<AudienceFieldType, ConditionOperator[]> = {
-  text: ["is", "isNot", "startsWith", "endsWith", "contains"],
+  text: ["is", "isNot", "anyOf", "startsWith", "endsWith", "contains"],
   enum: ["is", "isNot", "anyOf"],
   ref: ["is", "isNot", "anyOf"],
   date: ["onOrAfter", "onOrBefore"],

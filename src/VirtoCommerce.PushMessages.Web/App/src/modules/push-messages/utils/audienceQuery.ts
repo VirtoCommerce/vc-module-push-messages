@@ -1,4 +1,4 @@
-import { AUDIENCE_FIELDS, WILDCARD_OPERATORS } from "./audienceFields";
+import { AUDIENCE_FIELDS, findField, OPERATORS_BY_TYPE, WILDCARD_OPERATORS } from "./audienceFields";
 import type { ConditionOperator } from "./audienceFields";
 
 export type AudienceMode = "everyone" | "list" | "conditions" | "query";
@@ -351,8 +351,13 @@ export function combineDuplicateFields(rows: ConditionRow[]): ConditionRow[] {
   const merged: ConditionRow[] = [];
 
   for (const row of rows) {
+    // Only fold into a form the field can actually be given: a yes/no field has no "is any of",
+    // and a row whose operator the select cannot name is worse than two rows.
+    const field = findField(row.field);
+    const foldable = field ? OPERATORS_BY_TYPE[field.type].includes("anyOf") : false;
+
     const twin =
-      row.operator === "is" && row.value
+      foldable && row.operator === "is" && row.value
         ? merged.find((m) => m.field === row.field && (m.operator === "is" || m.operator === "anyOf"))
         : undefined;
 

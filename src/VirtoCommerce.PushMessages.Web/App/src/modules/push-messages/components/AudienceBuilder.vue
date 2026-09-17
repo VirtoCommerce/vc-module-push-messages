@@ -109,7 +109,14 @@
         <VcHint class="tw-text-[color:var(--warning-600)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.CONTRADICTION") }}
         </VcHint>
-        <VcButton variant="outline" size="sm" icon="lucide-merge" :disabled="disabled" @click="combineDuplicates">
+        <VcButton
+          v-if="canCombine"
+          variant="outline"
+          size="sm"
+          icon="lucide-merge"
+          :disabled="disabled"
+          @click="combineDuplicates"
+        >
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.COMBINE") }}
         </VcButton>
       </div>
@@ -437,6 +444,9 @@ const fieldOptions = computed(() =>
 );
 
 const contradiction = computed(() => hasContradiction(join.value, rows.value));
+
+/** Some contradictions cannot be folded — a yes/no field has no "is any of" to fold into. */
+const canCombine = computed(() => combineDuplicateFields(rows.value).length < rows.value.length);
 
 /** Reasons the audience cannot be saved, in the author's words. */
 const problems = computed<string[]>(() => {
