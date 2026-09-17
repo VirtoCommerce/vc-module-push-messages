@@ -1,20 +1,10 @@
-export type AudienceFieldType = "text" | "enum" | "ref" | "bool" | "date";
-
-export type ConditionOperator =
-  | "is"
-  | "isNot"
-  | "anyOf"
-  | "startsWith"
-  | "endsWith"
-  | "contains"
-  | "onOrAfter"
-  | "onOrBefore";
+import type { QueryFieldType } from "../../../components/queryBuilder/types";
 
 export interface AudienceField {
   /** Index field name, lower-cased as the search phrase parser expects it. */
   id: string;
   labelKey: string;
-  type: AudienceFieldType;
+  type: QueryFieldType;
   /** Fixed choices. Absent means the value is typed in — the choices live in customer data. */
   options?: string[];
   /** Where a `ref` field's choices come from. */
@@ -60,22 +50,3 @@ export const AUDIENCE_FIELDS: AudienceField[] = [
   { id: "createddate", labelKey: `${FIELDS_PREFIX}.REGISTERED`, type: "date" },
   { id: "defaultlanguage", labelKey: `${FIELDS_PREFIX}.PREFERRED_LANGUAGE`, type: "enum" },
 ];
-
-export const OPERATORS_BY_TYPE: Record<AudienceFieldType, ConditionOperator[]> = {
-  text: ["is", "isNot", "anyOf", "startsWith", "endsWith", "contains"],
-  enum: ["is", "isNot", "anyOf"],
-  ref: ["is", "isNot", "anyOf"],
-  date: ["onOrAfter", "onOrBefore"],
-  bool: ["is"],
-};
-
-/**
- * These generate a quoted `*` value. ElasticSearchFiltersBuilder only takes its wildcard branch
- * when the filter carries a single value, so a second value silently turns the phrase into an
- * exact terms query that matches nobody.
- */
-export const WILDCARD_OPERATORS: ConditionOperator[] = ["startsWith", "endsWith", "contains"];
-
-export function findField(id: string): AudienceField | undefined {
-  return AUDIENCE_FIELDS.find((field) => field.id === id);
-}

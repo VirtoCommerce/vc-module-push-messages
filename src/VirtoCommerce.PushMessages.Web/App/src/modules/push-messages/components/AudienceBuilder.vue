@@ -38,120 +38,18 @@
     </div>
 
     <!-- Match by conditions -->
-    <div v-if="mode === 'conditions'" class="tw-space-y-3">
-      <div class="tw-space-y-2">
-        <p class="tw-text-xs tw-uppercase tw-tracking-wider tw-text-[color:var(--neutrals-400)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.LABEL") }}
-        </p>
-        <div class="tw-flex tw-flex-wrap tw-gap-2">
-          <VcButton
-            v-for="starter in STARTERS"
-            :key="starter.key"
-            variant="outline"
-            size="xs"
-            :disabled="disabled"
-            @click="applyStarter(starter)"
-          >
-            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.STARTERS.${starter.key}`) }}
-          </VcButton>
-        </div>
-      </div>
-
-      <div v-if="started" class="tw-space-y-3">
-        <div class="tw-flex tw-items-center tw-gap-2">
-          <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.MATCH") }}</span>
-          <VcButtonGroup attached size="sm">
-            <VcButton
-              v-for="candidate in JOINS"
-              :key="candidate"
-              :variant="join === candidate ? 'primary' : 'outline'"
-              :disabled="disabled"
-              @click="join = candidate"
-            >
-              {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.${candidate === "all" ? "ALL" : "ANY"}`) }}
-            </VcButton>
-          </VcButtonGroup>
-          <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.OF_THESE_CONDITIONS") }}</span>
-        </div>
-
-        <div v-for="(row, index) in rows" :key="index" class="tw-space-y-1">
-          <div
-            v-if="index > 0"
-            class="tw-text-xs tw-font-semibold tw-tracking-wider tw-text-[color:var(--neutrals-400)]"
-          >
-            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.JOINER.${join === "any" ? "OR" : "AND"}`) }}
-          </div>
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <VcSelect
-              v-model="row.field"
-              emit-value
-              :clearable="false"
-              option-value="id"
-              option-label="label"
-              class="tw-w-1/3"
-              :options="fieldOptions"
-              :disabled="disabled"
-              @update:model-value="onFieldChange(row)"
-            />
-            <VcSelect
-              v-model="row.operator"
-              emit-value
-              :clearable="false"
-              option-value="id"
-              option-label="label"
-              class="tw-w-1/4"
-              :options="operatorOptions(row)"
-              :disabled="disabled"
-            />
-            <component
-              :is="valueControl(row).is"
-              :key="fieldOf(row).type"
-              v-bind="valueControl(row).props"
-              class="tw-flex-1"
-              :model-value="controlValue(row)"
-              :disabled="disabled"
-              @update:model-value="(value: unknown) => (row.value = toRowValue(value))"
-            />
-            <VcButton
-              icon="lucide-x"
-              variant="ghost"
-              size="icon-sm"
-              :disabled="disabled"
-              @click="removeRow(index)"
-            />
-          </div>
-          <VcHint v-if="rowError(row)" class="tw-text-[color:var(--danger-500)]">
-            {{ $t(rowError(row) as string) }}
-          </VcHint>
-        </div>
-
-        <div v-if="contradiction" class="tw-space-y-2">
-          <VcHint class="tw-text-[color:var(--warning-600)]">
-            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.CONTRADICTION") }}
-          </VcHint>
-          <VcButton
-            v-if="canCombine"
-            variant="outline"
-            size="sm"
-            icon="lucide-merge"
-            :disabled="disabled"
-            @click="combineDuplicates"
-          >
-            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.COMBINE") }}
-          </VcButton>
-        </div>
-
-        <div class="tw-flex tw-gap-4">
-          <VcButton variant="outline" size="sm" icon="lucide-plus" :disabled="disabled" @click="addRow">
-            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ADD_CONDITION") }}
-          </VcButton>
-          <VcButton variant="link" size="sm" icon="lucide-arrow-right" :disabled="disabled" @click="setMode('query')">
-            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.EDIT_AS_QUERY") }}
-          </VcButton>
-        </div>
-      </div>
-
-    </div>
+    <QueryBuilder
+      v-if="mode === 'conditions'"
+      v-model:query="conditionQuery"
+      :fields="queryFields"
+      :starters="starters"
+      show-edit-as-query
+      :disabled="disabled"
+      @update:invalid="conditionsInvalid = $event"
+      @update:description="conditionParts = $event"
+      @edit-as-query="setMode('query')"
+      @starter="onStarter"
+    />
 
     <!-- Advanced query -->
     <div v-if="mode === 'query'" class="tw-space-y-2">
@@ -325,14 +223,16 @@ import { computed, nextTick, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient } from "@vc-shell/framework";
-import { VcButton, VcButtonGroup, VcHint, VcIcon, VcInput, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
+import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
 
 // Member is referenced by the @vue-generic annotations on the pickers.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { CustomerModuleClient, Member, MemberSearchResult, MembersSearchCriteria } from "../../../api_client/virtocommerce.customer";
+import { QueryBuilder, parsePhrase } from "../../../components/queryBuilder";
+import type { ConditionRow, DescriptionPart, QueryField, QueryStarter } from "../../../components/queryBuilder";
 import { useAudiencePreview } from "../composables/useAudiencePreview";
-import { AUDIENCE_FIELDS, AudienceField, ConditionOperator, findField, OPERATORS_BY_TYPE, WILDCARD_OPERATORS } from "../utils/audienceFields";
-import { AudienceMode, blankRow, buildQuery, ConditionRow, combineDuplicateFields, detectAudience, hasContradiction, MAX_QUERY_LENGTH, parseQuery, toRowValue, validateRow } from "../utils/audienceQuery";
+import { AUDIENCE_FIELDS } from "../utils/audienceFields";
+import { AudienceMode, audiencePhrase, detectAudienceMode, MAX_QUERY_LENGTH } from "../utils/audienceQuery";
 
 const props = defineProps<{
   memberQuery?: string;
@@ -368,36 +268,6 @@ const previewRows = ref<PreviewRow[]>([]);
 /** Names of the picked members, so the summary can spell them out. */
 const pickedMembers = ref<Member[]>([]);
 
-const generatedQuery = computed(() => buildQuery(currentState()));
-
-/**
- * Whether the audience is defined at all. An audience that matches nobody is still worth looking
- * at — seeing the query and the empty preview is how the author finds out why.
- */
-const hasAudience = computed(() => generatedQuery.value.trim().length > 0 || picked.value.length > 0);
-
-/** Reference fields store ids; the summary has to say the name the author picked. */
-const refNames = ref<Record<string, string>>({});
-
-function labelForValue(row: ConditionRow): string {
-  const value = row.value ?? "";
-  const isRef = fieldOf(row).type === "ref";
-
-  // The row stores a comma-joined list; the sentence reads it out with spaces.
-  return value
-    .split(",")
-    .map((part) => (isRef ? (refNames.value[part] ?? part) : part))
-    .join(", ");
-}
-
-function isCompany(opt: Member): boolean {
-  return opt.memberType === "Organization";
-}
-
-function countOf(opt: Member): number | undefined {
-  return opt.id ? memberCounts.value[opt.id] : undefined;
-}
-
 const A_PREFIX = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE";
 const MODE_PREFIX = `${A_PREFIX}.MODES`;
 const MODES: { mode: AudienceMode; key: string; icon: string }[] = [
@@ -406,43 +276,28 @@ const MODES: { mode: AudienceMode; key: string; icon: string }[] = [
   { mode: "conditions", key: "CONDITIONS", icon: "lucide-filter" },
   { mode: "query", key: "QUERY", icon: "lucide-code" },
 ];
-const JOINS = ["all", "any"] as const;
 
 /**
- * One-click starting points, from the design. Each contributes a single condition with the
- * value left empty for the author to fill.
+ * One-click starting points, from the design. Each contributes a single condition with the value
+ * left empty for the author to fill; the one without a condition switches the whole mode instead.
  */
-interface Starter {
-  key: string;
-  mode: AudienceMode;
-  row?: ConditionRow;
-}
-
-const STARTERS: Starter[] = [
-  { key: "ALL_CUSTOMERS", mode: "everyone" },
-  { key: "ONE_COMPANY", mode: "conditions", row: { field: "parentorganizations", operator: "is", value: "" } },
-  { key: "BY_ROLE", mode: "conditions", row: { field: "roleid", operator: "is", value: "" } },
-  { key: "EMAIL_DOMAIN", mode: "conditions", row: { field: "emails", operator: "endsWith", value: "" } },
-  { key: "REGISTERED_SINCE", mode: "conditions", row: { field: "createddate", operator: "onOrAfter", value: "" } },
-  { key: "TAGGED", mode: "conditions", row: { field: "groups", operator: "is", value: "" } },
-  { key: "CUSTOM", mode: "conditions" },
+const STARTERS: { key: string; row?: ConditionRow }[] = [
+  { key: "ALL_CUSTOMERS" },
+  { key: "ONE_COMPANY", row: { field: "parentorganizations", operator: "is", value: "" } },
+  { key: "BY_ROLE", row: { field: "roleid", operator: "is", value: "" } },
+  { key: "EMAIL_DOMAIN", row: { field: "emails", operator: "endsWith", value: "" } },
+  { key: "REGISTERED_SINCE", row: { field: "createddate", operator: "onOrAfter", value: "" } },
+  { key: "TAGGED", row: { field: "groups", operator: "is", value: "" } },
+  { key: "CUSTOM", row: { field: "name", operator: "is", value: "" } },
 ];
 
-interface OperatorOption {
-  id: ConditionOperator;
-  label: string;
-}
-
 const mode = ref<AudienceMode>("conditions");
-const join = ref<"all" | "any">("all");
-const rows = ref<ConditionRow[]>([blankRow()]);
-/**
- * Whether the condition editor is open. It opens on a choice from the starting points, Custom
- * included, and closes again when the last condition is removed.
- */
-const started = ref(false);
 const picked = ref<string[]>([]);
+/** The phrase the raw editor holds, and the one the condition builder reads and writes. */
 const rawQuery = ref("");
+const conditionQuery = ref("");
+const conditionsInvalid = ref(false);
+const conditionParts = ref<DescriptionPart[]>([]);
 
 /** What we last told the parent, so an echo of our own emit is not mistaken for an edit. */
 let emittedQuery: string | undefined;
@@ -450,40 +305,38 @@ let emittedIds: string[] | undefined;
 /** True while a stored audience is being read in, so that read is not mistaken for an edit. */
 let applying = false;
 
-const fieldOptions = computed(() =>
-  AUDIENCE_FIELDS.map((field) => ({ ...field, label: t(field.labelKey) })),
-);
+/** The audience the builder hands over, whichever mode produced it. */
+const generatedQuery = computed(() => audiencePhrase(mode.value, conditionQuery.value, rawQuery.value));
 
-const contradiction = computed(() => hasContradiction(join.value, rows.value));
+/**
+ * Whether the audience is defined at all. An audience that matches nobody is still worth looking
+ * at — seeing the query and the empty preview is how the author finds out why.
+ */
+const hasAudience = computed(() => generatedQuery.value.trim().length > 0 || picked.value.length > 0);
 
-/** Some contradictions cannot be folded — a yes/no field has no "is any of" to fold into. */
-const canCombine = computed(() => combineDuplicateFields(rows.value).length < rows.value.length);
-
-/** The stored phrase has a length limit, and nothing in the rows themselves shows it. */
+/** The stored phrase has a length limit, and nothing in the conditions themselves shows it. */
 const queryTooLong = computed(() => generatedQuery.value.length > MAX_QUERY_LENGTH);
 
-/** Reasons the audience cannot be saved. Each row shows its own; this drives the Save button. */
-const problems = computed<string[]>(() => {
-  const found: string[] = [];
+const canReturnToConditions = computed(() => parsePhrase(rawQuery.value) !== null);
 
-  if (mode.value === "conditions") {
-    for (const row of rows.value) {
-      const error = row.value ? validateRow(row) : null;
+/** The member fields, in the shape the shared builder takes: labels read, ids go into the phrase. */
+const queryFields = computed<QueryField[]>(() =>
+  AUDIENCE_FIELDS.map((field) => ({
+    id: field.id,
+    label: t(field.labelKey),
+    type: field.type,
+    options: field.options,
+    load: field.source === "roles" ? loadRoles : field.source === "organizations" ? loadOrganizations : undefined,
+  })),
+);
 
-      if (error && !found.includes(error)) {
-        found.push(error);
-      }
-    }
-  }
-
-  if (queryTooLong.value) {
-    found.push(`${A_PREFIX}.VALIDATION.QUERY_TOO_LONG`);
-  }
-
-  return found;
-});
-
-const canReturnToConditions = computed(() => parseQuery(rawQuery.value) !== null);
+const starters = computed<QueryStarter[]>(() =>
+  STARTERS.map((starter) => ({
+    key: starter.key,
+    label: t(`${A_PREFIX}.STARTERS.${starter.key}`),
+    row: starter.row,
+  })),
+);
 
 const estimateLines = computed(() => {
   const value = preview.value;
@@ -492,7 +345,7 @@ const estimateLines = computed(() => {
     return [];
   }
 
-  const prefix = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE";
+  const prefix = `${A_PREFIX}.ESTIMATE`;
   const lines: { label: string; value: string }[] = [
     { label: t(`${prefix}.MEMBERS_MATCHED`), value: `${value.membersMatched ?? 0}` },
   ];
@@ -513,162 +366,33 @@ const estimateLines = computed(() => {
   return lines;
 });
 
-function fieldOf(row: ConditionRow): AudienceField {
-  return findField(row.field) ?? AUDIENCE_FIELDS[0];
+function isCompany(opt: Member): boolean {
+  return opt.memberType === "Organization";
 }
 
-function operatorLabel(operator: ConditionOperator): string {
-  const key = OPERATOR_KEYS[operator];
-
-  return key ? t(`${A_PREFIX}.OPERATORS.${key}`) : "";
+function countOf(opt: Member): number | undefined {
+  return opt.id ? memberCounts.value[opt.id] : undefined;
 }
 
-function operatorOptions(row: ConditionRow): OperatorOption[] {
-  const available = OPERATORS_BY_TYPE[fieldOf(row).type];
-
-  // A wildcard operator cannot carry a second value, so it is not offered once one is typed.
-  // Runs on every render, including right after a control is cleared, so never assume a string.
-  const value = row.value ?? "";
-  const allowed = value.includes(",") ? available.filter((op) => !WILDCARD_OPERATORS.includes(op)) : available;
-
-  return allowed.map((id) => ({ id, label: t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.OPERATORS.${OPERATOR_KEYS[id]}`) }));
-}
-
-const OPERATOR_KEYS: Record<ConditionOperator, string> = {
-  is: "IS",
-  isNot: "IS_NOT",
-  anyOf: "ANY_OF",
-  startsWith: "STARTS_WITH",
-  endsWith: "ENDS_WITH",
-  contains: "CONTAINS",
-  onOrAfter: "ON_OR_AFTER",
-  onOrBefore: "ON_OR_BEFORE",
-};
-
-function valueControl(row: ConditionRow) {
-  const field = fieldOf(row);
-
-  if (field.type === "date") {
-    return { is: VcInput, props: { type: "date" } };
-  }
-
-  if (field.type === "bool") {
-    return { is: VcSelect, props: { emitValue: true, options: ["true", "false"] } };
-  }
-
-  if (field.type === "ref") {
-    return {
-      is: VcSelect,
-      props: {
-        emitValue: true,
-        searchable: true,
-        multiple: row.operator === "anyOf",
-        optionValue: "id",
-        optionLabel: "name",
-        options: field.source === "roles" ? loadRoles : loadOrganizations,
-      },
-    };
-  }
-
-  if (field.options) {
-    return { is: VcSelect, props: { emitValue: true, options: field.options } };
-  }
-
-  return { is: VcInput, props: {} };
-}
-
-/** Multi-value operators hand the control an array; the row always stores a comma-joined string. */
-function controlValue(row: ConditionRow): string | string[] {
-  const value = row.value ?? "";
-
-  return row.operator === "anyOf" ? value.split(",").filter(Boolean) : value;
-}
-
-function rowError(row: ConditionRow): string | null {
-  return row.value ? validateRow(row) : null;
-}
-
-function onFieldChange(row: ConditionRow) {
-  const available = OPERATORS_BY_TYPE[fieldOf(row).type];
-
-  if (!available.includes(row.operator)) {
-    row.operator = available[0];
-  }
-
-  row.value = "";
-}
-
-function applyStarter(starter: Starter) {
-  if (starter.mode === "everyone") {
-    setMode("everyone");
-    return;
-  }
-
-  const row = starter.row ? { ...starter.row } : blankRow();
-
-  // The starting points stay on screen while the conditions are edited, so one can be picked
-  // with work already on the page. It is added to that work rather than put in place of it.
-  if (started.value && rows.value.some((existing) => existing.value)) {
-    rows.value.push(row);
-  } else {
-    join.value = "all";
-    rows.value = [row];
-  }
-
-  mode.value = "conditions";
-  started.value = true;
-}
-
-function combineDuplicates() {
-  rows.value = combineDuplicateFields(rows.value);
-}
-
-function addRow() {
-  rows.value.push(blankRow());
-}
-
-function removeRow(index: number) {
-  rows.value.splice(index, 1);
-
-  if (rows.value.length === 0) {
-    rows.value.push(blankRow());
-    started.value = false;
-  }
+/** A starter with no condition of its own; the only one is "everyone". */
+function onStarter() {
+  setMode("everyone");
 }
 
 function setMode(next: AudienceMode) {
   const previous = mode.value;
 
   if (next === "query") {
-    rawQuery.value = buildQuery(currentState());
+    rawQuery.value = generatedQuery.value;
   }
 
-  // Only a phrase the author just edited by hand may replace the rows. Coming back from any
-  // other mode, rawQuery is stale and the rows are what the author last worked on.
+  // Only a phrase the author just edited by hand may replace the conditions. Coming back from any
+  // other mode, rawQuery is stale and the conditions are what the author last worked on.
   if (next === "conditions" && previous === "query") {
-    const parsed = parseQuery(rawQuery.value);
-
-    if (parsed) {
-      join.value = parsed.join;
-      rows.value = parsed.rows;
-    }
-  }
-
-  if (next === "conditions") {
-    started.value = rows.value.some((row) => row.value);
+    conditionQuery.value = rawQuery.value;
   }
 
   mode.value = next;
-}
-
-function currentState() {
-  return {
-    mode: mode.value,
-    join: join.value,
-    rows: rows.value,
-    memberIds: picked.value,
-    query: rawQuery.value,
-  };
 }
 
 async function loadMembers(keyword?: string, skip?: number, ids?: string[]): Promise<MemberSearchResult> {
@@ -722,8 +446,6 @@ async function loadRoles(keyword?: string, skip?: number, ids?: string[]): Promi
 }
 
 function applyIncoming(memberQuery?: string, memberIds?: string[]) {
-  const detected = detectAudience(memberQuery, memberIds);
-
   // Reading a stored audience is not an edit. Without this the rebuilt phrase would be written
   // straight back over the stored one — normalising it, marking the blade dirty before the
   // author has touched anything, and erasing audiences whose phrase rebuilds to nothing.
@@ -731,10 +453,8 @@ function applyIncoming(memberQuery?: string, memberIds?: string[]) {
 
   picked.value = [...(memberIds ?? [])];
   rawQuery.value = memberQuery ?? "";
-  join.value = detected.join;
-  rows.value = detected.rows;
-  mode.value = detected.mode;
-  started.value = detected.rows.some((row) => row.value);
+  mode.value = detectAudienceMode(memberQuery, memberIds);
+  conditionQuery.value = mode.value === "conditions" ? (memberQuery ?? "") : "";
 
   // The state watcher stands down while a stored audience is read in, so the estimate has to be
   // asked for here. Without this a saved message reads "0 recipients" until something is touched,
@@ -770,17 +490,11 @@ watch(
   { immediate: true },
 );
 
-interface SummaryPart {
-  text: string;
-  strong?: boolean;
-  em?: boolean;
-}
-
 /**
- * Plain-language restatement of the audience, from the design: field names and the values
- * chosen for them are the parts worth reading, so they carry the emphasis.
+ * Plain-language restatement of the audience, from the design. The conditions are described by the
+ * builder that owns them; what the audience adds is everything around them.
  */
-const summaryParts = computed<SummaryPart[]>(() => {
+const summaryParts = computed<DescriptionPart[]>(() => {
   const prefix = `${A_PREFIX}.ESTIMATE.SUMMARY`;
 
   if (mode.value === "everyone") {
@@ -795,32 +509,21 @@ const summaryParts = computed<SummaryPart[]>(() => {
     return [{ text: rawQuery.value.trim() ? t(`${prefix}.QUERY`) : t(`${prefix}.QUERY_EMPTY`) }];
   }
 
-  const filled = rows.value.filter((row) => row.field && row.operator && row.value);
+  const described = conditionParts.value;
 
-  if (!filled.length && !picked.value.length) {
+  if (!described.length && !picked.value.length) {
     return [{ text: t(`${prefix}.NO_CONDITIONS`) }];
   }
 
-  const parts: SummaryPart[] = [];
+  const parts: DescriptionPart[] = [];
 
-  if (filled.length) {
+  if (described.length) {
     parts.push({ text: t(`${prefix}.CONDITIONS_PREFIX`) + " " });
-
-    filled.forEach((row, index) => {
-      if (index > 0) {
-        parts.push({ text: " " });
-        parts.push({ text: t(`${prefix}.${join.value === "any" ? "OR" : "AND"}`), em: true });
-        parts.push({ text: " " });
-      }
-
-      parts.push({ text: t(fieldOf(row).labelKey), strong: true });
-      parts.push({ text: ` ${operatorLabel(row.operator)} ` });
-      parts.push({ text: labelForValue(row), strong: true });
-    });
+    parts.push(...described);
   }
 
   pickedMembers.value.forEach((member, index) => {
-    const opening = filled.length ? `${t(`${prefix}.PLUS_PREFIX`)} ` : `${t(`${prefix}.ONLY_PICKED_PREFIX`)} `;
+    const opening = described.length ? `${t(`${prefix}.PLUS_PREFIX`)} ` : `${t(`${prefix}.ONLY_PICKED_PREFIX`)} `;
 
     parts.push({ text: index === 0 ? opening : ", " });
     parts.push({ text: member.name ?? "", strong: true });
@@ -850,50 +553,16 @@ async function openPreview() {
 
     previewRows.value = recipients.map((r) => ({
       name: r.memberName ?? "",
-      email: (r.memberId && emailByMember.get(r.memberId)) || "",
+      email: emailByMember.get(r.memberId ?? "") ?? "",
       login: r.userName ?? "",
     }));
   } catch {
-    previewFailed.value = true;
     previewRows.value = [];
+    previewFailed.value = true;
   } finally {
     loadingPage.value = false;
   }
 }
-
-watch(
-  rows,
-  async (current) => {
-    const unresolved = (source: AudienceField["source"]) => [
-      ...new Set(
-        current
-          .filter((row) => fieldOf(row).type === "ref" && fieldOf(row).source === source && row.value)
-          .flatMap((row) => (row.value ?? "").split(","))
-          .filter((id) => id && refNames.value[id] === undefined),
-      ),
-    ];
-
-    const companyIds = unresolved("organizations");
-    const roleIds = unresolved("roles");
-
-    if (companyIds.length) {
-      for (const member of (await loadMembers(undefined, 0, companyIds)).results ?? []) {
-        if (member.id) {
-          refNames.value[member.id] = member.name ?? member.id;
-        }
-      }
-    }
-
-    if (roleIds.length) {
-      for (const role of (await loadRoles(undefined, 0, roleIds)).results ?? []) {
-        if (role.id) {
-          refNames.value[role.id] = role.name ?? role.id;
-        }
-      }
-    }
-  },
-  { deep: true },
-);
 
 const refreshPreview = useDebounceFn((memberQuery?: string, memberIds?: string[]) => {
   refresh({ memberQuery, memberIds });
@@ -915,13 +584,13 @@ watch(
 );
 
 watch(
-  [mode, join, rows, picked, rawQuery],
+  [mode, picked, rawQuery, conditionQuery, conditionsInvalid],
   () => {
     if (applying) {
       return;
     }
 
-    const phrase = buildQuery(currentState());
+    const phrase = generatedQuery.value;
     // Everyone hides the picker, so anything left in it is not part of that audience.
     const ids = mode.value === "everyone" ? [] : [...picked.value];
 
@@ -930,7 +599,7 @@ watch(
 
     emit("update:memberQuery", emittedQuery);
     emit("update:memberIds", emittedIds);
-    emit("update:invalid", problems.value.length > 0);
+    emit("update:invalid", (mode.value === "conditions" && conditionsInvalid.value) || queryTooLong.value);
 
     refreshPreview(emittedQuery, emittedIds);
   },
