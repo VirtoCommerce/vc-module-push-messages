@@ -272,6 +272,17 @@ describe("operators the builder can produce are operators it offers", () => {
     expect(combineDuplicateFields(rows, FIELDS)).toEqual([{ field: "name", operator: "anyOf", value: "a,b" }]);
   });
 
+  it("folds two conditions on the same value into one value", () => {
+    const rows: ConditionRow[] = [
+      { field: "parentorganizations", operator: "is", value: "acme" },
+      { field: "parentorganizations", operator: "is", value: "acme" },
+    ];
+
+    expect(combineDuplicateFields(rows, FIELDS)).toEqual([
+      { field: "parentorganizations", operator: "anyOf", value: "acme" },
+    ]);
+  });
+
   it("leaves a yes/no field alone, because it has nothing to fold into", () => {
     const rows: ConditionRow[] = [
       { field: "hasparentorganizations", operator: "is", value: "true" },

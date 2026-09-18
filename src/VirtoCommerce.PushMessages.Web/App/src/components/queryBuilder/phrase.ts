@@ -319,7 +319,8 @@ export function combineDuplicateFields(rows: ConditionRow[], fields: QueryField[
         : undefined;
 
     if (twin) {
-      twin.value = `${twin.value},${row.value}`;
+      // Folding two conditions on the same value leaves one value, not the same one twice.
+      twin.value = [...new Set(`${twin.value},${row.value}`.split(","))].join(",");
       twin.operator = "anyOf";
       continue;
     }

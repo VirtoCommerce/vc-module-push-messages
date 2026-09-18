@@ -303,11 +303,19 @@ function optionsFor(index: number): QueryField["load"] {
       const result = await load(keyword, skip, ids);
 
       // Asking by id is the select resolving what it already holds; those must come back.
-      if (ids?.length || row.operator !== "anyOf") {
+      if (ids?.length) {
         return result;
       }
 
-      const chosen = new Set((row.value ?? "").split(",").filter(Boolean));
+      // Anything this field is already matched against, in this row or any other, is spent: a
+      // second condition on the same value adds nothing and folds into a repeat. The row's own
+      // value stays on offer while it holds just one, because choosing there replaces it.
+      const chosen = new Set(
+        rows.value
+          .filter((other, position) => other.field === row.field && (position !== index || row.operator === "anyOf"))
+          .flatMap((other) => (other.value ?? "").split(","))
+          .filter(Boolean),
+      );
       const results = (result.results ?? []).filter((option) => !option.id || !chosen.has(option.id));
 
       return { results, totalCount: result.totalCount ?? results.length };
