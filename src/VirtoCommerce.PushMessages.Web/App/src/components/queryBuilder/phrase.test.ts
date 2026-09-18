@@ -292,6 +292,10 @@ describe("toRowValue", () => {
     expect(toRowValue(new Date(2026, 0, 31, 23, 30))).toBe("2026-01-31");
   });
 
+  it("drops a value the control handed over twice", () => {
+    expect(toRowValue(["acme", "vdberg", "acme"])).toBe("acme,vdberg");
+  });
+
   it("joins a multi-value control and empties a cleared one", () => {
     expect(toRowValue(["a", "b"])).toBe("a,b");
     expect(toRowValue(null)).toBe("");

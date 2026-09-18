@@ -254,7 +254,8 @@ export function toRowValue(value: unknown): string {
     return `${value.getFullYear()}-${month}-${day}`;
   }
 
-  return Array.isArray(value) ? value.join(",") : String(value);
+  // A value repeated in a multi-value control means nothing to the phrase — `role:a,a` is `role:a`.
+  return Array.isArray(value) ? [...new Set(value.map(String))].join(",") : String(value);
 }
 
 export function validateRow(row: ConditionRow): string | null {

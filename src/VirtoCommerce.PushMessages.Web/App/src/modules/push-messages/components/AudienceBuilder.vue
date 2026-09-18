@@ -157,7 +157,7 @@
 
     <VcPopup
       v-model="showPreview"
-      modal-width="52rem"
+      modal-width="tw-max-w-[600px]"
       :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_TITLE')"
     >
       <template #content>
@@ -188,7 +188,7 @@
 
     <VcPopup
       v-model="showQuery"
-      modal-width="44rem"
+      modal-width="tw-max-w-[600px]"
       :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_TITLE')"
     >
       <template #content>

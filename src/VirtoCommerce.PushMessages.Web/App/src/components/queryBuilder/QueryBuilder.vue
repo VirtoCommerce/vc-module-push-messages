@@ -78,9 +78,9 @@
             :disabled="disabled"
           />
           <component
-            :is="valueControl(row).is"
-            :key="fieldOf(row).type"
-            v-bind="valueControl(row).props"
+            :is="valueControl(row, index).is"
+            :key="`${fieldOf(row).type}:${listGeneration[index] ?? 0}`"
+            v-bind="valueControl(row, index).props"
             class="tw-flex-1"
             :model-value="controlValue(row)"
             :disabled="disabled"
@@ -206,6 +206,9 @@ const rows = ref<ConditionRow[]>([blankRow(props.fields)]);
  */
 const started = ref(false);
 
+/** Bumped when a reference list closes, to make the next opening load its choices afresh. */
+const listGeneration = ref<Record<number, number>>({});
+
 /** Reference fields store ids; the description has to say the name the author picked. */
 const refNames = ref<Record<string, string>>({});
 
@@ -242,7 +245,7 @@ function operatorOptions(row: ConditionRow): { id: ConditionOperator; label: str
   return allowed.map((id) => ({ id, label: operatorLabel(id) }));
 }
 
-function valueControl(row: ConditionRow) {
+function valueControl(row: ConditionRow, index: number) {
   const field = fieldOf(row);
 
   if (field.type === "date") {
@@ -262,7 +265,10 @@ function valueControl(row: ConditionRow) {
         multiple: row.operator === "anyOf",
         optionValue: "id",
         optionLabel: "name",
-        options: field.load,
+        options: optionsFor(index),
+        onClose: () => {
+          listGeneration.value[index] = (listGeneration.value[index] ?? 0) + 1;
+        },
       },
     };
   }
@@ -272,6 +278,45 @@ function valueControl(row: ConditionRow) {
   }
 
   return { is: VcInput, props: {} };
+}
+
+/**
+ * One loader per row, kept stable so the select is not handed a new function on every render.
+ * It reads the row as it stands when the list is opened, which is what lets it leave out values
+ * the row already carries — a value chosen twice means nothing to the phrase, and offering it
+ * again reads as though it had not been chosen at all.
+ */
+const optionLoaders = new Map<number, QueryField["load"]>();
+
+function optionsFor(index: number): QueryField["load"] {
+  let loader = optionLoaders.get(index);
+
+  if (!loader) {
+    loader = async (keyword?: string, skip?: number, ids?: string[]) => {
+      const row = rows.value[index];
+      const load = row ? fieldOf(row).load : undefined;
+
+      if (!row || !load) {
+        return { results: [], totalCount: 0 };
+      }
+
+      const result = await load(keyword, skip, ids);
+
+      // Asking by id is the select resolving what it already holds; those must come back.
+      if (ids?.length || row.operator !== "anyOf") {
+        return result;
+      }
+
+      const chosen = new Set((row.value ?? "").split(",").filter(Boolean));
+      const results = (result.results ?? []).filter((option) => !option.id || !chosen.has(option.id));
+
+      return { results, totalCount: result.totalCount ?? results.length };
+    };
+
+    optionLoaders.set(index, loader);
+  }
+
+  return loader;
 }
 
 /** Multi-value operators hand the control an array; the row always stores a comma-joined string. */
