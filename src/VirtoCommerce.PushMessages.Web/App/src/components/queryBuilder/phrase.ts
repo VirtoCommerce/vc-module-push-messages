@@ -7,7 +7,7 @@ const VALIDATION_PREFIX = "QUERY_BUILDER.VALIDATION";
 const SIMPLE_STRING = /^[\p{L}\p{N}_\-./@+]+$/u;
 
 /** `field:value`, `!field:value`, `field:a,b`, `field:[a TO]`, `field:[TO b]` — nothing else. */
-const CLAUSE = /^(!?)([A-Za-z][A-Za-z0-9_]*):(.+)$/;
+const CLAUSE = /^(!?)([A-Za-z]\w*):(.+)$/;
 
 const RANGE = /^\[(.*)\s+TO\s*\]$|^\[\s*TO\s+(.*)\]$/;
 
@@ -29,8 +29,6 @@ export function rowToPhrase(row: ConditionRow): string {
   const { field, value } = row;
 
   switch (row.operator) {
-    default:
-      return "";
     case "is":
       return `${field}:${quote(value)}`;
     case "isNot":
@@ -49,6 +47,8 @@ export function rowToPhrase(row: ConditionRow): string {
       return `${field}:[${value} TO]`;
     case "onOrBefore":
       return `${field}:[TO ${value}]`;
+    default:
+      return "";
   }
 }
 
@@ -63,45 +63,62 @@ export function buildPhrase(rows: ConditionRow[], join: ConditionJoin): string {
  * `createddate:[2025-01-01 TO]` and `name:"Acme B.V."` each stay one clause.
  * Returns null for anything the builder cannot represent.
  */
+interface Scanner {
+  quoted: boolean;
+  ranges: number;
+}
+
+/** Takes one character into account. False means the phrase is beyond what the builder can show. */
+function scan(state: Scanner, char: string, escaped: boolean): boolean {
+  if (char === '"' && !escaped) {
+    state.quoted = !state.quoted;
+    return true;
+  }
+
+  if (state.quoted) {
+    return true;
+  }
+
+  if (char === "(" || char === ")") {
+    return false;
+  }
+
+  if (char === "[") {
+    state.ranges++;
+  }
+
+  if (char === "]") {
+    state.ranges--;
+  }
+
+  return true;
+}
+
 function splitTopLevel(phrase: string): string[] | null {
+  const state: Scanner = { quoted: false, ranges: 0 };
   const parts: string[] = [];
   let current = "";
-  let quoted = false;
-  let inRange = false;
 
   for (let i = 0; i < phrase.length; i++) {
     const char = phrase[i];
 
-    if (char === '"' && phrase[i - 1] !== "\\") {
-      quoted = !quoted;
+    if (!scan(state, char, phrase[i - 1] === "\\")) {
+      return null;
     }
 
-    if (!quoted) {
-      if (char === "(" || char === ")") {
-        return null;
-      }
-
-      if (char === "[") {
-        inRange = true;
-      }
-
-      if (char === "]") {
-        inRange = false;
-      }
-    }
-
-    if (char === " " && !quoted && !inRange) {
+    if (char === " " && !state.quoted && state.ranges === 0) {
       if (current) {
         parts.push(current);
-        current = "";
       }
+
+      current = "";
       continue;
     }
 
     current += char;
   }
 
-  if (quoted || inRange) {
+  if (state.quoted || state.ranges !== 0) {
     return null;
   }
 
@@ -138,6 +155,36 @@ function splitValues(raw: string): string[] {
   return values;
 }
 
+/** Reads `[a TO]` or `[TO b]`, or nothing when the value is not a range at all. */
+function rangeRow(field: string, rawValue: string): ConditionRow | null {
+  const range = RANGE.exec(rawValue);
+
+  if (!range) {
+    return null;
+  }
+
+  return range[1] !== undefined
+    ? { field, operator: "onOrAfter", value: range[1].trim() }
+    : { field, operator: "onOrBefore", value: (range[2] ?? "").trim() };
+}
+
+/** Reads a quoted value carrying `*` at one end or both, or nothing when it carries none. */
+function wildcardRow(field: string, value: string): ConditionRow | null {
+  if (value.startsWith("*") && value.endsWith("*") && value.length > 2) {
+    return { field, operator: "contains", value: value.slice(1, -1) };
+  }
+
+  if (value.endsWith("*") && value.length > 1) {
+    return { field, operator: "startsWith", value: value.slice(0, -1) };
+  }
+
+  if (value.startsWith("*") && value.length > 1) {
+    return { field, operator: "endsWith", value: value.slice(1) };
+  }
+
+  return null;
+}
+
 function clauseToRow(clause: string): ConditionRow | null {
   const match = CLAUSE.exec(clause);
 
@@ -146,16 +193,12 @@ function clauseToRow(clause: string): ConditionRow | null {
   }
 
   const [, negation, field, rawValue] = match;
-  const range = RANGE.exec(rawValue);
+
+  // Only an exact match reads back negated; every other shape drops out of what the builder shows.
+  const range = rangeRow(field, rawValue);
 
   if (range) {
-    if (negation) {
-      return null;
-    }
-
-    return range[1] !== undefined
-      ? { field, operator: "onOrAfter", value: range[1].trim() }
-      : { field, operator: "onOrBefore", value: (range[2] ?? "").trim() };
+    return negation ? null : range;
   }
 
   const values = [...new Set(splitValues(rawValue).map(unquote))];
@@ -165,18 +208,10 @@ function clauseToRow(clause: string): ConditionRow | null {
   }
 
   const value = values[0];
-  const wasQuoted = rawValue.startsWith('"');
+  const wildcard = rawValue.startsWith('"') ? wildcardRow(field, value) : null;
 
-  if (wasQuoted && value.startsWith("*") && value.endsWith("*") && value.length > 2) {
-    return negation ? null : { field, operator: "contains", value: value.slice(1, -1) };
-  }
-
-  if (wasQuoted && value.endsWith("*") && value.length > 1) {
-    return negation ? null : { field, operator: "startsWith", value: value.slice(0, -1) };
-  }
-
-  if (wasQuoted && value.startsWith("*") && value.length > 1) {
-    return negation ? null : { field, operator: "endsWith", value: value.slice(1) };
+  if (wildcard) {
+    return negation ? null : wildcard;
   }
 
   if (!value || value.includes("*") || value.includes("?")) {

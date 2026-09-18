@@ -231,7 +231,7 @@ import { CustomerModuleClient, Member, MemberSearchResult, MembersSearchCriteria
 import { QueryBuilder, parsePhrase } from "../../../components/queryBuilder";
 import type { ConditionRow, DescriptionPart, QueryField, QueryStarter } from "../../../components/queryBuilder";
 import { useAudiencePreview } from "../composables/useAudiencePreview";
-import { AUDIENCE_FIELDS } from "../utils/audienceFields";
+import { AUDIENCE_FIELDS, AudienceField } from "../utils/audienceFields";
 import { AudienceMode, audiencePhrase, detectAudienceMode, MAX_QUERY_LENGTH } from "../utils/audienceQuery";
 
 const props = defineProps<{
@@ -326,9 +326,18 @@ const queryFields = computed<QueryField[]>(() =>
     label: t(field.labelKey),
     type: field.type,
     options: field.options,
-    load: field.source === "roles" ? loadRoles : field.source === "organizations" ? loadOrganizations : undefined,
+    load: loaderFor(field),
   })),
 );
+
+/** Where a reference field's choices come from; a field of any other kind has none. */
+function loaderFor(field: AudienceField): QueryField["load"] {
+  if (field.source === "roles") {
+    return loadRoles;
+  }
+
+  return field.source === "organizations" ? loadOrganizations : undefined;
+}
 
 const starters = computed<QueryStarter[]>(() =>
   STARTERS.map((starter) => ({
@@ -523,9 +532,9 @@ const summaryParts = computed<DescriptionPart[]>(() => {
   }
 
   pickedMembers.value.forEach((member, index) => {
-    const opening = described.length ? `${t(`${prefix}.PLUS_PREFIX`)} ` : `${t(`${prefix}.ONLY_PICKED_PREFIX`)} `;
+    const opening = described.length ? t(`${prefix}.PLUS_PREFIX`) : t(`${prefix}.ONLY_PICKED_PREFIX`);
 
-    parts.push({ text: index === 0 ? opening : ", " });
+    parts.push({ text: index === 0 ? opening + " " : ", " });
     parts.push({ text: member.name ?? "", strong: true });
 
     if (isCompany(member)) {
