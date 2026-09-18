@@ -316,3 +316,19 @@ describe("a date condition", () => {
     });
   });
 });
+
+describe("a value repeated in one condition", () => {
+  it("is written once, however many times the row holds it", () => {
+    const rows: ConditionRow[] = [{ field: "parentorganizations", operator: "anyOf", value: "acme,acme,vdberg" }];
+
+    expect(buildPhrase(rows, "all")).toBe("parentorganizations:acme,vdberg");
+  });
+
+  it("is read once, so the control shows one of it", () => {
+    // A phrase can arrive carrying the same value twice — typed by hand, or stored by an older build.
+    expect(parsePhrase("parentorganizations:acme,acme")).toEqual({
+      join: "all",
+      rows: [{ field: "parentorganizations", operator: "is", value: "acme" }],
+    });
+  });
+});

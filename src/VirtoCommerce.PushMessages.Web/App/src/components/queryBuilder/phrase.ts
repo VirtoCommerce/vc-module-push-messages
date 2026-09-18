@@ -36,9 +36,8 @@ export function rowToPhrase(row: ConditionRow): string {
     case "isNot":
       return `!${field}:${quote(value)}`;
     case "anyOf":
-      return `${field}:${value
-        .split(",")
-        .map((part) => quote(part.trim()))
+      return `${field}:${[...new Set(value.split(",").map((part) => part.trim()))]
+        .map(quote)
         .join(",")}`;
     case "startsWith":
       return `${field}:"${escape(value)}*"`;
@@ -159,7 +158,7 @@ function clauseToRow(clause: string): ConditionRow | null {
       : { field, operator: "onOrBefore", value: (range[2] ?? "").trim() };
   }
 
-  const values = splitValues(rawValue).map(unquote);
+  const values = [...new Set(splitValues(rawValue).map(unquote))];
 
   if (values.length > 1) {
     return negation ? null : { field, operator: "anyOf", value: values.join(",") };
