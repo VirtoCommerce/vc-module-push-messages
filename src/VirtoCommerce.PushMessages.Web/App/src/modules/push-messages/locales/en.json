@@ -155,7 +155,9 @@
               "QUERY_NONE": "No query — this audience is a plain list of people and companies.",
               "QUERY_PLUS": "Plus {count} explicitly selected in MemberIds. The send job unions the two sets.",
               "CLOSE": "Close",
-              "PREVIEW_FAILED": "Could not load the recipients. Try again."
+              "PREVIEW_FAILED": "Could not load the recipients. Try again.",
+              "FAILED": "Recipients can't be counted for this audience — the search index rejected the query. Check it in Show generated query.",
+              "COUNTED_ONCE": "The counts above add up to {sum}: {count} recipient belongs to more than one selection and gets the message once. | The counts above add up to {sum}: {count} recipients belong to more than one selection and get the message once."
             },
             "FIELDS": {
               "NAME": "Name",

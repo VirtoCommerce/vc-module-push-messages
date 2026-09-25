@@ -59,7 +59,7 @@
         :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.QUERY_FIELD.LABEL')"
         maxlength="1024"
       />
-      <VcHint v-if="rawQuery">
+      <VcHint v-if="rawQuery && !estimateFailed">
         {{
           $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.QUERY_FIELD.VALID", {
             count: preview?.totalCount ?? 0,
@@ -85,6 +85,7 @@
       emit-value
       searchable
       multiple
+      :clearable="false"
       option-value="id"
       option-label="name"
       :options="loadMembers"
@@ -94,19 +95,21 @@
       :hint="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.HINT')"
     >
       <template #selected-item="{ opt, index, removeAtIndex }">
+        <!-- A long name gives way first: the kind, the count and the remove button always stay whole. -->
         <span
-          class="tw-inline-flex tw-items-center tw-gap-2 tw-mr-2 tw-mb-1 tw-pl-2 tw-pr-1 tw-py-1 tw-rounded tw-border tw-border-[color:var(--primary-300)] tw-bg-[color:var(--primary-50)]"
+          class="tw-inline-flex tw-max-w-full tw-min-w-0 tw-items-center tw-gap-2 tw-mr-2 tw-mb-1 tw-pl-2 tw-pr-1 tw-py-1 tw-rounded tw-border tw-border-[color:var(--primary-300)] tw-bg-[color:var(--primary-50)]"
         >
-          <VcStatus :variant="isCompany(opt) ? 'primary' : 'info'">
+          <VcStatus class="tw-shrink-0" :variant="isCompany(opt) ? 'primary' : 'info'">
             {{ isCompany(opt)
               ? $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COMPANY')
               : $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PERSON') }}
           </VcStatus>
-          <span class="tw-text-sm tw-text-[color:var(--neutrals-800)]">{{ opt.name }}</span>
-          <span v-if="countOf(opt) !== undefined" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
+          <span class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]" :title="opt.name">{{ opt.name }}</span>
+          <span v-if="countOf(opt) !== undefined" class="tw-shrink-0 tw-whitespace-nowrap tw-text-sm tw-text-[color:var(--neutrals-500)]">
             · {{ $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COUNT', countOf(opt) as number) }}
           </span>
           <VcButton
+            class="tw-shrink-0"
             icon="lucide-x"
             variant="ghost"
             size="icon-sm"
@@ -124,10 +127,14 @@
     <!-- Estimate -->
     <div class="tw-border tw-border-[color:var(--primary-300)] tw-rounded tw-p-4 tw-space-y-3">
       <div class="tw-flex tw-items-baseline tw-gap-2">
-        <span class="tw-text-3xl tw-font-semibold">{{ preview?.totalCount ?? 0 }}</span>
+        <span class="tw-text-3xl tw-font-semibold">{{ estimateFailed ? "—" : preview?.totalCount ?? 0 }}</span>
         <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.RECIPIENTS", preview?.totalCount ?? 0) }}</span>
         <VcLoading v-if="loadingPreview" active class="tw-ml-2" />
       </div>
+
+      <VcHint v-if="estimateFailed" class="tw-text-[color:var(--danger-500)]">
+        {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.FAILED") }}
+      </VcHint>
 
       <dl class="tw-font-mono tw-text-sm tw-space-y-1">
         <div v-for="line in estimateLines" :key="line.label" class="tw-flex tw-justify-between">
@@ -135,6 +142,10 @@
           <dd>{{ line.value }}</dd>
         </div>
       </dl>
+
+      <p v-if="countedOnce" class="tw-text-sm tw-text-[color:var(--neutrals-600)]">
+        {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COUNTED_ONCE", { sum: pickedTotal }, countedOnce) }}
+      </p>
 
       <p class="tw-text-sm tw-text-[color:var(--neutrals-700)]">
         <template v-for="(part, i) in summaryParts" :key="i"><span
@@ -146,7 +157,7 @@
       </p>
 
       <div v-if="hasAudience" class="tw-flex tw-gap-2">
-        <VcButton variant="outline" size="sm" icon="lucide-eye" @click="openPreview">
+        <VcButton v-if="!estimateFailed" variant="outline" size="sm" icon="lucide-eye" @click="openPreview">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW") }}
         </VcButton>
         <VcButton variant="outline" size="sm" icon="lucide-code" @click="showQuery = true">
@@ -157,7 +168,7 @@
 
     <VcPopup
       v-model="showPreview"
-      modal-width="tw-max-w-[600px]"
+      modal-width="tw-max-w-4xl"
       :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_TITLE')"
     >
       <template #content>
@@ -172,12 +183,29 @@
         <p v-else-if="!previewRows.length" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
         </p>
-        <div v-else class="tw-max-h-[24rem] tw-overflow-auto">
-          <VcDataTable :items="previewRows" :total-count="previewRows.length">
-            <VcColumn id="name" field="name" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
-            <VcColumn id="email" field="email" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
-            <VcColumn id="login" field="login" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN')" />
-          </VcDataTable>
+        <!-- A read-only list sized by its content: columns take the width their values need, and a
+             value too long for the popup wraps instead of pushing the table sideways. -->
+        <div v-else class="tw-max-h-[24rem] tw-overflow-y-auto tw-rounded tw-border tw-border-[color:var(--neutrals-200)]">
+          <table class="tw-w-full tw-table-auto tw-text-sm tw-text-[color:var(--neutrals-800)]">
+            <thead class="tw-sticky tw-top-0 tw-bg-[color:var(--neutrals-50)]">
+              <tr class="tw-text-left tw-text-[color:var(--neutrals-600)]">
+                <th class="tw-px-3 tw-py-2 tw-font-medium">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME") }}</th>
+                <th class="tw-px-3 tw-py-2 tw-font-medium">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL") }}</th>
+                <th class="tw-px-3 tw-py-2 tw-font-medium">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN") }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(row, i) in previewRows"
+                :key="i"
+                class="tw-border-t tw-border-[color:var(--neutrals-200)]"
+              >
+                <td class="tw-px-3 tw-py-2 tw-break-words">{{ row.name }}</td>
+                <td class="tw-px-3 tw-py-2 tw-break-all">{{ row.email }}</td>
+                <td class="tw-px-3 tw-py-2 tw-break-all">{{ row.login }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         </div>
       </template>
@@ -223,7 +251,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient } from "@vc-shell/framework";
-import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
+import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
 
 // Member is referenced by the @vue-generic annotations on the pickers.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -249,7 +277,7 @@ const emit = defineEmits<{
 const { t } = useI18n({ useScope: "global" });
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
 const { getApiClient: getSecurityApiClient } = useApiClient(SecurityClient);
-const { preview, refresh, countFor, fetchPage, loading: loadingPreview } = useAudiencePreview();
+const { preview, failed: estimateFailed, refresh, countFor, fetchPage, loading: loadingPreview } = useAudiencePreview();
 
 /** Recipient count per picked member, so a chip can say what a company actually brings in. */
 const memberCounts = ref<Record<string, number>>({});
@@ -313,6 +341,27 @@ const generatedQuery = computed(() => audiencePhrase(mode.value, conditionQuery.
  * at — seeing the query and the empty preview is how the author finds out why.
  */
 const hasAudience = computed(() => generatedQuery.value.trim().length > 0 || picked.value.length > 0);
+
+/** What each picked person or company reaches on its own, added up — once every count is in. */
+const pickedTotal = computed(() => {
+  const counts = picked.value.map((id) => memberCounts.value[id]);
+
+  return counts.every((count) => count !== undefined) ? counts.reduce((sum, count) => sum + count, 0) : 0;
+});
+
+/**
+ * Recipients that the picked counts include more than once — someone in two of the chosen
+ * companies, or picked directly and again through a company. The total sends to them once, which
+ * is why the chips can add up to more than it. Only a plain list compares like this: a query adds
+ * recipients no chip accounts for.
+ */
+const countedOnce = computed(() => {
+  if (generatedQuery.value || !preview.value || estimateFailed.value) {
+    return 0;
+  }
+
+  return Math.max(0, pickedTotal.value - (preview.value.totalCount ?? 0));
+});
 
 /** The stored phrase has a length limit, and nothing in the conditions themselves shows it. */
 const queryTooLong = computed(() => generatedQuery.value.length > MAX_QUERY_LENGTH);
@@ -592,6 +641,13 @@ watch(
   { immediate: true },
 );
 
+const invalid = computed(
+  () => (mode.value === "conditions" && conditionsInvalid.value) || queryTooLong.value || estimateFailed.value,
+);
+
+// The estimate settles after the audience does, so its verdict is reported on its own.
+watch(estimateFailed, () => emit("update:invalid", invalid.value));
+
 watch(
   [mode, picked, rawQuery, conditionQuery, conditionsInvalid],
   () => {
@@ -608,7 +664,7 @@ watch(
 
     emit("update:memberQuery", emittedQuery);
     emit("update:memberIds", emittedIds);
-    emit("update:invalid", (mode.value === "conditions" && conditionsInvalid.value) || queryTooLong.value);
+    emit("update:invalid", invalid.value);
 
     refreshPreview(emittedQuery, emittedIds);
   },

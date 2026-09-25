@@ -16,6 +16,8 @@ export interface AudiencePreviewPayload {
 
 export interface IUseAudiencePreview {
   preview: Ref<PushMessageAudienceResult | undefined>;
+  /** True when the platform could not count the audience — most often a query the index rejects. */
+  failed: Ref<boolean>;
   refresh: (payload?: AudiencePreviewPayload) => Promise<void>;
   countFor: (memberId: string) => Promise<number>;
   /** A page of the resolved recipients, for looking before sending. */
@@ -29,6 +31,7 @@ export interface IUseAudiencePreview {
  */
 export function useAudiencePreview(): IUseAudiencePreview {
   const preview = ref<PushMessageAudienceResult>();
+  const failed = ref(false);
 
   /**
    * Requests can overtake each other — the chip counts hit the same endpoint, and a small
@@ -42,13 +45,24 @@ export function useAudiencePreview(): IUseAudiencePreview {
 
     if (!payload?.memberQuery && !payload?.memberIds?.length) {
       preview.value = undefined;
+      failed.value = false;
       return;
     }
 
-    const result = await request(payload.memberQuery, payload.memberIds);
+    // The estimate runs as the author types, so a query the index rejects is an ordinary state to
+    // show beside the audience, not an error to raise as a notification on every keystroke.
+    try {
+      const result = await request(payload.memberQuery, payload.memberIds);
 
-    if (ticket === latest) {
-      preview.value = result;
+      if (ticket === latest) {
+        preview.value = result;
+        failed.value = false;
+      }
+    } catch {
+      if (ticket === latest) {
+        preview.value = undefined;
+        failed.value = true;
+      }
     }
   });
 
@@ -75,6 +89,7 @@ export function useAudiencePreview(): IUseAudiencePreview {
 
   return {
     preview,
+    failed,
     refresh,
     countFor,
     fetchPage,

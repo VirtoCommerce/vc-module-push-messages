@@ -100,6 +100,31 @@ describe("useAudiencePreview", () => {
     expect(preview.value?.totalCount).toBe(3);
   });
 
+  it("reports a rejected query as a state, not as an error", async () => {
+    // The platform answers 400 for a phrase the search index cannot run.
+    previewRecipients.mockRejectedValue(Object.assign(new Error("Bad Request"), { status: 400 }));
+
+    const { preview, failed, refresh } = useAudiencePreview();
+
+    await expect(refresh({ memberQuery: "createddate:[not-a-date TO]" })).resolves.toBeUndefined();
+    expect(failed.value).toBe(true);
+    expect(preview.value).toBeUndefined();
+  });
+
+  it("clears the failure once the audience can be counted again", async () => {
+    previewRecipients
+      .mockRejectedValueOnce(Object.assign(new Error("Bad Request"), { status: 400 }))
+      .mockResolvedValueOnce({ totalCount: 4 });
+
+    const { preview, failed, refresh } = useAudiencePreview();
+
+    await refresh({ memberQuery: "broken" });
+    await refresh({ memberQuery: "name:Alex" });
+
+    expect(failed.value).toBe(false);
+    expect(preview.value?.totalCount).toBe(4);
+  });
+
   it("reads a missing total as zero", async () => {
     previewRecipients.mockResolvedValue({});
 
