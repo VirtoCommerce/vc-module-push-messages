@@ -11,6 +11,8 @@
     "publish": "yarn workspace @virtocommerce/push-messages npm publish",
     "build:types-modules": "vue-tsc --declaration --emitDeclarationOnly --p ./src/modules/tsconfig.json --outDir ./src/modules/dist/types",
     "type-check": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint-staged": "lint-staged",
     "lint": "eslint --fix --cache '**/*.{ts,vue}'",
     "generate-api-client": "cross-env api-client-generator --APP_PLATFORM_MODULES='[VirtoCommerce.Customer,VirtoCommerce.PushMessages]' --APP_API_CLIENT_DIRECTORY=./src/api_client/ --APP_TYPE_STYLE=Interface"
@@ -50,6 +52,7 @@
     "vite-plugin-checker": "^0.13.0",
     "vite-plugin-mkcert": "^1.17.1",
     "vite-plugin-pwa": "^0.18.1",
+    "vitest": "^3.2.0",
     "vue-eslint-parser": "^9.3.2",
     "vue-tsc": "^3.2.5"
   },

@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using VirtoCommerce.CustomerModule.Core.Model;
+using VirtoCommerce.CustomerModule.Core.Model.Search;
+using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
@@ -83,4 +87,100 @@ internal sealed class FakeSettingsManager : ISettingsManager
 
     public IDictionary<string, string[]> GetSettingTypeAssignments() =>
         new Dictionary<string, string[]>();
+}
+
+/// <summary>Serves members by id. Ids not in the map are simply absent from the result.</summary>
+internal sealed class FakeMemberService : IMemberService
+{
+    private readonly IDictionary<string, Member> _members;
+
+    public FakeMemberService(IDictionary<string, Member> members)
+    {
+        _members = members;
+    }
+
+    public Task<Member[]> GetByIdsAsync(string[] memberIds, string responseGroup = null, string[] memberTypes = null)
+    {
+        var result = memberIds
+            .Where(_members.ContainsKey)
+            .Select(x => _members[x])
+            .ToArray();
+
+        return Task.FromResult(result);
+    }
+
+    public Task<Member> GetByIdAsync(string memberId, string responseGroup = null, string memberType = null)
+    {
+        return Task.FromResult(_members.TryGetValue(memberId, out var member) ? member : null);
+    }
+
+    public Task SaveChangesAsync(Member[] members) => Task.CompletedTask;
+
+    public Task DeleteAsync(string[] ids, string[] memberTypes = null) => Task.CompletedTask;
+}
+
+/// <summary>
+/// Answers the two searches the audience funnel makes: by MemberId (children of an organization)
+/// and by Keyword (the audience query). Returns everything in a single batch.
+/// </summary>
+internal sealed class FakeMemberSearchService : IMemberSearchService
+{
+    private readonly IDictionary<string, IList<Member>> _childrenByParentId;
+    private readonly IDictionary<string, IList<Member>> _membersByKeyword;
+
+    public FakeMemberSearchService(
+        IDictionary<string, IList<Member>> childrenByParentId = null,
+        IDictionary<string, IList<Member>> membersByKeyword = null)
+    {
+        _childrenByParentId = childrenByParentId ?? new Dictionary<string, IList<Member>>();
+        _membersByKeyword = membersByKeyword ?? new Dictionary<string, IList<Member>>();
+    }
+
+    public Task<MemberSearchResult> SearchMembersAsync(MembersSearchCriteria criteria)
+    {
+        IList<Member> found = [];
+
+        if (!string.IsNullOrEmpty(criteria.MemberId) && _childrenByParentId.TryGetValue(criteria.MemberId, out var children))
+        {
+            found = children;
+        }
+        else if (!string.IsNullOrEmpty(criteria.Keyword) && _membersByKeyword.TryGetValue(criteria.Keyword, out var matched))
+        {
+            found = matched;
+        }
+
+        return Task.FromResult(new MemberSearchResult
+        {
+            TotalCount = found.Count,
+            Results = found,
+        });
+    }
+
+    public Task<IList<Member>> SearchAllAsync(MembersSearchCriteria criteria)
+    {
+        return Task.FromResult<IList<Member>>([]);
+    }
+}
+
+/// <summary>Records the criteria it was handed and returns a canned result.</summary>
+internal sealed class RecordingAudienceService : IPushMessageAudienceService
+{
+    private readonly PushMessageAudienceResult _result;
+
+    public RecordingAudienceService(PushMessageAudienceResult result)
+    {
+        _result = result;
+    }
+
+    public PushMessageAudienceCriteria LastCriteria { get; private set; }
+
+    public Task<PushMessageAudienceResult> ResolveAsync(
+        PushMessageAudienceCriteria criteria,
+        string messageId = null,
+        ISet<string> excludedUserIds = null)
+    {
+        LastCriteria = criteria;
+
+        return Task.FromResult(_result);
+    }
 }
