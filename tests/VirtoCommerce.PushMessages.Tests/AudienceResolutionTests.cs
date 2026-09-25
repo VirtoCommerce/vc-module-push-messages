@@ -104,6 +104,56 @@ public class AudienceResolutionTests
     }
 
     [Fact]
+    public async Task CompanyInsideCompany_IsExpandedButNotCountedAsAPerson_VCST5944()
+    {
+        // org1 holds c1 and the company org2; org2 holds c2 and c3.
+        var org1 = new Organization { Id = "org1", Name = "Parent" };
+        var org2 = new Organization { Id = "org2", Name = "Child" };
+
+        var service = NewService(
+            members: new Dictionary<string, Member> { ["org1"] = org1 },
+            childrenByParentId: new Dictionary<string, IList<Member>>
+            {
+                ["org1"] = [NewContact("c1", loginCount: 1), org2],
+                ["org2"] = [NewContact("c2", loginCount: 1), NewContact("c3", loginCount: 1)],
+            });
+
+        var result = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org1"], Take = 0 });
+
+        Assert.Equal(2, result.CompaniesExpanded);
+        Assert.Equal(3, result.PeopleFromCompanies);   // c1, c2, c3 — not org2
+        Assert.Equal(3, result.PeopleInScope);
+        Assert.Equal(3, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task PersonInTwoPickedCompanies_IsCountedOnce_VCST5944()
+    {
+        // Each company counted alone reaches two people; together they reach three, not four.
+        var shared = NewContact("shared", loginCount: 1);
+
+        var service = NewService(
+            members: new Dictionary<string, Member>
+            {
+                ["org1"] = new Organization { Id = "org1", Name = "A" },
+                ["org2"] = new Organization { Id = "org2", Name = "B" },
+            },
+            childrenByParentId: new Dictionary<string, IList<Member>>
+            {
+                ["org1"] = [NewContact("c1", loginCount: 1), shared],
+                ["org2"] = [shared, NewContact("c2", loginCount: 1)],
+            });
+
+        var first = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org1"], Take = 0 });
+        var second = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org2"], Take = 0 });
+        var both = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org1", "org2"], Take = 0 });
+
+        Assert.Equal(2, first.TotalCount);
+        Assert.Equal(2, second.TotalCount);
+        Assert.Equal(3, both.TotalCount);
+    }
+
+    [Fact]
     public async Task TakeZero_ReturnsCountersWithoutResults_VCST5944()
     {
         var contact = NewContact("c1", loginCount: 1);

@@ -43,6 +43,7 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         var recipients = new List<PushMessageRecipient>();
         var userIds = new HashSet<string>(excludedUserIds ?? new HashSet<string>());
         var memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var people = 0;
 
         var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
         searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
@@ -90,11 +91,12 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             }
             else
             {
-                var before = memberIds.Count;
+                // A company found inside a company is expanded in its turn; it is not a person.
+                var before = people;
                 await EnqueueMembers(memberId: member.Id);
 
                 result.CompaniesExpanded++;
-                result.PeopleFromCompanies += memberIds.Count - before;
+                result.PeopleFromCompanies += people - before;
             }
         }
 
@@ -121,6 +123,11 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             if (memberIds.Add(member.Id))
             {
                 queue.Enqueue(member);
+
+                if (member is IHasSecurityAccounts)
+                {
+                    people++;
+                }
             }
         }
     }
