@@ -183,30 +183,14 @@
         <p v-else-if="!previewRows.length" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
         </p>
-        <!-- A read-only list sized by its content: columns take the width their values need, and a
-             value too long for the popup wraps instead of pushing the table sideways. -->
-        <div v-else class="tw-max-h-[24rem] tw-overflow-y-auto tw-rounded tw-border tw-border-[color:var(--neutrals-200)]">
-          <table class="tw-w-full tw-table-auto tw-text-sm tw-text-[color:var(--neutrals-800)]">
-            <thead class="tw-sticky tw-top-0 tw-bg-[color:var(--neutrals-50)]">
-              <tr class="tw-text-left tw-text-[color:var(--neutrals-600)]">
-                <th class="tw-px-3 tw-py-2 tw-font-medium">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME") }}</th>
-                <th class="tw-px-3 tw-py-2 tw-font-medium">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL") }}</th>
-                <th class="tw-px-3 tw-py-2 tw-font-medium">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN") }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(row, i) in previewRows"
-                :key="i"
-                class="tw-border-t tw-border-[color:var(--neutrals-200)]"
-              >
-                <td class="tw-px-3 tw-py-2 tw-break-words">{{ row.name }}</td>
-                <td class="tw-px-3 tw-py-2 tw-break-all">{{ row.email }}</td>
-                <td class="tw-px-3 tw-py-2 tw-break-all">{{ row.login }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- The table scrolls its own body. Wrapped in a scrolling block instead, the vertical
+             scrollbar took its width from columns already laid out, and pushed them sideways.
+             The widths are proportions: the table spreads them over whatever width it has. -->
+        <VcDataTable v-else :items="previewRows" :total-count="previewRows.length" scroll-height="400px">
+          <VcColumn id="name" field="name" :width="280" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
+          <VcColumn id="email" field="email" :width="320" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
+          <VcColumn id="login" field="login" :width="200" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN')" />
+        </VcDataTable>
         </div>
       </template>
       <template #footer="{ close }">
@@ -251,7 +235,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient } from "@vc-shell/framework";
-import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
+import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
 
 // Member is referenced by the @vue-generic annotations on the pickers.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
