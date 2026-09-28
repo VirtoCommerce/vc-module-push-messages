@@ -168,14 +168,17 @@
 
     <VcPopup
       v-model="showPreview"
-      modal-width="tw-max-w-4xl"
+      modal-width="tw-w-full tw-max-w-4xl"
       :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_TITLE')"
     >
       <template #content>
-        <!-- Laid out the way a blade lays out its table: the lead keeps its line and the table takes
-             the rest, scrolling its own body. VcDataTable fills 100% of its container, so as a block
-             under the lead it ran past the popup and made the popup scroll as well. -->
-        <div class="tw-w-full tw-flex tw-flex-col tw-min-h-0">
+        <!-- Laid out as a blade lays out its table: the lead keeps its line and the table fills the
+             rest, scrolling its own body — VcDataTable takes 100% of its container, so it gets one of
+             its own. The popup's inner box is as wide as its content, and the table spreads its
+             columns over the width it gets, so once a scrollbar appeared each widened the other
+             without end. contain: inline-size stops this block following its content; the popup's
+             width comes from modal-width instead, as a blade's comes from its own width. -->
+        <div class="tw-w-full tw-flex tw-flex-col tw-min-h-0 [contain:inline-size]">
         <p class="tw-mb-3 tw-shrink-0 tw-text-sm tw-text-[color:var(--neutrals-600)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", preview?.totalCount ?? 0) }}
         </p>
@@ -186,10 +189,7 @@
         <p v-else-if="!previewRows.length" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
         </p>
-        <!-- The table's height is 100% of its container, so it gets a container of its own, sized to
-             what is left under the lead — the blade gives it one the same way. The widths are
-             proportions: the table spreads them over whatever width it has. -->
-        <div v-else class="tw-flex tw-flex-1 tw-min-h-0">
+        <div v-else class="tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
           <VcDataTable :items="previewRows" :total-count="previewRows.length">
             <VcColumn id="name" field="name" :width="280" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
             <VcColumn id="email" field="email" :width="320" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
