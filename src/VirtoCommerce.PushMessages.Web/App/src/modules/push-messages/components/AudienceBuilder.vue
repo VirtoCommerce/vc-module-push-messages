@@ -172,8 +172,11 @@
       :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_TITLE')"
     >
       <template #content>
-        <div class="tw-w-full">
-        <p class="tw-mb-3 tw-text-sm tw-text-[color:var(--neutrals-600)]">
+        <!-- Laid out the way a blade lays out its table: the lead keeps its line and the table takes
+             the rest, scrolling its own body. VcDataTable fills 100% of its container, so as a block
+             under the lead it ran past the popup and made the popup scroll as well. -->
+        <div class="tw-w-full tw-flex tw-flex-col tw-min-h-0">
+        <p class="tw-mb-3 tw-shrink-0 tw-text-sm tw-text-[color:var(--neutrals-600)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", preview?.totalCount ?? 0) }}
         </p>
         <VcLoading v-if="loadingPage" active />
@@ -183,14 +186,16 @@
         <p v-else-if="!previewRows.length" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
         </p>
-        <!-- The table scrolls its own body. Wrapped in a scrolling block instead, the vertical
-             scrollbar took its width from columns already laid out, and pushed them sideways.
-             The widths are proportions: the table spreads them over whatever width it has. -->
-        <VcDataTable v-else :items="previewRows" :total-count="previewRows.length" scroll-height="400px">
-          <VcColumn id="name" field="name" :width="280" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
-          <VcColumn id="email" field="email" :width="320" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
-          <VcColumn id="login" field="login" :width="200" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN')" />
-        </VcDataTable>
+        <!-- The table's height is 100% of its container, so it gets a container of its own, sized to
+             what is left under the lead — the blade gives it one the same way. The widths are
+             proportions: the table spreads them over whatever width it has. -->
+        <div v-else class="tw-flex tw-flex-1 tw-min-h-0">
+          <VcDataTable :items="previewRows" :total-count="previewRows.length">
+            <VcColumn id="name" field="name" :width="280" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
+            <VcColumn id="email" field="email" :width="320" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
+            <VcColumn id="login" field="login" :width="200" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN')" />
+          </VcDataTable>
+        </div>
         </div>
       </template>
       <template #footer="{ close }">

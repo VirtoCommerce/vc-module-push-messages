@@ -288,19 +288,40 @@ function valueControl(row: ConditionRow, index: number) {
  */
 const optionLoaders = new Map<number, QueryField["load"]>();
 
+/**
+ * Every choice a reference list has shown, by field and id. The select is rebuilt each time its list
+ * closes, and a new one starts out holding bare ids; answering its "what are these called" from here
+ * lets it show names at once, where a round trip would show the ids until the reply came.
+ */
+const knownOptions = new Map<string, { id?: string; name?: string }>();
+
 function optionsFor(index: number): QueryField["load"] {
   let loader = optionLoaders.get(index);
 
   if (!loader) {
     loader = async (keyword?: string, skip?: number, ids?: string[]) => {
       const row = rows.value[index];
-      const load = row ? fieldOf(row).load : undefined;
+      const field = row ? fieldOf(row) : undefined;
 
-      if (!row || !load) {
+      if (!row || !field?.load) {
         return { results: [], totalCount: 0 };
       }
 
-      const result = await load(keyword, skip, ids);
+      if (ids?.length) {
+        const known = ids.map((id) => knownOptions.get(`${field.id}:${id}`));
+
+        if (known.every(Boolean)) {
+          return { results: known as { id?: string; name?: string }[], totalCount: known.length };
+        }
+      }
+
+      const result = await field.load(keyword, skip, ids);
+
+      for (const option of result.results ?? []) {
+        if (option.id) {
+          knownOptions.set(`${field.id}:${option.id}`, option);
+        }
+      }
 
       // Asking by id is the select resolving what it already holds; those must come back.
       if (ids?.length) {
