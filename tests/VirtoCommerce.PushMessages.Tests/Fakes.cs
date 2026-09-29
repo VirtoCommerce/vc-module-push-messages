@@ -7,6 +7,8 @@ using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
+using VirtoCommerce.SearchModule.Core.Model;
+using VirtoCommerce.SearchModule.Core.Services;
 using GeneralSettings = VirtoCommerce.PushMessages.Core.ModuleConstants.Settings.General;
 
 namespace VirtoCommerce.PushMessages.Tests;
@@ -159,6 +161,29 @@ internal sealed class FakeMemberSearchService : IMemberSearchService
     public Task<IList<Member>> SearchAllAsync(MembersSearchCriteria criteria)
     {
         return Task.FromResult<IList<Member>>([]);
+    }
+}
+
+/// <summary>
+/// Reads every phrase as a keyword, except the ones named unreadable: those come back empty, the
+/// way the platform parser returns a phrase it hit a syntax error in.
+/// </summary>
+internal sealed class FakeSearchPhraseParser : ISearchPhraseParser
+{
+    private readonly ISet<string> _unreadable;
+
+    public FakeSearchPhraseParser(params string[] unreadable)
+    {
+        _unreadable = new HashSet<string>(unreadable);
+    }
+
+    public SearchPhraseParseResult Parse(string input)
+    {
+        return new SearchPhraseParseResult
+        {
+            Keyword = _unreadable.Contains(input) ? string.Empty : input,
+            Filters = [],
+        };
     }
 }
 

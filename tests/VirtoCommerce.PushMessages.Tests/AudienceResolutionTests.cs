@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -191,15 +192,32 @@ public class AudienceResolutionTests
         Assert.Equal(listed.ExtraLogins, counted.ExtraLogins);
     }
 
+    [Theory]
+    [InlineData("emails:\"a")]
+    [InlineData("(")]
+    public async Task UnreadableQuery_IsRejected_NotResolvedToEveryone_VCST5944(string query)
+    {
+        // The member search would match every member for a phrase that parses to nothing.
+        var service = NewService(
+            membersByKeyword: new Dictionary<string, IList<Member>> { [query] = [NewContact("c1", loginCount: 1)] },
+            unreadableQueries: query);
+
+        var criteria = new PushMessageAudienceCriteria { MemberQuery = query, Take = int.MaxValue };
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.ResolveAsync(criteria));
+    }
+
     private static PushMessageAudienceService NewService(
         IDictionary<string, Member> members = null,
         IDictionary<string, IList<Member>> childrenByParentId = null,
-        IDictionary<string, IList<Member>> membersByKeyword = null)
+        IDictionary<string, IList<Member>> membersByKeyword = null,
+        params string[] unreadableQueries)
     {
         return new PushMessageAudienceService(
             new FakeSettingsManager(),
             new FakeMemberService(members ?? new Dictionary<string, Member>()),
-            new FakeMemberSearchService(childrenByParentId, membersByKeyword));
+            new FakeMemberSearchService(childrenByParentId, membersByKeyword),
+            new FakeSearchPhraseParser(unreadableQueries));
     }
 
     private static Contact NewContact(string id, int loginCount)

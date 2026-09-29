@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -41,8 +42,15 @@ public class PushMessageController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<PushMessageAudienceResult>> PreviewRecipients([FromBody] PushMessageAudienceCriteria criteria)
     {
-        var result = await _audienceService.ResolveAsync(criteria);
-        return Ok(result);
+        try
+        {
+            var result = await _audienceService.ResolveAsync(criteria);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost("search")]

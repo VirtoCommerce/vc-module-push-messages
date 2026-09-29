@@ -11,6 +11,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
 using VirtoCommerce.PushMessages.Data.Extensions;
+using VirtoCommerce.SearchModule.Core.Services;
 using GeneralSettings = VirtoCommerce.PushMessages.Core.ModuleConstants.Settings.General;
 
 namespace VirtoCommerce.PushMessages.Data.Services;
@@ -20,15 +21,18 @@ public class PushMessageAudienceService : IPushMessageAudienceService
     private readonly ISettingsManager _settingsManager;
     private readonly IMemberService _memberService;
     private readonly IMemberSearchService _memberSearchService;
+    private readonly ISearchPhraseParser _searchPhraseParser;
 
     public PushMessageAudienceService(
         ISettingsManager settingsManager,
         IMemberService memberService,
-        IMemberSearchService memberSearchService)
+        IMemberSearchService memberSearchService,
+        ISearchPhraseParser searchPhraseParser)
     {
         _settingsManager = settingsManager;
         _memberService = memberService;
         _memberSearchService = memberSearchService;
+        _searchPhraseParser = searchPhraseParser;
     }
 
     public virtual async Task<PushMessageAudienceResult> ResolveAsync(
@@ -36,6 +40,8 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         string messageId = null,
         ISet<string> excludedUserIds = null)
     {
+        EnsureQueryParses(criteria.MemberQuery);
+
         var result = AbstractTypeFactory<PushMessageAudienceResult>.TryCreateInstance();
         // Counting needs the whole walk, but building a recipient per login does not: the
         // estimate asks for counters alone on every keystroke.
@@ -129,6 +135,26 @@ public class PushMessageAudienceService : IPushMessageAudienceService
                     people++;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// The phrase parser only logs a syntax error: a phrase it cannot read — an unbalanced quote,
+    /// a stray bracket — comes back with no keyword and no filters, and the member search then
+    /// matches everyone. That must not be reported as an audience, and must never be sent to.
+    /// </summary>
+    protected virtual void EnsureQueryParses(string memberQuery)
+    {
+        if (string.IsNullOrWhiteSpace(memberQuery))
+        {
+            return;
+        }
+
+        var parsed = _searchPhraseParser.Parse(memberQuery);
+
+        if (string.IsNullOrWhiteSpace(parsed.Keyword) && parsed.Filters.IsNullOrEmpty())
+        {
+            throw new ArgumentException($"The member query \"{memberQuery}\" cannot be parsed.", nameof(memberQuery));
         }
     }
 
