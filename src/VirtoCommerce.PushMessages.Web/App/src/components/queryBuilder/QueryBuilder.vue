@@ -224,7 +224,7 @@ const canCombine = computed(
   () => combineDuplicateFields(rows.value, props.fields).length < rows.value.length,
 );
 
-const problems = computed(() => rows.value.some((row) => (row.value ? validateRow(row) : null)));
+const problems = computed(() => rows.value.some((row) => rowError(row)));
 
 function fieldOf(row: ConditionRow): QueryField {
   return props.fields.find((field) => field.id === row.field) ?? props.fields[0];
@@ -355,8 +355,12 @@ function controlValue(row: ConditionRow): string | string[] {
   return row.operator === "anyOf" ? value.split(",").filter(Boolean) : value;
 }
 
+/**
+ * A lone blank row is nothing built yet. A blank row beside others is a condition the author added
+ * and has not finished — the phrase leaves it out, so it must hold the audience back, not vanish.
+ */
 function rowError(row: ConditionRow): string | null {
-  return row.value ? validateRow(row) : null;
+  return row.value || rows.value.length > 1 ? validateRow(row) : null;
 }
 
 function onFieldChange(row: ConditionRow) {
@@ -508,13 +512,13 @@ watch(
 watch(
   [rows, join, refNames],
   () => {
-    if (applying) {
-      return;
+    // Reading a phrase in is not an edit, so the phrase is not echoed back — but the host still
+    // needs to be told what the conditions it handed in say.
+    if (!applying) {
+      emitted = buildPhrase(rows.value, join.value);
+      emit("update:query", emitted);
     }
 
-    emitted = buildPhrase(rows.value, join.value);
-
-    emit("update:query", emitted);
     emit("update:invalid", problems.value);
     emit("update:description", description.value);
   },
