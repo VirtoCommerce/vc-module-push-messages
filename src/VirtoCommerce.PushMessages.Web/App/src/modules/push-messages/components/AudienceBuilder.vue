@@ -94,6 +94,20 @@
       :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PLACEHOLDER')"
       :hint="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.HINT')"
     >
+      <!-- Names repeat: the kind and the email are what tell two options apart before one is picked. -->
+      <template #option="{ opt }">
+        <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+          <VcStatus class="tw-shrink-0" :variant="isCompany(opt) ? 'primary' : 'info'">
+            {{ isCompany(opt)
+              ? $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COMPANY')
+              : $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PERSON') }}
+          </VcStatus>
+          <span class="tw-min-w-0 tw-truncate">{{ opt.name }}</span>
+          <span v-if="opt.emails?.[0]" class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]">
+            {{ opt.emails[0] }}
+          </span>
+        </span>
+      </template>
       <template #selected-item="{ opt, index, removeAtIndex }">
         <!-- A long name gives way first: the kind, the count and the remove button always stay whole. -->
         <span
