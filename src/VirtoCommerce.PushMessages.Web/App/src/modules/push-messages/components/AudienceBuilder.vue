@@ -182,7 +182,7 @@
         <p class="tw-mb-3 tw-shrink-0 tw-text-sm tw-text-[color:var(--neutrals-600)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", preview?.totalCount ?? 0) }}
         </p>
-        <VcLoading v-if="loadingPage" active />
+        <VcLoading v-if="loadingPage && !previewRows.length" active />
         <p v-else-if="previewFailed" class="tw-text-sm tw-text-[color:var(--danger-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_FAILED") }}
         </p>
@@ -190,7 +190,13 @@
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
         </p>
         <div v-else class="tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
-          <VcDataTable :items="previewRows" :total-count="previewRows.length">
+          <VcDataTable
+            :items="previewRows"
+            :loading="loadingPage"
+            :total-count="previewPagination.totalCount"
+            :pagination="previewPagination"
+            @pagination-click="previewPagination.goToPage"
+          >
             <VcColumn id="name" field="name" :width="280" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
             <VcColumn id="email" field="email" :width="320" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
             <VcColumn id="login" field="login" :width="200" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN')" />
@@ -239,7 +245,7 @@
 import { computed, nextTick, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient } from "@vc-shell/framework";
+import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient, useDataTablePagination } from "@vc-shell/framework";
 import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
 
 // Member is referenced by the @vue-generic annotations on the pickers.
@@ -282,6 +288,11 @@ interface PreviewRow {
 }
 
 const previewRows = ref<PreviewRow[]>([]);
+const previewTotal = ref(0);
+const previewPagination = useDataTablePagination({
+  totalCount: previewTotal,
+  onPageChange: ({ skip }) => loadPreviewPage(skip),
+});
 /** Names of the picked members, so the summary can spell them out. */
 const pickedMembers = ref<Member[]>([]);
 
@@ -585,13 +596,21 @@ const summaryParts = computed<DescriptionPart[]>(() => {
   return parts;
 });
 
-async function openPreview() {
+function openPreview() {
   showPreview.value = true;
+  previewRows.value = [];
+  previewPagination.reset();
+  loadPreviewPage(0);
+}
+
+async function loadPreviewPage(skip: number) {
   loadingPage.value = true;
   previewFailed.value = false;
   try {
-    const page = await fetchPage({ memberQuery: emittedQuery, memberIds: emittedIds });
+    const page = await fetchPage({ memberQuery: emittedQuery, memberIds: emittedIds }, skip, previewPagination.pageSize);
     const recipients = page.results ?? [];
+
+    previewTotal.value = page.totalCount ?? 0;
 
     // The recipient row carries the name and login; the email lives on the member.
     const ids = [...new Set(recipients.map((r) => r.memberId).filter(Boolean))] as string[];

@@ -21,7 +21,7 @@ export interface IUseAudiencePreview {
   refresh: (payload?: AudiencePreviewPayload) => Promise<void>;
   countFor: (memberId: string) => Promise<number>;
   /** A page of the resolved recipients, for looking before sending. */
-  fetchPage: (payload: AudiencePreviewPayload, take?: number) => Promise<PushMessageAudienceResult>;
+  fetchPage: (payload: AudiencePreviewPayload, skip: number, take: number) => Promise<PushMessageAudienceResult>;
   loading: Readonly<Ref<boolean>>;
 }
 
@@ -66,8 +66,8 @@ export function useAudiencePreview(): IUseAudiencePreview {
     }
   });
 
-  function fetchPage(payload: AudiencePreviewPayload, take = 50): Promise<PushMessageAudienceResult> {
-    return request(payload.memberQuery, payload.memberIds, take);
+  function fetchPage(payload: AudiencePreviewPayload, skip: number, take: number): Promise<PushMessageAudienceResult> {
+    return request(payload.memberQuery, payload.memberIds, take, skip);
   }
 
   async function countFor(memberId: string): Promise<number> {
@@ -76,13 +76,13 @@ export function useAudiencePreview(): IUseAudiencePreview {
     return result.totalCount ?? 0;
   }
 
-  async function request(memberQuery?: string, memberIds?: string[], take = 0): Promise<PushMessageAudienceResult> {
+  async function request(memberQuery?: string, memberIds?: string[], take = 0, skip = 0): Promise<PushMessageAudienceResult> {
     const apiClient = await getApiClient();
 
     return apiClient.previewRecipients({
       memberQuery,
       memberIds,
-      skip: 0,
+      skip,
       take,
     } as PushMessageAudienceCriteria);
   }

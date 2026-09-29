@@ -125,6 +125,16 @@ describe("useAudiencePreview", () => {
     expect(preview.value?.totalCount).toBe(4);
   });
 
+  it("asks for the page the preview table is on", async () => {
+    previewRecipients.mockResolvedValue({ totalCount: 129, results: [] });
+
+    const { fetchPage } = useAudiencePreview();
+
+    await fetchPage({ memberQuery: "membertype:Contact" }, 40, 20);
+
+    expect(previewRecipients).toHaveBeenCalledWith(expect.objectContaining({ memberQuery: "membertype:Contact", skip: 40, take: 20 }));
+  });
+
   it("reads a missing total as zero", async () => {
     previewRecipients.mockResolvedValue({});
 
