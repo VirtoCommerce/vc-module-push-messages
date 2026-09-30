@@ -111,6 +111,7 @@
             "BACK_TO_CONDITIONS": "Back to conditions",
             "RECIPIENTS_PICKER": {
               "LABEL": "Add specific recipients (people or whole companies)",
+              "LABEL_ALSO": "Also add specific recipients (people or whole companies)",
               "PLACEHOLDER": "Add a person or company...",
               "HINT": "Adding a company includes everyone in it, and in the companies under it.",
               "COMPANY": "Company",

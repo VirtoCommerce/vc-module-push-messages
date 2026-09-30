@@ -90,7 +90,7 @@
       option-label="name"
       :options="loadMembers"
       :disabled="disabled"
-      :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.LABEL')"
+      :label="$t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.${mode === 'list' ? 'LABEL' : 'LABEL_ALSO'}`)"
       :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PLACEHOLDER')"
       :hint="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.HINT')"
     >
@@ -139,11 +139,12 @@
     </VcHint>
 
     <!-- Estimate -->
-    <div class="tw-border tw-border-[color:var(--primary-300)] tw-rounded tw-p-4 tw-space-y-3">
+    <!-- relative: the loading overlay is absolute and covers its nearest positioned ancestor. -->
+    <div class="tw-relative tw-border tw-border-[color:var(--primary-300)] tw-rounded tw-p-4 tw-space-y-3">
+      <VcLoading :active="loadingPreview" class="tw-inset-0 tw-rounded" />
       <div class="tw-flex tw-items-baseline tw-gap-2">
         <span class="tw-text-3xl tw-font-semibold">{{ estimateFailed ? "—" : preview?.totalCount ?? 0 }}</span>
         <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.RECIPIENTS", preview?.totalCount ?? 0) }}</span>
-        <VcLoading v-if="loadingPreview" active class="tw-ml-2" />
       </div>
 
       <VcHint v-if="estimateFailed" class="tw-text-[color:var(--danger-500)]">
