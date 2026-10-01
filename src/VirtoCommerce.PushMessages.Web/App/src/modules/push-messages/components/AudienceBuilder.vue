@@ -511,7 +511,8 @@ async function loadRoles(keyword?: string, skip?: number, ids?: string[]): Promi
     take: 200,
   } as RoleSearchCriteria);
 
-  const roles = result.results ?? [];
+  // The roles endpoint does not sort; the list reads alphabetically like the companies beside it.
+  const roles = (result.results ?? []).sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
   const matched = ids?.length ? roles.filter((role) => role.id && ids.includes(role.id)) : roles;
   const from = skip || 0;
 

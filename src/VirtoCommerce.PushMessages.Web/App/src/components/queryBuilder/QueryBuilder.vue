@@ -63,7 +63,7 @@
             option-value="id"
             option-label="label"
             class="tw-w-1/3"
-            :options="fields"
+            :options="sortedFields"
             :disabled="disabled"
             @update:model-value="onFieldChange(row)"
           />
@@ -79,7 +79,7 @@
           />
           <component
             :is="valueControl(row, index).is"
-            :key="`${fieldOf(row).type}:${listGeneration[index] ?? 0}`"
+            :key="`${fieldOf(row).id}:${listGeneration[index] ?? 0}`"
             v-bind="valueControl(row, index).props"
             class="tw-flex-1"
             :model-value="controlValue(row)"
@@ -193,7 +193,25 @@ const emit = defineEmits<{
   starter: [value: QueryStarter];
 }>();
 
-const { t } = useI18n({ useScope: "global" });
+const { t, locale } = useI18n({ useScope: "global" });
+
+/**
+ * Lists read alphabetically in the author's language. Only what is shown is sorted: the host's
+ * order of fields still decides which one a new row starts on.
+ */
+const collator = computed(() => new Intl.Collator(locale.value, { sensitivity: "base" }));
+
+const sortedFields = computed(() => [...props.fields].sort((a, b) => collator.value.compare(a.label, b.label)));
+
+/** Fixed choices per field, sorted once — a new array on every render would read as new options. */
+const sortedOptions = computed(
+  () =>
+    new Map(
+      props.fields
+        .filter((field) => field.options)
+        .map((field) => [field.id, [...(field.options ?? [])].sort(collator.value.compare)]),
+    ),
+);
 
 const JOINS: ConditionJoin[] = ["all", "any"];
 
@@ -274,7 +292,7 @@ function valueControl(row: ConditionRow, index: number) {
   }
 
   if (field.options) {
-    return { is: VcSelect, props: { emitValue: true, options: field.options } };
+    return { is: VcSelect, props: { emitValue: true, options: sortedOptions.value.get(field.id) } };
   }
 
   return { is: VcInput, props: {} };
