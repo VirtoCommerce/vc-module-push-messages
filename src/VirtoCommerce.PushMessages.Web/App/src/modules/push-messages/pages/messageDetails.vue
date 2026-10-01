@@ -2,10 +2,14 @@
   <VcBlade
     :loading="loading"
     :title="bladeTitle"
-    width="50%"
+    width="70%"
     :toolbar-items="toolbarItems"
   >
-    <VcForm>
+    <VcHint v-if="missing" class="tw-p-6">
+      {{ $t("PUSH_MESSAGES.PAGES.DETAILS.MISSING") }}
+    </VcHint>
+
+    <VcForm v-else>
       <div class="tw-p-6 tw-space-y-6">
         <!-- Short Message Field -->
         <Field
@@ -28,58 +32,12 @@
           />
         </Field>
 
-        <!-- Member Selection - Show either IDs or Query -->
-        <!-- @vue-generic {string[], Member, MemberSearchResult}-->
-        <VcSelect
-          v-if="showMemberIds"
-          v-model="item.memberIds"
-          emit-value
-          searchable
-          multiple
-          option-value="id"
-          option-label="name"
-          :options="loadMembers"
-          :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_IDS.LABEL')"
-          :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_IDS.PLACEHOLDER')"
+        <AudienceBuilder
+          v-model:member-query="item.memberQuery"
+          v-model:member-ids="item.memberIds"
+          v-model:invalid="audienceInvalid"
           :disabled="isReadOnly"
         />
-
-        <Field
-          v-if="showMemberQuery"
-          v-slot="{ errorMessage, handleChange, errors }"
-          name="memberQuery"
-          :model-value="item.memberQuery"
-          :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_QUERY.LABEL')"
-          rules="max:1024"
-        >
-          <VcInput
-            v-model="item.memberQuery"
-            type="text"
-            :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.MEMBER_QUERY.PLACEHOLDER')"
-            :disabled="isReadOnly"
-            :error="errors.length > 0"
-            :error-message="errorMessage"
-            @update:model-value="handleChange"
-          >
-            <template #append>
-              <VcButton
-                icon="lucide-calculator"
-                variant="secondary"
-                size="sm"
-                :loading="countingMembers"
-                @click="countMembers"
-              >
-                {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.COUNT.LABEL") }}
-              </VcButton>
-            </template>
-            <template #append-inner>
-              <VcField
-                variant="text"
-                :model-value="memberCount"
-              />
-            </template>
-          </VcInput>
-        </Field>
 
         <!-- Track New Recipients -->
         <VcSwitch
@@ -101,6 +59,7 @@
             type="text"
             :disabled="isReadOnly"
             :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TOPIC.LABEL')"
+            :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.TOPIC.PLACEHOLDER')"
             :error="errors.length > 0"
             :error-message="errorMessage"
             @update:model-value="handleChange"
@@ -120,17 +79,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBlade, useBladeForm, IBladeToolbar, usePopup } from "@vc-shell/framework";
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Member, MemberSearchResult } from "../../../api_client/virtocommerce.customer";
+import { AudienceBuilder } from "../components";
 import { Field } from "vee-validate";
 
-import { VcBlade, VcButton, VcEditor, VcField, VcForm, VcInput, VcSelect, VcSwitch } from "@vc-shell/framework/ui";
+import { VcBlade, VcEditor, VcForm, VcHint, VcInput, VcSwitch } from "@vc-shell/framework/ui";
 defineBlade({
   name: "PushMessageDetails",
   url: "/details",
@@ -141,10 +99,13 @@ const { param, options, callParent, closeSelf } = useBlade<{ sourceMessage?: Pus
 const { showConfirmation } = usePopup();
 
 // Initialize composable
-const { item, loading, showMemberIds, showMemberQuery, memberCount, loadMessage, saveMessage, deleteMessage, loadMembers, countMembers, countingMembers } = useMessageDetails({
+const { item, loading, loadMessage, saveMessage, deleteMessage } = useMessageDetails({
   id: param.value,
   sourceMessage: options.value?.sourceMessage,
 });
+
+/** The audience rows are outside vee-validate, so the form asks the builder directly. */
+const audienceInvalid = ref(false);
 
 const { canSave, setBaseline, formMeta } = useBladeForm({
   data: item,
@@ -165,6 +126,9 @@ const isEditable = computed(() => {
   return !param.value || (item.value != null && item.value.status !== "Sent");
 });
 
+/** A link can outlive the message it points at; there is nothing to edit then. */
+const missing = computed(() => !!param.value && !loading.value && !item.value?.id);
+
 const bladeTitle = computed(() => {
   return !param.value ? "New push message" : "Push message details";
 });
@@ -175,7 +139,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "save",
     icon: "lucide-save",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE"),
-    disabled: !canSave.value,
+    disabled: !canSave.value || audienceInvalid.value,
     clickHandler: async () => {
       await handleSave();
     },
@@ -184,7 +148,11 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "saveAndPublish",
     icon: "lucide-send",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE_AND_PUBLISH"),
-    disabled: !formMeta.value.valid || item.value == null || (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
+    disabled:
+      !formMeta.value.valid ||
+      audienceInvalid.value ||
+      item.value == null ||
+      (!item.value.memberQuery && (!item.value.memberIds || item.value.memberIds.length == 0)),
     isVisible: isEditable.value && item.value != null && item.value.status !== "Scheduled",
     clickHandler: async () => {
       const status = item.value?.startDate ? "Scheduled" : "Sent";

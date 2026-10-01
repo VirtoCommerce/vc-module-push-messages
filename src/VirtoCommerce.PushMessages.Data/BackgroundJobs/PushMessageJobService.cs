@@ -1,19 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
-using VirtoCommerce.CustomerModule.Core.Model;
-using VirtoCommerce.CustomerModule.Core.Model.Search;
-using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Extensions;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
-using VirtoCommerce.PushMessages.Data.Extensions;
 using GeneralSettings = VirtoCommerce.PushMessages.Core.ModuleConstants.Settings.General;
 
 namespace VirtoCommerce.PushMessages.Data.BackgroundJobs;
@@ -25,8 +19,7 @@ public class PushMessageJobService : IPushMessageJobService
     private readonly IPushMessageSearchService _messageSearchService;
     private readonly IPushMessageRecipientService _recipientService;
     private readonly IPushMessageRecipientSearchService _recipientSearchService;
-    private readonly IMemberService _memberService;
-    private readonly IMemberSearchService _memberSearchService;
+    private readonly IPushMessageAudienceService _audienceService;
 
     public PushMessageJobService(
         ISettingsManager settingsManager,
@@ -34,16 +27,14 @@ public class PushMessageJobService : IPushMessageJobService
         IPushMessageSearchService messageSearchService,
         IPushMessageRecipientService recipientService,
         IPushMessageRecipientSearchService recipientSearchService,
-        IMemberService memberService,
-        IMemberSearchService memberSearchService)
+        IPushMessageAudienceService audienceService)
     {
         _settingsManager = settingsManager;
         _messageService = messageService;
         _messageSearchService = messageSearchService;
         _recipientService = recipientService;
         _recipientSearchService = recipientSearchService;
-        _memberService = memberService;
-        _memberSearchService = memberSearchService;
+        _audienceService = audienceService;
     }
 
     public void EnqueueAddRecipients(IList<string> messageIds = null)
@@ -114,11 +105,18 @@ public class PushMessageJobService : IPushMessageJobService
     private async Task AddRecipients(PushMessage message)
     {
         var oldUserIds = await GetExistingRecipientUserIds(message.Id);
-        var recipients = await GetNewRecipients(message, oldUserIds);
 
-        if (recipients.Count > 0)
+        var criteria = AbstractTypeFactory<PushMessageAudienceCriteria>.TryCreateInstance();
+        criteria.MemberQuery = message.MemberQuery;
+        criteria.MemberIds = message.MemberIds;
+        // The job saves every recipient, so it never pages.
+        criteria.Take = int.MaxValue;
+
+        var audience = await _audienceService.ResolveAsync(criteria, message.Id, oldUserIds);
+
+        if (audience.Results.Count > 0)
         {
-            await _recipientService.SaveChangesAsync(recipients);
+            await _recipientService.SaveChangesAsync(audience.Results);
         }
     }
 
@@ -137,85 +135,6 @@ public class PushMessageJobService : IPushMessageJobService
         }
 
         return userIds;
-    }
-
-    private async Task<IList<PushMessageRecipient>> GetNewRecipients(PushMessage message, HashSet<string> userIds)
-    {
-        var recipients = new List<PushMessageRecipient>();
-        var memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
-        searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
-        searchCriteria.Take = await GetBatchSize();
-        var queue = new Queue<Member>();
-
-        if (!message.MemberIds.IsNullOrEmpty())
-        {
-            var members = await _memberService.GetByIdsAsync(message.MemberIds.ToArray(), searchCriteria.ResponseGroup);
-            members.Apply(EnqueueMember);
-        }
-
-        if (!string.IsNullOrEmpty(message.MemberQuery))
-        {
-            await EnqueueMembers(keyword: message.MemberQuery);
-        }
-
-        while (queue.TryDequeue(out var member))
-        {
-            if (member is IHasSecurityAccounts hasSecurityAccounts)
-            {
-                foreach (var user in hasSecurityAccounts.SecurityAccounts)
-                {
-                    AddRecipient(member, user);
-                }
-            }
-            else
-            {
-                await EnqueueMembers(memberId: member.Id);
-            }
-        }
-
-        return recipients;
-
-        async Task EnqueueMembers(string keyword = null, string memberId = null)
-        {
-            searchCriteria.Keyword = keyword;
-            searchCriteria.MemberId = memberId;
-            searchCriteria.DeepSearch = !string.IsNullOrEmpty(keyword);
-
-            await foreach (var searchResult in _memberSearchService.SearchBatchesAsync(searchCriteria))
-            {
-                searchResult.Results.Apply(EnqueueMember);
-            }
-        }
-
-        void EnqueueMember(Member member)
-        {
-            if (memberIds.Add(member.Id))
-            {
-                queue.Enqueue(member);
-            }
-        }
-
-        void AddRecipient(Member member, ApplicationUser user)
-        {
-            if (userIds.Add(user.Id))
-            {
-                recipients.Add(GetRecipient(message, member, user));
-            }
-        }
-    }
-
-    private static PushMessageRecipient GetRecipient(PushMessage message, Member member, ApplicationUser user)
-    {
-        var recipient = AbstractTypeFactory<PushMessageRecipient>.TryCreateInstance();
-        recipient.MessageId = message.Id;
-        recipient.MemberId = member.Id;
-        recipient.MemberName = member.Name;
-        recipient.UserId = user.Id;
-        recipient.UserName = user.UserName;
-
-        return recipient;
     }
 
     private Task<int> GetBatchSize()

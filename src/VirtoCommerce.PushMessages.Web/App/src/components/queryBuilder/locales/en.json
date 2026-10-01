@@ -1,0 +1,34 @@
+{
+  "QUERY_BUILDER": {
+    "STARTERS": "Start from a common audience",
+    "MATCH": "Match",
+    "ALL": "ALL",
+    "ANY": "ANY",
+    "OF_THESE_CONDITIONS": "of these conditions",
+    "AND": "and",
+    "OR": "or",
+    "JOINER": {
+      "AND": "AND",
+      "OR": "OR"
+    },
+    "ADD_CONDITION": "Add condition",
+    "EDIT_AS_QUERY": "Edit as query",
+    "CONTRADICTION": "Two conditions on the same field can never both be true — switch to ANY, or combine them.",
+    "COMBINE": "Combine into one condition",
+    "OPERATORS": {
+      "IS": "is",
+      "IS_NOT": "is not",
+      "ANY_OF": "is any of",
+      "STARTS_WITH": "starts with",
+      "ENDS_WITH": "ends with",
+      "CONTAINS": "contains",
+      "ON_OR_AFTER": "on or after",
+      "ON_OR_BEFORE": "on or before"
+    },
+    "VALIDATION": {
+      "INCOMPLETE": "Pick a field and an operator for every condition.",
+      "VALUE_REQUIRED": "This condition has no value.",
+      "WILDCARD_SINGLE_VALUE": "This operator takes a single value."
+    }
+  }
+}

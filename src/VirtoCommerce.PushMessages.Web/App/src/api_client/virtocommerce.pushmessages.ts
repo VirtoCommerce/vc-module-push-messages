@@ -127,6 +127,62 @@ export class PushMessageClient extends AuthApiBase {
    * @param body (optional)
    * @return OK
    */
+  previewRecipients(body?: PushMessageAudienceCriteria | undefined): Promise<PushMessageAudienceResult> {
+    let url_ = this.baseUrl + "/api/push-message/preview-recipients";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json-patch+json",
+        Accept: "application/json",
+      },
+    };
+
+    return this.transformOptions(options_)
+      .then((transformedOptions_) => {
+        return this.http.fetch(url_, transformedOptions_);
+      })
+      .then((_response: Response) => {
+        return this.processPreviewRecipients(_response);
+      });
+  }
+
+  protected processPreviewRecipients(response: Response): Promise<PushMessageAudienceResult> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    }
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        let result200: any = null;
+        result200 = _responseText === "" ? null : (JSON.parse(_responseText, this.jsonParseReviver) as PushMessageAudienceResult);
+        return result200;
+      });
+    } else if (status === 401) {
+      return response.text().then((_responseText) => {
+        return throwException("Unauthorized", status, _responseText, _headers);
+      });
+    } else if (status === 403) {
+      return response.text().then((_responseText) => {
+        return throwException("Forbidden", status, _responseText, _headers);
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+    }
+    return Promise.resolve<PushMessageAudienceResult>(null as any);
+  }
+
+  /**
+   * @param body (optional)
+   * @return OK
+   */
   search(body?: PushMessageSearchCriteria | undefined): Promise<PushMessageSearchResult> {
     let url_ = this.baseUrl + "/api/push-message/search";
     url_ = url_.replace(/[?&]$/, "");
@@ -473,6 +529,23 @@ export interface PushMessage {
   createdBy?: string | undefined;
   modifiedBy?: string | undefined;
   id?: string | undefined;
+}
+
+export interface PushMessageAudienceCriteria {
+  memberQuery?: string | undefined;
+  memberIds?: string[] | undefined;
+  skip?: number;
+  take?: number;
+}
+
+export interface PushMessageAudienceResult {
+  totalCount?: number;
+  membersMatched?: number;
+  companiesExpanded?: number;
+  peopleFromCompanies?: number;
+  peopleInScope?: number;
+  extraLogins?: number;
+  results?: PushMessageRecipient[] | undefined;
 }
 
 export interface PushMessageRecipient {

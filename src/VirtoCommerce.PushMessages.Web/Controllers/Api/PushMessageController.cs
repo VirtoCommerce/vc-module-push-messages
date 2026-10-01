@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,15 +16,18 @@ public class PushMessageController : Controller
     private readonly IPushMessageService _messageService;
     private readonly IPushMessageSearchService _messageSearchService;
     private readonly IPushMessageRecipientSearchService _recipientSearchService;
+    private readonly IPushMessageAudienceService _audienceService;
 
     public PushMessageController(
         IPushMessageService messageService,
         IPushMessageSearchService messageSearchService,
-        IPushMessageRecipientSearchService recipientSearchService)
+        IPushMessageRecipientSearchService recipientSearchService,
+        IPushMessageAudienceService audienceService)
     {
         _messageService = messageService;
         _messageSearchService = messageSearchService;
         _recipientSearchService = recipientSearchService;
+        _audienceService = audienceService;
     }
 
     [HttpPost("search-recipients")]
@@ -32,6 +36,21 @@ public class PushMessageController : Controller
     {
         var result = await _recipientSearchService.SearchNoCloneAsync(criteria);
         return Ok(result);
+    }
+
+    [HttpPost("preview-recipients")]
+    [Authorize(ModuleConstants.Security.Permissions.Read)]
+    public async Task<ActionResult<PushMessageAudienceResult>> PreviewRecipients([FromBody] PushMessageAudienceCriteria criteria)
+    {
+        try
+        {
+            var result = await _audienceService.ResolveAsync(criteria);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost("search")]
