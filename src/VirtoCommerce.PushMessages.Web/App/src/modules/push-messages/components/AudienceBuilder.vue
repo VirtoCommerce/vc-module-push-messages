@@ -234,9 +234,10 @@
         <p class="tw-mb-3 tw-text-sm tw-text-[color:var(--neutrals-600)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_LEAD") }}
         </p>
+        <!-- A query is mostly ids with no spaces, so it breaks anywhere rather than scrolling sideways. -->
         <pre
           v-if="generatedQuery"
-          class="tw-p-3 tw-rounded tw-border tw-border-[color:var(--neutrals-200)] tw-bg-[color:var(--neutrals-50)] tw-text-sm tw-font-mono tw-overflow-x-auto"
+          class="tw-p-3 tw-rounded tw-border tw-border-[color:var(--neutrals-200)] tw-bg-[color:var(--neutrals-50)] tw-text-sm tw-font-mono tw-whitespace-pre-wrap tw-break-all"
         >{{ generatedQuery }}</pre>
         <p v-else class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
           {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_NONE") }}
@@ -250,7 +251,17 @@
         </div>
       </template>
       <template #footer="{ close }">
-        <VcButton variant="secondary" @click="close">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.CLOSE") }}</VcButton>
+        <div class="tw-flex tw-gap-2">
+          <VcButton
+            v-if="generatedQuery && clipboardSupported"
+            variant="primary"
+            :icon="copied ? 'lucide-check' : 'lucide-copy'"
+            @click="copy(generatedQuery)"
+          >
+            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.${copied ? "COPIED" : "COPY"}`) }}
+          </VcButton>
+          <VcButton variant="secondary" @click="close">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.CLOSE") }}</VcButton>
+        </div>
       </template>
     </VcPopup>
   </div>
@@ -258,7 +269,7 @@
 
 <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from "vue";
-import { useDebounceFn } from "@vueuse/core";
+import { useClipboard, useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient, useDataTablePagination } from "@vc-shell/framework";
 import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
@@ -294,6 +305,8 @@ const memberCounts = ref<Record<string, number>>({});
 
 const showPreview = ref(false);
 const showQuery = ref(false);
+// legacy: fall back to execCommand where the page is not a secure context, as on plain-http stands.
+const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true });
 const loadingPage = ref(false);
 const previewFailed = ref(false);
 interface PreviewRow {
