@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Hangfire;
 using VirtoCommerce.CustomerModule.Core.Model;
 using VirtoCommerce.CustomerModule.Core.Model.Search;
 using VirtoCommerce.CustomerModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Jobs;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PushMessages.Core.BackgroundJobs;
@@ -46,20 +47,23 @@ public class PushMessageJobService : IPushMessageJobService
         _memberSearchService = memberSearchService;
     }
 
+    // The static facade, not an injected IBackgroundJob: this service is a singleton, so it must not capture a
+    // Scoped dependency. The enqueue is not awaited because the interface method is synchronous.
     public void EnqueueAddRecipients(IList<string> messageIds = null)
     {
         if (messageIds?.Count > 0)
         {
-            BackgroundJob.Enqueue<PushMessageJobService>(x => x.AddRecipientsJob(messageIds, JobCancellationToken.Null));
+            var payload = AbstractTypeFactory<AddRecipientsJobPayload>.TryCreateInstance();
+            payload.MessageIds = messageIds;
+            _ = BackgroundJob.Enqueue<AddRecipientsJobHandler>(payload);
         }
         else
         {
-            BackgroundJob.Enqueue<PushMessageJobService>(x => x.TrackNewRecipientsRecurringJob(JobCancellationToken.Null));
+            _ = BackgroundJob.Enqueue<TrackNewRecipientsJobHandler>(AbstractTypeFactory<TrackNewRecipientsJobPayload>.TryCreateInstance());
         }
     }
 
-    [DisableConcurrentExecution(10)]
-    public async Task SendScheduledMessagesRecurringJob(IJobCancellationToken cancellationToken)
+    public async Task SendScheduledMessagesRecurringJob(CancellationToken cancellationToken)
     {
         var searchCriteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
         searchCriteria.Statuses = [PushMessageStatus.Scheduled];
@@ -76,8 +80,7 @@ public class PushMessageJobService : IPushMessageJobService
         });
     }
 
-    [DisableConcurrentExecution(10)]
-    public async Task TrackNewRecipientsRecurringJob(IJobCancellationToken cancellationToken)
+    public async Task TrackNewRecipientsRecurringJob(CancellationToken cancellationToken)
     {
         var searchCriteria = AbstractTypeFactory<PushMessageSearchCriteria>.TryCreateInstance();
         searchCriteria.Statuses = [PushMessageStatus.Sent];
@@ -97,7 +100,7 @@ public class PushMessageJobService : IPushMessageJobService
         }
     }
 
-    public async Task AddRecipientsJob(IList<string> messageIds, IJobCancellationToken cancellationToken)
+    public async Task AddRecipientsJob(IList<string> messageIds, CancellationToken cancellationToken)
     {
         foreach (var messageId in messageIds)
         {
