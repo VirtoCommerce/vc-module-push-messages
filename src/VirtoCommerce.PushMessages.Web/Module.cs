@@ -19,7 +19,6 @@ using VirtoCommerce.PushMessages.Core.BackgroundJobs;
 using VirtoCommerce.PushMessages.Core.Events;
 using VirtoCommerce.PushMessages.Core.Models;
 using VirtoCommerce.PushMessages.Core.Services;
-using VirtoCommerce.PushMessages.Data.BackgroundJobs;
 using VirtoCommerce.PushMessages.Data.Extensions;
 using VirtoCommerce.PushMessages.Data.Handlers;
 using VirtoCommerce.PushMessages.Data.MySql;
@@ -81,7 +80,7 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddSingleton<MemberChangedEventHandler>();
         serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
 
-        serviceCollection.AddSingleton<IPushMessageJobService, PushMessageJobService>();
+        serviceCollection.AddPushMessageJobs();
 
         // GraphQL
         _ = new GraphQLBuilder(serviceCollection, builder =>
@@ -123,7 +122,6 @@ public class Module : IModule, IHasConfiguration
         appBuilder.RegisterEventHandler<PushMessageRecipientChangedEvent, XapiPushMessageRecipientChangedEventHandler>();
 
         appBuilder.UseFirebaseCloudMessaging(ModuleInfo.Id);
-        appBuilder.UsePushMessageJobs();
     }
 
     public void Uninstall()
