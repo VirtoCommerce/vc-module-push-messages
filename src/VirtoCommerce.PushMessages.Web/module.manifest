@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <module>
   <id>VirtoCommerce.PushMessages</id>
-  <version>3.1006.0</version>
+  <version>3.1008.0</version>
   <version-tag></version-tag>
 
-  <platformVersion>3.1039.0</platformVersion>
+  <platformVersion>3.1076.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Customer" version="3.1011.0" />
-    <dependency id="VirtoCommerce.Xapi" version="3.1015.0" />
+    <dependency id="VirtoCommerce.Customer" version="3.1028.0" />
+    <dependency id="VirtoCommerce.Xapi" version="3.1026.0" />
   </dependencies>
 
   <title>Push Messages</title>
