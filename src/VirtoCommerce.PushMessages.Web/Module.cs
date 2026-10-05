@@ -80,6 +80,8 @@ public class Module : IModule, IHasConfiguration
         serviceCollection.AddSingleton<MemberChangedEventHandler>();
         serviceCollection.AddSingleton<PushMessageChangedEventHandler>();
 
+        serviceCollection.AddTransient<IPushMessageAudienceService, PushMessageAudienceService>();
+
         serviceCollection.AddPushMessageJobs();
 
         // GraphQL

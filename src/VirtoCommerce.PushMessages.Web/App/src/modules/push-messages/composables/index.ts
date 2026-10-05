@@ -6,3 +6,4 @@ export { useSentList } from "./useSentList";
 export { useMessageDetails } from "./useMessageDetails";
 export { useRecipientList } from "./useRecipientList";
 export { useBaseList } from "./useBaseList";
+export { useAudiencePreview } from "./useAudiencePreview";

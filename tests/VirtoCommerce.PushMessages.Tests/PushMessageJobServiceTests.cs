@@ -19,7 +19,7 @@ public class PushMessageJobServiceTests
         BackgroundJob.Initialize(new ServiceCollection().AddScoped<IBackgroundJob>(_ => _backgroundJob).BuildServiceProvider());
 
         // EnqueueAddRecipients only enqueues, so none of the services it would use while running is needed here.
-        _jobService = new PushMessageJobService(null, null, null, null, null, null, null);
+        _jobService = new PushMessageJobService(null, null, null, null, null, null);
     }
 
     [Fact]

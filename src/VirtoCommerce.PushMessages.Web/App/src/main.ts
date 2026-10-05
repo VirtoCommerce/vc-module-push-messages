@@ -2,6 +2,7 @@ import VirtoShellFramework, { notification, useUser, useLanguages } from "@vc-sh
 import { createApp } from "vue";
 import { router } from "./router";
 import * as locales from "./locales";
+import { queryBuilderLocaleEn } from "./components/queryBuilder";
 import { RouterView } from "vue-router";
 import DynamicModule from "./modules/push-messages";
 import { bootstrap } from "./bootstrap";
@@ -32,6 +33,9 @@ async function startApp() {
   Object.entries(locales).forEach(([key, message]) => {
     app.config.globalProperties.$mergeLocaleMessage(key, message);
   });
+
+  // The query builder is not part of this module; it carries its own strings.
+  app.config.globalProperties.$mergeLocaleMessage("en", queryBuilderLocaleEn);
 
   setLocale(currentLocale.value);
 
