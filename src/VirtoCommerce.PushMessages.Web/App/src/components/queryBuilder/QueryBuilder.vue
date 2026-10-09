@@ -524,8 +524,9 @@ watch(
 <style>
 /*
  * Field, operator, value and remove share a line while the condition has room for them. In a
- * narrow blade or on a phone the value takes its own full-width line below: three selects side by
- * side there push the last one past the edge.
+ * narrow blade or on a phone each condition becomes a box of its own: field and operator on one
+ * line, the value below them, and the remove button beside both, so it reads as removing the whole
+ * condition and several conditions do not run into one another.
  */
 .query-row {
   container-type: inline-size;
@@ -541,11 +542,20 @@ watch(
 @container (max-width: 28rem) {
   .query-row__controls {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    padding: 0.75rem;
+    border: 1px solid var(--neutrals-200);
+    border-radius: 0.375rem;
+    background: var(--neutrals-50);
   }
 
   .query-row__controls .query-row__value {
-    grid-column: 1 / -1;
+    grid-column: 1 / 3;
     grid-row: 2;
+  }
+
+  .query-row__controls .query-row__remove {
+    grid-column: 3;
+    grid-row: 1 / 3;
   }
 }
 </style>
