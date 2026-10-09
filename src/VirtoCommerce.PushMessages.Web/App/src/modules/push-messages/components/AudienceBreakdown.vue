@@ -114,6 +114,7 @@
 
     <VcPopup
       v-model="showPreview"
+      class="audience-preview-popup"
       modal-width="tw-w-full tw-max-w-4xl"
       :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_TITLE')"
     >
@@ -335,3 +336,19 @@ async function loadPreviewPage(skip: number) {
   }
 }
 </script>
+
+<style>
+/*
+ * The popup bounds its content with max-height: -webkit-fill-available / -moz-available, and Firefox
+ * does not apply -moz-available to a height: the content then grows with the table and the whole
+ * popup scrolls, header and pagination with it. Stretched to the content area instead — as the popup
+ * itself does when fullscreen — the table gets a bounded height in every browser and scrolls its rows.
+ */
+.audience-preview-popup .vc-popup__content-inner {
+  align-items: stretch;
+}
+
+.audience-preview-popup .vc-popup__content-wrapper {
+  align-self: stretch;
+}
+</style>
