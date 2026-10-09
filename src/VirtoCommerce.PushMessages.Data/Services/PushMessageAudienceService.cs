@@ -62,7 +62,7 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             var members = await _memberService.GetByIdsAsync(criteria.MemberIds.ToArray(), searchCriteria.ResponseGroup);
 
             result.PickedPeople = members.Count(x => x is IHasSecurityAccounts);
-            result.PickedCompanies = members.Count() - result.PickedPeople;
+            result.PickedCompanies = members.Length - result.PickedPeople;
             members.Apply(x => EnqueueMember(x, fromCompany: false));
         }
 
@@ -142,19 +142,17 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         PushMessageAudienceResult result,
         Member member,
         IHasSecurityAccounts person,
-        ISet<string> userIds,
+        HashSet<string> userIds,
         List<PushMessageRecipient> recipients,
         string messageId)
     {
         var added = 0;
 
-        foreach (var user in person.SecurityAccounts)
+        // A login another person already brought in is not taken twice.
+        foreach (var user in person.SecurityAccounts.Where(x => userIds.Add(x.Id)))
         {
-            if (userIds.Add(user.Id))
-            {
-                recipients?.Add(GetRecipient(messageId, member, user));
-                added++;
-            }
+            recipients?.Add(GetRecipient(messageId, member, user));
+            added++;
         }
 
         if (added == 0)
