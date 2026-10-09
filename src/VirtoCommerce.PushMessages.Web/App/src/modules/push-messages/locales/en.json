@@ -123,7 +123,7 @@
             },
             "ESTIMATE": {
               "PREVIEW": "Preview recipients",
-              "SHOW_QUERY": "Show generated query",
+              "SHOW_QUERY": "Show query",
               "PREVIEW_TITLE": "Recipients",
               "PREVIEW_EMPTY": "Nobody matches this audience yet.",
               "QUERY_TITLE": "Generated query",

@@ -164,10 +164,16 @@ let applying = false;
 /** The audience the builder hands over, whichever mode produced it. */
 const generatedQuery = computed(() => audiencePhrase(mode.value, conditionQuery.value, rawQuery.value));
 
+/**
+ * True from the moment the audience changes until its count lands. The request itself only starts
+ * after the debounce, and until then the last count belongs to an audience that has moved on.
+ */
+const pending = ref(false);
+
 const estimate = computed<AudienceEstimate>(() => ({
   result: preview.value,
   failed: estimateFailed.value,
-  loading: loadingPreview.value,
+  loading: loadingPreview.value || pending.value,
 }));
 
 /** Where the recipients come from: "1 condition · 6 companies". */
@@ -324,13 +330,23 @@ watch(
 /** Counts the audience as it stands now, without waiting out the debounce. */
 async function flush() {
   await refresh({ memberQuery: emittedQuery.value, memberIds: emittedIds.value });
+  pending.value = false;
 }
 
 defineExpose({ flush });
 
-const refreshPreview = useDebounceFn((memberQuery?: string, memberIds?: string[]) => {
-  refresh({ memberQuery, memberIds });
+const debouncedRefresh = useDebounceFn(async (memberQuery?: string, memberIds?: string[]) => {
+  try {
+    await refresh({ memberQuery, memberIds });
+  } finally {
+    pending.value = false;
+  }
 }, 400);
+
+function refreshPreview(memberQuery?: string, memberIds?: string[]) {
+  pending.value = true;
+  debouncedRefresh(memberQuery, memberIds);
+}
 
 watch(
   () => [props.memberQuery, props.memberIds] as const,

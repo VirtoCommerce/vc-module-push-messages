@@ -14,6 +14,16 @@
 
     <VcForm v-else>
       <div class="tw-p-6 tw-space-y-6">
+        <AudienceSummaryCard
+          :total="cardTotal"
+          :failed="estimate.failed"
+          :loading="cardLoading"
+          :source-line="sourceLine"
+          :readonly="isReadOnly"
+          :disabled="missing || recipientsOpen"
+          @open="openRecipients"
+        />
+
         <!-- Short Message Field -->
         <Field
           v-slot="{ errorMessage, handleChange, errors }"
@@ -34,16 +44,6 @@
             @update:model-value="handleChange"
           />
         </Field>
-
-        <AudienceSummaryCard
-          :total="cardTotal"
-          :failed="estimate.failed"
-          :loading="estimate.loading"
-          :source-line="sourceLine"
-          :readonly="isReadOnly"
-          :disabled="missing || recipientsOpen"
-          @open="openRecipients"
-        />
 
         <!-- Track New Recipients -->
         <VcSwitch
@@ -155,11 +155,23 @@ const sourceLine = computed(() =>
   ),
 );
 
+/** Until the audience is counted the card shows a loader, never a zero that reads as "nobody". */
+const cardLoading = computed(
+  () => estimate.value.loading || (cardTotal.value === undefined && !estimate.value.failed && !!(item.value?.memberQuery || item.value?.memberIds?.length)),
+);
+
 /** A sent message shows whom it went to; anything else shows the live estimate. */
 const cardTotal = computed(() => (isReadOnly.value ? (item.value?.recipientsTotalCount ?? 0) : estimate.value.result?.totalCount));
 
 async function loadEstimate() {
   childEstimate.value = undefined;
+
+  // A sent message's card shows whom it went to; only picked people and companies still need the
+  // count, for the line under it.
+  if (isReadOnly.value && !item.value?.memberIds?.length) {
+    return;
+  }
+
   await refresh({ memberQuery: item.value?.memberQuery, memberIds: item.value?.memberIds });
   audienceInvalid.value = previewFailed.value;
 }
@@ -201,7 +213,12 @@ function setAudience(payload: SetAudiencePayload) {
   item.value.memberQuery = payload.audience.memberQuery;
   item.value.memberIds = payload.audience.memberIds;
   audienceInvalid.value = payload.invalid;
-  childEstimate.value = payload.estimate;
+  // Until the recipients blade has a count for a non-empty audience, the card keeps its last number
+  // under the loader rather than dropping to nothing.
+  const { audience, estimate: incoming } = payload;
+  const counting = !incoming.result && !incoming.failed && !!(audience.memberQuery || audience.memberIds?.length);
+
+  childEstimate.value = counting ? { ...incoming, loading: true, result: estimate.value.result } : incoming;
 }
 
 exposeToChildren({
@@ -249,6 +266,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     icon: "lucide-copy",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.CLONE"),
     isVisible: !!param.value,
+    disabled: recipientsOpen.value,
     clickHandler: () => {
       callParent("onAddNewMessage", {
         options: {
@@ -262,6 +280,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     icon: "lucide-trash-2",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.DELETE"),
     isVisible: !!param.value && isEditable.value,
+    disabled: recipientsOpen.value,
     clickHandler: async () => {
       if (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE"))) {
         await deleteMessage();

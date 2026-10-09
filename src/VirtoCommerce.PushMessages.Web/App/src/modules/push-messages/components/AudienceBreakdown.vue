@@ -6,16 +6,21 @@
       class="tw-inset-0 tw-rounded"
     />
 
-    <div class="tw-flex tw-items-start tw-justify-between tw-gap-3">
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
       <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
-        <span class="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-bg-[color:var(--primary-50)] tw-text-[color:var(--primary-600)]">
+        <span class="tw-flex tw-h-12 tw-w-12 tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-bg-[color:var(--primary-50)] tw-text-[color:var(--primary-600)]">
           <VcIcon
             icon="lucide-users"
             size="m"
           />
         </span>
         <div class="tw-min-w-0">
-          <div class="tw-text-xl tw-font-semibold">{{ estimate.failed ? "—" : total }} {{ $t(`${P}.RECIPIENTS`, total) }}</div>
+          <div
+            class="tw-text-xl tw-font-semibold"
+            :class="{ 'tw-invisible': estimate.loading && !estimate.result }"
+          >
+            {{ estimate.failed ? "—" : total }} {{ $t(`${P}.RECIPIENTS`, total) }}
+          </div>
           <div class="tw-text-sm tw-text-[color:var(--neutrals-500)]">{{ sourceLine }}</div>
         </div>
       </div>
