@@ -540,11 +540,13 @@ export interface PushMessageAudienceCriteria {
 
 export interface PushMessageAudienceResult {
   totalCount?: number;
-  membersMatched?: number;
-  companiesExpanded?: number;
-  peopleFromCompanies?: number;
+  matchedPeople?: number;
+  foundInCompanies?: number;
+  overlaps?: number;
   peopleInScope?: number;
   extraLogins?: number;
+  pickedPeople?: number;
+  pickedCompanies?: number;
   results?: PushMessageRecipient[] | undefined;
 }
 

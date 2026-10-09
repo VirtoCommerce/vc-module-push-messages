@@ -2,15 +2,28 @@
   <VcBlade
     :loading="loading"
     :title="bladeTitle"
-    width="70%"
+    :width="recipientsOpen ? '50%' : '70%'"
     :toolbar-items="toolbarItems"
   >
-    <VcHint v-if="missing" class="tw-p-6">
+    <VcHint
+      v-if="missing"
+      class="tw-p-6"
+    >
       {{ $t("PUSH_MESSAGES.PAGES.DETAILS.MISSING") }}
     </VcHint>
 
     <VcForm v-else>
       <div class="tw-p-6 tw-space-y-6">
+        <AudienceSummaryCard
+          :total="cardTotal"
+          :failed="estimate.failed"
+          :loading="cardLoading"
+          :source-line="sourceLine"
+          :readonly="isReadOnly"
+          :disabled="missing || recipientsOpen"
+          @open="openRecipients"
+        />
+
         <!-- Short Message Field -->
         <Field
           v-slot="{ errorMessage, handleChange, errors }"
@@ -31,13 +44,6 @@
             @update:model-value="handleChange"
           />
         </Field>
-
-        <AudienceBuilder
-          v-model:member-query="item.memberQuery"
-          v-model:member-ids="item.memberIds"
-          v-model:invalid="audienceInvalid"
-          :disabled="isReadOnly"
-        />
 
         <!-- Track New Recipients -->
         <VcSwitch
@@ -82,10 +88,14 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBlade, useBladeForm, IBladeToolbar, usePopup } from "@vc-shell/framework";
+import { useAudiencePreview } from "../composables/useAudiencePreview";
+import { AudienceSummaryCard } from "../components";
+import { detectAudienceMode } from "../utils/audienceQuery";
+import { conditionCount, formatSourceLine, sourceParts } from "../utils/audienceSummary";
+import { APPLY_AUDIENCE, AudienceEstimate, copyAudience, SelectRecipientsOptions, SET_AUDIENCE, SetAudiencePayload } from "../utils/audienceSync";
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
-import { AudienceBuilder } from "../components";
 import { Field } from "vee-validate";
 
 import { VcBlade, VcEditor, VcForm, VcHint, VcInput, VcSwitch } from "@vc-shell/framework/ui";
@@ -95,7 +105,7 @@ defineBlade({
 });
 
 const { t } = useI18n({ useScope: "global" });
-const { param, options, callParent, closeSelf } = useBlade<{ sourceMessage?: PushMessage }>();
+const { param, options, callParent, closeSelf, openBlade, exposeToChildren } = useBlade<{ sourceMessage?: PushMessage }>();
 const { showConfirmation } = usePopup();
 
 // Initialize composable
@@ -129,6 +139,98 @@ const isEditable = computed(() => {
 /** A link can outlive the message it points at; there is nothing to edit then. */
 const missing = computed(() => !!param.value && !loading.value && !item.value?.id);
 
+const { preview, failed: previewFailed, loading: previewLoading, refresh } = useAudiencePreview();
+
+/** Set by the recipients blade while it is open; otherwise this blade's own estimate stands. */
+const childEstimate = ref<AudienceEstimate>();
+
+const estimate = computed<AudienceEstimate>(() => childEstimate.value ?? { result: preview.value, failed: previewFailed.value, loading: previewLoading.value });
+
+/**
+ * While the recipients blade is open, saving would leave its Cancel snapshot behind; this blade also
+ * gives it half the width, as its own 70% would leave the recipients a sliver on a laptop screen.
+ */
+const recipientsOpen = ref(false);
+
+const sourceLine = computed(() =>
+  formatSourceLine(sourceParts(detectAudienceMode(item.value?.memberQuery, item.value?.memberIds), conditionCount(item.value?.memberQuery), estimate.value.result), (key, n) =>
+    n === undefined ? t(key) : t(key, n),
+  ),
+);
+
+/** Until the audience is counted the card shows a loader, never a zero that reads as "nobody". */
+const cardLoading = computed(
+  () => estimate.value.loading || (cardTotal.value === undefined && !estimate.value.failed && !!(item.value?.memberQuery || item.value?.memberIds?.length)),
+);
+
+/** A sent message shows whom it went to; anything else shows the live estimate. */
+const cardTotal = computed(() => (isReadOnly.value ? (item.value?.recipientsTotalCount ?? 0) : estimate.value.result?.totalCount));
+
+async function loadEstimate() {
+  childEstimate.value = undefined;
+
+  // A sent message's card shows whom it went to; only picked people and companies still need the
+  // count, for the line under it.
+  if (isReadOnly.value && !item.value?.memberIds?.length) {
+    return;
+  }
+
+  await refresh({ memberQuery: item.value?.memberQuery, memberIds: item.value?.memberIds });
+  audienceInvalid.value = previewFailed.value;
+}
+
+/**
+ * The audience as it was when the recipients blade opened. The blade writes its edits straight in,
+ * so this is what comes back unless the author leaves it with Apply.
+ */
+let snapshot: SetAudiencePayload | undefined;
+let applied = false;
+
+function openRecipients() {
+  const audience = { memberQuery: item.value.memberQuery, memberIds: item.value.memberIds };
+
+  snapshot = { audience: copyAudience(audience), invalid: audienceInvalid.value, estimate: estimate.value };
+  applied = false;
+  recipientsOpen.value = true;
+
+  openBlade({
+    name: "PushMessageSelectRecipients",
+    options: {
+      audience: copyAudience(audience),
+      invalid: audienceInvalid.value,
+      estimate: estimate.value,
+      readonly: isReadOnly.value,
+      sentCount: item.value.recipientsTotalCount,
+    } satisfies SelectRecipientsOptions,
+    onClose: () => {
+      recipientsOpen.value = false;
+
+      if (!applied && !isReadOnly.value && snapshot) {
+        setAudience(snapshot);
+      }
+    },
+  });
+}
+
+function setAudience(payload: SetAudiencePayload) {
+  item.value.memberQuery = payload.audience.memberQuery;
+  item.value.memberIds = payload.audience.memberIds;
+  audienceInvalid.value = payload.invalid;
+  // Until the recipients blade has a count for a non-empty audience, the card keeps its last number
+  // under the loader rather than dropping to nothing.
+  const { audience, estimate: incoming } = payload;
+  const counting = !incoming.result && !incoming.failed && !!(audience.memberQuery || audience.memberIds?.length);
+
+  childEstimate.value = counting ? { ...incoming, loading: true, result: estimate.value.result } : incoming;
+}
+
+exposeToChildren({
+  [SET_AUDIENCE]: setAudience,
+  [APPLY_AUDIENCE]: () => {
+    applied = true;
+  },
+});
+
 const bladeTitle = computed(() => {
   return !param.value ? "New push message" : "Push message details";
 });
@@ -139,7 +241,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "save",
     icon: "lucide-save",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE"),
-    disabled: !canSave.value || audienceInvalid.value,
+    disabled: !canSave.value || audienceInvalid.value || recipientsOpen.value,
     clickHandler: async () => {
       await handleSave();
     },
@@ -149,6 +251,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     icon: "lucide-send",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE_AND_PUBLISH"),
     disabled:
+      recipientsOpen.value ||
       !formMeta.value.valid ||
       audienceInvalid.value ||
       item.value == null ||
@@ -166,6 +269,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     icon: "lucide-copy",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.CLONE"),
     isVisible: !!param.value,
+    disabled: recipientsOpen.value,
     clickHandler: () => {
       callParent("onAddNewMessage", {
         options: {
@@ -179,6 +283,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     icon: "lucide-trash-2",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.DELETE"),
     isVisible: !!param.value && isEditable.value,
+    disabled: recipientsOpen.value,
     clickHandler: async () => {
       if (await showConfirmation(t("PUSH_MESSAGES.PAGES.ALERTS.DELETE"))) {
         await deleteMessage();
@@ -214,6 +319,8 @@ watch(
       await loadMessage();
       setBaseline();
       refreshAll();
+      // In the background: counting a large audience must not hold the baseline back.
+      loadEstimate();
     }
   },
 );
@@ -223,6 +330,8 @@ onMounted(async () => {
   await loadMessage();
   setBaseline();
   refreshAll();
+  // In the background: counting a large audience must not hold the baseline back.
+  loadEstimate();
 });
 </script>
 
