@@ -2,7 +2,7 @@
   <VcBlade
     :loading="loading"
     :title="bladeTitle"
-    width="70%"
+    :width="recipientsOpen ? '50%' : '70%'"
     :toolbar-items="toolbarItems"
   >
     <VcHint
@@ -146,7 +146,10 @@ const childEstimate = ref<AudienceEstimate>();
 
 const estimate = computed<AudienceEstimate>(() => childEstimate.value ?? { result: preview.value, failed: previewFailed.value, loading: previewLoading.value });
 
-/** While the recipients blade is open, saving would leave its Cancel snapshot behind. */
+/**
+ * While the recipients blade is open, saving would leave its Cancel snapshot behind; this blade also
+ * gives it half the width, as its own 70% would leave the recipients a sliver on a laptop screen.
+ */
 const recipientsOpen = ref(false);
 
 const sourceLine = computed(() =>
