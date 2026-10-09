@@ -2,6 +2,7 @@
   <VcBlade :title="title" width="50%" :toolbar-items="toolbarItems" :modified="changed">
     <div v-if="draft" class="tw-p-6">
       <AudienceBuilder
+        ref="builder"
         v-model:member-query="draft.memberQuery"
         v-model:member-ids="draft.memberIds"
         v-model:invalid="invalid"
@@ -14,12 +15,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { IBladeToolbar, useBlade, usePopup } from "@vc-shell/framework";
 import { VcBlade } from "@vc-shell/framework/ui";
 import AudienceBuilder from "../components/AudienceBuilder.vue";
 import {
+  APPLY_AUDIENCE,
   AudienceDraft,
   AudienceEstimate,
   copyAudience,
@@ -43,10 +45,12 @@ const { showConfirmation } = usePopup();
 const readonly = computed(() => !!options.value?.readonly);
 const title = computed(() => t(`PUSH_MESSAGES.PAGES.SELECT_RECIPIENTS.${readonly.value ? "TITLE_READONLY" : "TITLE"}`));
 
-/** The author edits a copy; options.audience stays as it came and is what Cancel restores. */
+/** The author edits a copy; Blade 1 keeps the original and restores it unless Apply is chosen. */
 const draft = ref<AudienceDraft | undefined>(options.value ? copyAudience(options.value.audience) : undefined);
 const invalid = ref(options.value?.invalid ?? false);
 const estimate = ref<AudienceEstimate>(options.value?.estimate ?? { failed: false, loading: false });
+
+const builder = ref<InstanceType<typeof AudienceBuilder>>();
 
 const changed = computed(() => !!draft.value && !!options.value && !sameAudience(draft.value, options.value.audience));
 
@@ -70,31 +74,15 @@ watch(
   { deep: true },
 );
 
-async function restore() {
-  if (!options.value) {
-    return;
-  }
-
-  await callParent(SET_AUDIENCE, {
-    audience: copyAudience(options.value.audience),
-    invalid: options.value.invalid,
-    estimate: options.value.estimate,
-  } satisfies SetAudiencePayload);
-}
-
 // vc-shell 2.6: true prevents the close, false allows it.
 onBeforeClose(async () => {
   if (settled || readonly.value || !changed.value) {
     return false;
   }
 
-  if (await showConfirmation(t("PUSH_MESSAGES.PAGES.SELECT_RECIPIENTS.DISCARD_CONFIRMATION"))) {
-    await restore();
-
-    return false;
-  }
-
-  return true;
+  // Blade 1 restores the audience once this blade has really closed: the close can still be
+  // stopped by a guard further up, and then the draft here must stay what the author sees.
+  return !(await showConfirmation(t("PUSH_MESSAGES.PAGES.SELECT_RECIPIENTS.DISCARD_CONFIRMATION")));
 });
 
 const toolbarItems = computed((): IBladeToolbar[] => [
@@ -104,6 +92,11 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     title: t("PUSH_MESSAGES.PAGES.SELECT_RECIPIENTS.TOOLBAR.APPLY"),
     isVisible: !readonly.value,
     clickHandler: async () => {
+      // The estimate trails the audience by a debounce; Blade 1 must not keep a count, or a
+      // validity, that belongs to an earlier audience.
+      await builder.value?.flush();
+      await nextTick();
+      await callParent(APPLY_AUDIENCE);
       settled = true;
       await closeSelf();
     },
@@ -114,7 +107,6 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     title: t("PUSH_MESSAGES.PAGES.SELECT_RECIPIENTS.TOOLBAR.CANCEL"),
     isVisible: !readonly.value,
     clickHandler: async () => {
-      await restore();
       settled = true;
       await closeSelf();
     },

@@ -3,6 +3,9 @@ import type { PushMessageAudienceResult } from "../../../api_client/virtocommerc
 /** The method Blade 1 exposes to the recipients blade. callParent ignores unknown names silently. */
 export const SET_AUDIENCE = "setAudience";
 
+/** Called by Apply: without it Blade 1 restores the audience it had when the blade opened. */
+export const APPLY_AUDIENCE = "applyAudience";
+
 export interface AudienceDraft {
   memberQuery?: string;
   memberIds?: string[];
@@ -22,7 +25,6 @@ export interface SetAudiencePayload {
 }
 
 export interface SelectRecipientsOptions {
-  /** Never mutated: it is the snapshot Cancel restores. */
   audience: AudienceDraft;
   invalid: boolean;
   estimate: AudienceEstimate;

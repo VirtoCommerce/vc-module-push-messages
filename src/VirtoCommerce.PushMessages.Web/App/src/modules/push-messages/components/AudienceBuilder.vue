@@ -305,6 +305,13 @@ watch(
   { immediate: true },
 );
 
+/** Counts the audience as it stands now, without waiting out the debounce. */
+async function flush() {
+  await refresh({ memberQuery: emittedQuery.value, memberIds: emittedIds.value });
+}
+
+defineExpose({ flush });
+
 const refreshPreview = useDebounceFn((memberQuery?: string, memberIds?: string[]) => {
   refresh({ memberQuery, memberIds });
 }, 400);

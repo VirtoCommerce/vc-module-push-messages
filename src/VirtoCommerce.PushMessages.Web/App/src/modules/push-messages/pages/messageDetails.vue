@@ -89,7 +89,14 @@ import { useAudiencePreview } from "../composables/useAudiencePreview";
 import { AudienceSummaryCard } from "../components";
 import { detectAudienceMode } from "../utils/audienceQuery";
 import { conditionCount, formatSourceLine, sourceParts } from "../utils/audienceSummary";
-import { AudienceEstimate, SelectRecipientsOptions, SET_AUDIENCE, SetAudiencePayload } from "../utils/audienceSync";
+import {
+  APPLY_AUDIENCE,
+  AudienceEstimate,
+  copyAudience,
+  SelectRecipientsOptions,
+  SET_AUDIENCE,
+  SetAudiencePayload,
+} from "../utils/audienceSync";
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
@@ -170,16 +177,24 @@ async function loadEstimate() {
   audienceInvalid.value = previewFailed.value;
 }
 
+/**
+ * The audience as it was when the recipients blade opened. The blade writes its edits straight in,
+ * so this is what comes back unless the author leaves it with Apply.
+ */
+let snapshot: SetAudiencePayload | undefined;
+let applied = false;
+
 function openRecipients() {
+  const audience = { memberQuery: item.value.memberQuery, memberIds: item.value.memberIds };
+
+  snapshot = { audience: copyAudience(audience), invalid: audienceInvalid.value, estimate: estimate.value };
+  applied = false;
   recipientsOpen.value = true;
 
   openBlade({
     name: "PushMessageSelectRecipients",
     options: {
-      audience: {
-        memberQuery: item.value.memberQuery,
-        memberIds: item.value.memberIds ? [...item.value.memberIds] : undefined,
-      },
+      audience: copyAudience(audience),
       invalid: audienceInvalid.value,
       estimate: estimate.value,
       readonly: isReadOnly.value,
@@ -187,16 +202,25 @@ function openRecipients() {
     } satisfies SelectRecipientsOptions,
     onClose: () => {
       recipientsOpen.value = false;
+
+      if (!applied && !isReadOnly.value && snapshot) {
+        setAudience(snapshot);
+      }
     },
   });
 }
 
+function setAudience(payload: SetAudiencePayload) {
+  item.value.memberQuery = payload.audience.memberQuery;
+  item.value.memberIds = payload.audience.memberIds;
+  audienceInvalid.value = payload.invalid;
+  childEstimate.value = payload.estimate;
+}
+
 exposeToChildren({
-  [SET_AUDIENCE]: (payload: SetAudiencePayload) => {
-    item.value.memberQuery = payload.audience.memberQuery;
-    item.value.memberIds = payload.audience.memberIds;
-    audienceInvalid.value = payload.invalid;
-    childEstimate.value = payload.estimate;
+  [SET_AUDIENCE]: setAudience,
+  [APPLY_AUDIENCE]: () => {
+    applied = true;
   },
 });
 
@@ -284,9 +308,10 @@ watch(
   async (newParam) => {
     if (newParam) {
       await loadMessage();
-      await loadEstimate();
       setBaseline();
       refreshAll();
+      // In the background: counting a large audience must not hold the baseline back.
+      loadEstimate();
     }
   },
 );
@@ -294,9 +319,10 @@ watch(
 // Lifecycle
 onMounted(async () => {
   await loadMessage();
-  await loadEstimate();
   setBaseline();
   refreshAll();
+  // In the background: counting a large audience must not hold the baseline back.
+  loadEstimate();
 });
 </script>
 
