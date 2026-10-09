@@ -40,9 +40,7 @@ export function sourceParts(mode: AudienceMode, conditionCount: number, result?:
 }
 
 export function formatSourceLine(parts: SourcePart[], t: Translate): string {
-  return parts
-    .map((part) => (part.count === undefined ? t(`${SUMMARY_PREFIX}.SOURCES.${part.key}`) : t(`${SUMMARY_PREFIX}.SOURCES.${part.key}`, part.count)))
-    .join(" · ");
+  return parts.map((part) => (part.count === undefined ? t(`${SUMMARY_PREFIX}.SOURCES.${part.key}`) : t(`${SUMMARY_PREFIX}.SOURCES.${part.key}`, part.count))).join(" · ");
 }
 
 /** Rows in a phrase the condition builder can read; zero for anything else. */

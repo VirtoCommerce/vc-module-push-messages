@@ -10,9 +10,9 @@
         v-for="option in MODES"
         :key="option.mode"
         class="tw-flex tw-items-start tw-gap-3 tw-p-4 tw-cursor-pointer tw-transition-colors"
-        :class="modelValue === option.mode
-          ? 'tw-bg-[color:var(--primary-50)] tw-ring-1 tw-ring-inset tw-ring-[color:var(--primary-500)]'
-          : 'hover:tw-bg-[color:var(--neutrals-50)]'"
+        :class="
+          modelValue === option.mode ? 'tw-bg-[color:var(--primary-50)] tw-ring-1 tw-ring-inset tw-ring-[color:var(--primary-500)]' : 'hover:tw-bg-[color:var(--neutrals-50)]'
+        "
       >
         <VcRadioButton
           :model-value="modelValue"
@@ -23,11 +23,12 @@
         <span class="tw-min-w-0">
           <span
             class="tw-flex tw-items-center tw-gap-2 tw-font-medium"
-            :class="modelValue === option.mode
-              ? 'tw-text-[color:var(--primary-700)]'
-              : 'tw-text-[color:var(--neutrals-800)]'"
+            :class="modelValue === option.mode ? 'tw-text-[color:var(--primary-700)]' : 'tw-text-[color:var(--neutrals-800)]'"
           >
-            <VcIcon :icon="option.icon" size="m" />
+            <VcIcon
+              :icon="option.icon"
+              size="m"
+            />
             {{ $t(`${MODE_PREFIX}.${option.key}.TITLE`) }}
           </span>
           <span class="tw-block tw-mt-1 tw-text-sm tw-text-[color:var(--neutrals-500)]">

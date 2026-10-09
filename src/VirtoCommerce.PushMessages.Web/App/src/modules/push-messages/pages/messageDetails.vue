@@ -5,7 +5,10 @@
     width="70%"
     :toolbar-items="toolbarItems"
   >
-    <VcHint v-if="missing" class="tw-p-6">
+    <VcHint
+      v-if="missing"
+      class="tw-p-6"
+    >
       {{ $t("PUSH_MESSAGES.PAGES.DETAILS.MISSING") }}
     </VcHint>
 
@@ -89,14 +92,7 @@ import { useAudiencePreview } from "../composables/useAudiencePreview";
 import { AudienceSummaryCard } from "../components";
 import { detectAudienceMode } from "../utils/audienceQuery";
 import { conditionCount, formatSourceLine, sourceParts } from "../utils/audienceSummary";
-import {
-  APPLY_AUDIENCE,
-  AudienceEstimate,
-  copyAudience,
-  SelectRecipientsOptions,
-  SET_AUDIENCE,
-  SetAudiencePayload,
-} from "../utils/audienceSync";
+import { APPLY_AUDIENCE, AudienceEstimate, copyAudience, SelectRecipientsOptions, SET_AUDIENCE, SetAudiencePayload } from "../utils/audienceSync";
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
@@ -148,28 +144,19 @@ const { preview, failed: previewFailed, loading: previewLoading, refresh } = use
 /** Set by the recipients blade while it is open; otherwise this blade's own estimate stands. */
 const childEstimate = ref<AudienceEstimate>();
 
-const estimate = computed<AudienceEstimate>(
-  () => childEstimate.value ?? { result: preview.value, failed: previewFailed.value, loading: previewLoading.value },
-);
+const estimate = computed<AudienceEstimate>(() => childEstimate.value ?? { result: preview.value, failed: previewFailed.value, loading: previewLoading.value });
 
 /** While the recipients blade is open, saving would leave its Cancel snapshot behind. */
 const recipientsOpen = ref(false);
 
 const sourceLine = computed(() =>
-  formatSourceLine(
-    sourceParts(
-      detectAudienceMode(item.value?.memberQuery, item.value?.memberIds),
-      conditionCount(item.value?.memberQuery),
-      estimate.value.result,
-    ),
-    (key, n) => (n === undefined ? t(key) : t(key, n)),
+  formatSourceLine(sourceParts(detectAudienceMode(item.value?.memberQuery, item.value?.memberIds), conditionCount(item.value?.memberQuery), estimate.value.result), (key, n) =>
+    n === undefined ? t(key) : t(key, n),
   ),
 );
 
 /** A sent message shows whom it went to; anything else shows the live estimate. */
-const cardTotal = computed(() =>
-  isReadOnly.value ? (item.value?.recipientsTotalCount ?? 0) : estimate.value.result?.totalCount,
-);
+const cardTotal = computed(() => (isReadOnly.value ? (item.value?.recipientsTotalCount ?? 0) : estimate.value.result?.totalCount));
 
 async function loadEstimate() {
   childEstimate.value = undefined;

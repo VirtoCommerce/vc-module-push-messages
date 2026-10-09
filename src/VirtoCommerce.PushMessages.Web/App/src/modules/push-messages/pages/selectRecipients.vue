@@ -1,6 +1,14 @@
 <template>
-  <VcBlade :title="title" width="50%" :toolbar-items="toolbarItems" :modified="changed">
-    <div v-if="draft" class="tw-p-6">
+  <VcBlade
+    :title="title"
+    width="50%"
+    :toolbar-items="toolbarItems"
+    :modified="changed"
+  >
+    <div
+      v-if="draft"
+      class="tw-p-6"
+    >
       <AudienceBuilder
         ref="builder"
         v-model:member-query="draft.memberQuery"
@@ -20,16 +28,7 @@ import { useI18n } from "vue-i18n";
 import { IBladeToolbar, useBlade, usePopup } from "@vc-shell/framework";
 import { VcBlade } from "@vc-shell/framework/ui";
 import AudienceBuilder from "../components/AudienceBuilder.vue";
-import {
-  APPLY_AUDIENCE,
-  AudienceDraft,
-  AudienceEstimate,
-  copyAudience,
-  sameAudience,
-  SelectRecipientsOptions,
-  SET_AUDIENCE,
-  SetAudiencePayload,
-} from "../utils/audienceSync";
+import { APPLY_AUDIENCE, AudienceDraft, AudienceEstimate, copyAudience, sameAudience, SelectRecipientsOptions, SET_AUDIENCE, SetAudiencePayload } from "../utils/audienceSync";
 
 // Not routable: its draft lives in options, which a reload does not bring back.
 defineBlade({

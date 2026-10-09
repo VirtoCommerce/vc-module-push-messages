@@ -1,16 +1,7 @@
 import { describe, expect, it } from "vitest";
 import en from "../locales/en.json";
 import { copyAudience, sameAudience } from "./audienceSync";
-import {
-  addsUp,
-  audienceStatus,
-  conditionCount,
-  flowSteps,
-  formatSourceLine,
-  noteParts,
-  sourceParts,
-  SUMMARY_PREFIX,
-} from "./audienceSummary";
+import { addsUp, audienceStatus, conditionCount, flowSteps, formatSourceLine, noteParts, sourceParts, SUMMARY_PREFIX } from "./audienceSummary";
 
 const result = (overrides = {}) => ({
   matchedPeople: 10,

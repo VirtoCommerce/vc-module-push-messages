@@ -1,8 +1,15 @@
 <template>
   <div class="tw-space-y-4">
-    <AudienceModePicker :model-value="mode" :disabled="disabled" @update:model-value="setMode" />
+    <AudienceModePicker
+      :model-value="mode"
+      :disabled="disabled"
+      @update:model-value="setMode"
+    />
 
-    <VcCard v-if="mode === 'conditions' || mode === 'query'" :header="$t(`${A_PREFIX}.CONDITIONS_HEADER`)">
+    <VcCard
+      v-if="mode === 'conditions' || mode === 'query'"
+      :header="$t(`${A_PREFIX}.CONDITIONS_HEADER`)"
+    >
       <div class="tw-p-4">
         <!-- Match by conditions -->
         <QueryBuilder
@@ -13,12 +20,15 @@
           show-edit-as-query
           :disabled="disabled"
           @update:invalid="conditionsInvalid = $event"
-              @edit-as-query="setMode('query')"
+          @edit-as-query="setMode('query')"
           @starter="onStarter"
         />
 
         <!-- Advanced query -->
-        <div v-if="mode === 'query'" class="tw-space-y-2">
+        <div
+          v-if="mode === 'query'"
+          class="tw-space-y-2"
+        >
           <VcTextarea
             v-model="rawQuery"
             :disabled="disabled"
@@ -46,13 +56,24 @@
       </div>
     </VcCard>
 
-    <VcCard v-if="mode !== 'everyone'" :header="$t(`${A_PREFIX}.RECIPIENTS_PICKER.LABEL`)">
+    <VcCard
+      v-if="mode !== 'everyone'"
+      :header="$t(`${A_PREFIX}.RECIPIENTS_PICKER.LABEL`)"
+    >
       <div class="tw-p-4">
-        <SpecificRecipients v-model="picked" :counts="memberCounts" :load-members="loadMembers" :disabled="disabled" />
+        <SpecificRecipients
+          v-model="picked"
+          :counts="memberCounts"
+          :load-members="loadMembers"
+          :disabled="disabled"
+        />
       </div>
     </VcCard>
 
-    <VcHint v-if="queryTooLong" error>
+    <VcHint
+      v-if="queryTooLong"
+      error
+    >
       {{ $t(`${A_PREFIX}.VALIDATION.QUERY_TOO_LONG`) }}
     </VcHint>
 
@@ -111,7 +132,6 @@ const { preview, failed: estimateFailed, refresh, countFor, loading: loadingPrev
 /** Recipient count per picked member, so a chip can say what a company actually brings in. */
 const memberCounts = ref<Record<string, number>>({});
 
-
 const A_PREFIX = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE";
 
 /**
@@ -152,9 +172,7 @@ const estimate = computed<AudienceEstimate>(() => ({
 
 /** Where the recipients come from: "1 condition · 6 companies". */
 const sourceLine = computed(() =>
-  formatSourceLine(sourceParts(mode.value, conditionCount(generatedQuery.value), preview.value), (key, n) =>
-    n === undefined ? t(key) : t(key, n),
-  ),
+  formatSourceLine(sourceParts(mode.value, conditionCount(generatedQuery.value), preview.value), (key, n) => (n === undefined ? t(key) : t(key, n))),
 );
 
 watch(estimate, (value) => emit("update:estimate", value), { immediate: true });
@@ -191,8 +209,6 @@ const starters = computed<QueryStarter[]>(() =>
     row: starter.row,
   })),
 );
-
-
 
 /** A starter with no condition of its own; the only one is "everyone". */
 function onStarter() {
@@ -331,9 +347,7 @@ watch(
   { immediate: true },
 );
 
-const invalid = computed(
-  () => (mode.value === "conditions" && conditionsInvalid.value) || queryTooLong.value || estimateFailed.value,
-);
+const invalid = computed(() => (mode.value === "conditions" && conditionsInvalid.value) || queryTooLong.value || estimateFailed.value);
 
 // The estimate settles after the audience does, so its verdict is reported on its own.
 watch(estimateFailed, () => emit("update:invalid", invalid.value));

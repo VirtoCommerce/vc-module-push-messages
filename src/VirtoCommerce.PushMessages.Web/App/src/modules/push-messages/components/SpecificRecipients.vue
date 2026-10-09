@@ -16,11 +16,17 @@
     <!-- Names repeat: the kind and the email are what tell two options apart before one is picked. -->
     <template #option="{ opt }">
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-        <VcStatus class="tw-shrink-0" :variant="isCompany(opt) ? 'primary' : 'info'">
+        <VcStatus
+          class="tw-shrink-0"
+          :variant="isCompany(opt) ? 'primary' : 'info'"
+        >
           {{ isCompany(opt) ? $t(`${PICKER}.COMPANY`) : $t(`${PICKER}.PERSON`) }}
         </VcStatus>
         <span class="tw-min-w-0 tw-truncate">{{ opt.name }}</span>
-        <span v-if="opt.emails?.[0]" class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]">
+        <span
+          v-if="opt.emails?.[0]"
+          class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]"
+        >
           {{ opt.emails[0] }}
         </span>
       </span>
@@ -30,11 +36,21 @@
       <span
         class="tw-inline-flex tw-max-w-full tw-min-w-0 tw-items-center tw-gap-2 tw-mr-2 tw-mb-1 tw-pl-2 tw-pr-1 tw-py-1 tw-rounded tw-border tw-border-[color:var(--primary-300)] tw-bg-[color:var(--primary-50)]"
       >
-        <VcStatus class="tw-shrink-0" :variant="isCompany(opt) ? 'primary' : 'info'">
+        <VcStatus
+          class="tw-shrink-0"
+          :variant="isCompany(opt) ? 'primary' : 'info'"
+        >
           {{ isCompany(opt) ? $t(`${PICKER}.COMPANY`) : $t(`${PICKER}.PERSON`) }}
         </VcStatus>
-        <span class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]" :title="opt.name">{{ opt.name }}</span>
-        <span v-if="countOf(opt) !== undefined" class="tw-shrink-0 tw-whitespace-nowrap tw-text-sm tw-text-[color:var(--neutrals-500)]">
+        <span
+          class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]"
+          :title="opt.name"
+          >{{ opt.name }}</span
+        >
+        <span
+          v-if="countOf(opt) !== undefined"
+          class="tw-shrink-0 tw-whitespace-nowrap tw-text-sm tw-text-[color:var(--neutrals-500)]"
+        >
           · {{ $t(`${PICKER}.COUNT`, countOf(opt) as number) }}
         </span>
         <VcButton
