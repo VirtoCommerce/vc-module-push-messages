@@ -16,7 +16,7 @@
         </span>
         <div class="tw-min-w-0">
           <div class="tw-text-xl tw-font-semibold">{{ estimate.failed ? "—" : total }} {{ $t(`${P}.RECIPIENTS`, total) }}</div>
-          <div class="tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]">{{ sourceLine }}</div>
+          <div class="tw-text-sm tw-text-[color:var(--neutrals-500)]">{{ sourceLine }}</div>
         </div>
       </div>
       <VcStatus
@@ -46,11 +46,11 @@
           <VcIcon
             v-if="i > 0"
             icon="lucide-chevron-right"
-            size="s"
+            size="xs"
             class="tw-self-center tw-shrink-0 tw-text-[color:var(--neutrals-400)]"
           />
           <div
-            class="tw-flex-1 tw-min-w-0 tw-rounded tw-p-2 tw-text-center"
+            class="tw-flex-1 tw-min-w-0 tw-rounded tw-px-1 tw-py-2 tw-text-center"
             :class="i === steps.length - 1 ? 'tw-bg-[color:var(--primary-500)] tw-text-white' : ''"
           >
             <div
@@ -60,7 +60,7 @@
               {{ step.signed ? `+${step.value}` : step.value }}
             </div>
             <div
-              class="tw-text-xs"
+              class="tw-text-xs tw-leading-tight"
               :class="i === steps.length - 1 ? '' : 'tw-text-[color:var(--neutrals-500)]'"
             >
               {{ $t(`${P}.STEPS.${step.key}`) }}
@@ -84,12 +84,13 @@
 
     <div
       v-if="hasAudience"
-      class="tw-flex tw-gap-2"
+      class="tw-flex tw-flex-wrap tw-gap-2"
     >
       <VcButton
         v-if="!estimate.failed"
         variant="primary"
         size="sm"
+        class="tw-whitespace-nowrap"
         icon="lucide-eye"
         @click="openPreview"
       >
@@ -98,6 +99,7 @@
       <VcButton
         variant="outline"
         size="sm"
+        class="tw-whitespace-nowrap"
         icon="lucide-code"
         @click="showQuery = true"
       >
