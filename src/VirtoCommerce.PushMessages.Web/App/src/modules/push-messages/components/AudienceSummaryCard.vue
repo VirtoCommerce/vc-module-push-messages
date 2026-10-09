@@ -30,11 +30,14 @@
     <VcButton
       class="tw-shrink-0"
       variant="primary"
-      icon="lucide-chevron-right"
       :disabled="disabled"
       @click="emit('open')"
     >
       {{ $t(`${CARD}.${readonly ? "VIEW" : "SELECT"}`) }}
+      <VcIcon
+        icon="lucide-chevron-right"
+        size="s"
+      />
     </VcButton>
   </div>
 </template>
