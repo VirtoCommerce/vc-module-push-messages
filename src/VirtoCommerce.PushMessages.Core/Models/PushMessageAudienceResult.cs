@@ -12,7 +12,7 @@ public class PushMessageAudienceResult
     /// <summary>People reached by expanding companies, counted before de-duplication.</summary>
     public int FoundInCompanies { get; set; }
 
-    /// <summary>MatchedPeople + FoundInCompanies - PeopleInScope: people reached more than once.</summary>
+    /// <summary>People reached more than once: MatchedPeople + FoundInCompanies - PeopleInScope, less anyone excluded as already sent to.</summary>
     public int Overlaps { get; set; }
 
     /// <summary>Distinct members that produced at least one recipient.</summary>

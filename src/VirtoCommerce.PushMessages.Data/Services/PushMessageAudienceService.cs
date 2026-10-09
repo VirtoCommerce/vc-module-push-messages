@@ -49,6 +49,8 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         var recipients = new List<PushMessageRecipient>();
         var userIds = new HashSet<string>(excludedUserIds ?? new HashSet<string>());
         var memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        // People whose every login already has the message: excluded, not reached twice.
+        var alreadySent = 0;
 
         var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
         searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
@@ -104,6 +106,10 @@ public class PushMessageAudienceService : IPushMessageAudienceService
                     result.PeopleInScope++;
                     result.ExtraLogins += added - 1;
                 }
+                else if (excludedUserIds != null && hasSecurityAccounts.SecurityAccounts.Any(x => excludedUserIds.Contains(x.Id)))
+                {
+                    alreadySent++;
+                }
             }
             else
             {
@@ -113,7 +119,7 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         }
 
         // Derived, so the breakdown the UI renders always adds up.
-        result.Overlaps = result.MatchedPeople + result.FoundInCompanies - result.PeopleInScope;
+        result.Overlaps = result.MatchedPeople + result.FoundInCompanies - result.PeopleInScope - alreadySent;
 
         result.Results = collect
             ? recipients.Skip(criteria.Skip).Take(criteria.Take).ToList()

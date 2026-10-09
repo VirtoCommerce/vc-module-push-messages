@@ -69,6 +69,26 @@ public class AudienceResolutionTests
     }
 
     [Fact]
+    public async Task PersonAlreadySentTo_IsNotAnOverlap_VCST6224()
+    {
+        // Tracking new recipients excludes those already sent to; that is not "found twice".
+        var service = NewService(
+            members: new Dictionary<string, Member>
+            {
+                ["c1"] = NewContact("c1", loginCount: 1),
+                ["c2"] = NewContact("c2", loginCount: 1),
+            });
+
+        var criteria = new PushMessageAudienceCriteria { MemberIds = ["c1", "c2"], Take = 0 };
+
+        var result = await service.ResolveAsync(criteria, excludedUserIds: new HashSet<string> { "c1-user-1" });
+
+        Assert.Equal(2, result.MatchedPeople);
+        Assert.Equal(1, result.PeopleInScope);
+        Assert.Equal(0, result.Overlaps);
+    }
+
+    [Fact]
     public async Task Counters_ExplainTheArithmetic_VCST6224()
     {
         // One organization and one standalone contact are matched by the query.
