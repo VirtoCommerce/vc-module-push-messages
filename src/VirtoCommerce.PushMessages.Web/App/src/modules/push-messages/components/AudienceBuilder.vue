@@ -1,337 +1,118 @@
 <template>
   <div class="tw-space-y-4">
-    <VcLabel required>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.LABEL") }}</VcLabel>
+    <AudienceModePicker :model-value="mode" :disabled="disabled" @update:model-value="setMode" />
 
-    <div
-      class="tw-rounded tw-border tw-border-[color:var(--neutrals-200)] tw-divide-y tw-divide-[color:var(--neutrals-200)] tw-overflow-hidden"
-      :class="{ 'tw-opacity-60 tw-pointer-events-none': disabled }"
-    >
-      <label
-        v-for="option in MODES"
-        :key="option.mode"
-        class="tw-flex tw-items-start tw-gap-3 tw-p-4 tw-cursor-pointer tw-transition-colors"
-        :class="mode === option.mode
-          ? 'tw-bg-[color:var(--primary-50)] tw-ring-1 tw-ring-inset tw-ring-[color:var(--primary-500)]'
-          : 'hover:tw-bg-[color:var(--neutrals-50)]'"
-      >
-        <VcRadioButton
-          :model-value="mode"
-          :value="option.mode"
+    <VcCard v-if="mode === 'conditions' || mode === 'query'" :header="$t(`${A_PREFIX}.CONDITIONS_HEADER`)">
+      <div class="tw-p-4">
+        <!-- Match by conditions -->
+        <QueryBuilder
+          v-if="mode === 'conditions'"
+          v-model:query="conditionQuery"
+          :fields="queryFields"
+          :starters="starters"
+          show-edit-as-query
           :disabled="disabled"
-          @update:model-value="setMode(option.mode)"
+          @update:invalid="conditionsInvalid = $event"
+              @edit-as-query="setMode('query')"
+          @starter="onStarter"
         />
-        <span class="tw-min-w-0">
-          <span
-            class="tw-flex tw-items-center tw-gap-2 tw-font-medium"
-            :class="mode === option.mode
-              ? 'tw-text-[color:var(--primary-700)]'
-              : 'tw-text-[color:var(--neutrals-800)]'"
-          >
-            <VcIcon :icon="option.icon" size="m" />
-            {{ $t(`${MODE_PREFIX}.${option.key}.TITLE`) }}
-          </span>
-          <span class="tw-block tw-mt-1 tw-text-sm tw-text-[color:var(--neutrals-500)]">
-            {{ $t(`${MODE_PREFIX}.${option.key}.HINT`) }}
-          </span>
-        </span>
-      </label>
-    </div>
 
-    <!-- Match by conditions -->
-    <QueryBuilder
-      v-if="mode === 'conditions'"
-      v-model:query="conditionQuery"
-      :fields="queryFields"
-      :starters="starters"
-      show-edit-as-query
-      :disabled="disabled"
-      @update:invalid="conditionsInvalid = $event"
-      @update:description="conditionParts = $event"
-      @edit-as-query="setMode('query')"
-      @starter="onStarter"
-    />
-
-    <!-- Advanced query -->
-    <div v-if="mode === 'query'" class="tw-space-y-2">
-      <VcTextarea
-        v-model="rawQuery"
-        :disabled="disabled"
-        :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.QUERY_FIELD.LABEL')"
-        maxlength="1024"
-      />
-      <VcHint v-if="rawQuery && !estimateFailed">
-        {{
-          $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.QUERY_FIELD.VALID", {
-            count: preview?.totalCount ?? 0,
-          })
-        }}
-      </VcHint>
-      <VcButton
-        v-if="canReturnToConditions"
-        variant="link"
-        size="sm"
-        icon="lucide-arrow-left"
-        :disabled="disabled"
-        @click="setMode('conditions')"
-      >
-        {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.BACK_TO_CONDITIONS") }}
-      </VcButton>
-    </div>
-
-    <!-- One picker for every mode but Everyone; only its label changes -->
-    <VcSelect
-      v-if="mode !== 'everyone'"
-      v-model="picked"
-      emit-value
-      searchable
-      multiple
-      :clearable="false"
-      option-value="id"
-      option-label="name"
-      :options="loadMembers"
-      :disabled="disabled"
-      :label="$t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.${mode === 'list' ? 'LABEL' : 'LABEL_ALSO'}`)"
-      :placeholder="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PLACEHOLDER')"
-      :hint="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.HINT')"
-    >
-      <!-- Names repeat: the kind and the email are what tell two options apart before one is picked. -->
-      <template #option="{ opt }">
-        <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-          <VcStatus class="tw-shrink-0" :variant="isCompany(opt) ? 'primary' : 'info'">
-            {{ isCompany(opt)
-              ? $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COMPANY')
-              : $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PERSON') }}
-          </VcStatus>
-          <span class="tw-min-w-0 tw-truncate">{{ opt.name }}</span>
-          <span v-if="opt.emails?.[0]" class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]">
-            {{ opt.emails[0] }}
-          </span>
-        </span>
-      </template>
-      <template #selected-item="{ opt, index, removeAtIndex }">
-        <!-- A long name gives way first: the kind, the count and the remove button always stay whole. -->
-        <span
-          class="tw-inline-flex tw-max-w-full tw-min-w-0 tw-items-center tw-gap-2 tw-mr-2 tw-mb-1 tw-pl-2 tw-pr-1 tw-py-1 tw-rounded tw-border tw-border-[color:var(--primary-300)] tw-bg-[color:var(--primary-50)]"
-        >
-          <VcStatus class="tw-shrink-0" :variant="isCompany(opt) ? 'primary' : 'info'">
-            {{ isCompany(opt)
-              ? $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COMPANY')
-              : $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.PERSON') }}
-          </VcStatus>
-          <span class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]" :title="opt.name">{{ opt.name }}</span>
-          <span v-if="countOf(opt) !== undefined" class="tw-shrink-0 tw-whitespace-nowrap tw-text-sm tw-text-[color:var(--neutrals-500)]">
-            · {{ $t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.RECIPIENTS_PICKER.COUNT', countOf(opt) as number) }}
-          </span>
-          <VcButton
-            class="tw-shrink-0"
-            icon="lucide-x"
-            variant="ghost"
-            size="icon-sm"
+        <!-- Advanced query -->
+        <div v-if="mode === 'query'" class="tw-space-y-2">
+          <VcTextarea
+            v-model="rawQuery"
             :disabled="disabled"
-            @click="removeAtIndex(index)"
+            :label="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.QUERY_FIELD.LABEL')"
+            maxlength="1024"
           />
-        </span>
-      </template>
-    </VcSelect>
+          <VcHint v-if="rawQuery && !estimateFailed">
+            {{
+              $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.QUERY_FIELD.VALID", {
+                count: preview?.totalCount ?? 0,
+              })
+            }}
+          </VcHint>
+          <VcButton
+            v-if="canReturnToConditions"
+            variant="link"
+            size="sm"
+            icon="lucide-arrow-left"
+            :disabled="disabled"
+            @click="setMode('conditions')"
+          >
+            {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.BACK_TO_CONDITIONS") }}
+          </VcButton>
+        </div>
+      </div>
+    </VcCard>
 
-    <VcHint v-if="queryTooLong" class="tw-text-[color:var(--danger-500)]">
+    <VcCard v-if="mode !== 'everyone'" :header="$t(`${A_PREFIX}.RECIPIENTS_PICKER.LABEL`)">
+      <div class="tw-p-4">
+        <SpecificRecipients v-model="picked" :counts="memberCounts" :load-members="loadMembers" :disabled="disabled" />
+      </div>
+    </VcCard>
+
+    <VcHint v-if="queryTooLong" error>
       {{ $t(`${A_PREFIX}.VALIDATION.QUERY_TOO_LONG`) }}
     </VcHint>
 
-    <!-- Estimate -->
-    <!-- relative: the loading overlay is absolute and covers its nearest positioned ancestor. -->
-    <div class="tw-relative tw-border tw-border-[color:var(--primary-300)] tw-rounded tw-p-4 tw-space-y-3">
-      <VcLoading :active="loadingPreview" class="tw-inset-0 tw-rounded" />
-      <div class="tw-flex tw-items-baseline tw-gap-2">
-        <span class="tw-text-3xl tw-font-semibold">{{ estimateFailed ? "—" : preview?.totalCount ?? 0 }}</span>
-        <span>{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.RECIPIENTS", preview?.totalCount ?? 0) }}</span>
-      </div>
-
-      <VcHint v-if="estimateFailed" class="tw-text-[color:var(--danger-500)]">
-        {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.FAILED") }}
-      </VcHint>
-
-      <dl class="tw-font-mono tw-text-sm tw-space-y-1">
-        <div v-for="line in estimateLines" :key="line.label" class="tw-flex tw-justify-between">
-          <dt>{{ line.label }}</dt>
-          <dd>{{ line.value }}</dd>
-        </div>
-      </dl>
-
-      <p v-if="countedOnce" class="tw-text-sm tw-text-[color:var(--neutrals-600)]">
-        {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COUNTED_ONCE", { sum: pickedTotal }, countedOnce) }}
-      </p>
-
-      <p class="tw-text-sm tw-text-[color:var(--neutrals-700)]">
-        <template v-for="(part, i) in summaryParts" :key="i"><span
-          :class="{
-            'tw-font-semibold tw-text-[color:var(--neutrals-900)]': part.strong,
-            'tw-italic': part.em,
-          }"
-        >{{ part.text }}</span></template>
-      </p>
-
-      <div v-if="hasAudience" class="tw-flex tw-gap-2">
-        <VcButton v-if="!estimateFailed" variant="outline" size="sm" icon="lucide-eye" @click="openPreview">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW") }}
-        </VcButton>
-        <VcButton variant="outline" size="sm" icon="lucide-code" @click="showQuery = true">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.SHOW_QUERY") }}
-        </VcButton>
-      </div>
-    </div>
-
-    <VcPopup
-      v-model="showPreview"
-      modal-width="tw-w-full tw-max-w-4xl"
-      :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_TITLE')"
-    >
-      <template #content>
-        <!-- Laid out as a blade lays out its table: the lead keeps its line and the table fills the
-             rest, scrolling its own body — VcDataTable takes 100% of its container, so it gets one of
-             its own. The popup's inner box is as wide as its content, and the table spreads its
-             columns over the width it gets, so once a scrollbar appeared each widened the other
-             without end. contain: inline-size stops this block following its content; the popup's
-             width comes from modal-width instead, as a blade's comes from its own width. -->
-        <div class="tw-w-full tw-flex tw-flex-col tw-min-h-0 [contain:inline-size]">
-        <p class="tw-mb-3 tw-shrink-0 tw-text-sm tw-text-[color:var(--neutrals-600)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_LEAD", preview?.totalCount ?? 0) }}
-        </p>
-        <VcLoading v-if="loadingPage && !previewRows.length" active />
-        <p v-else-if="previewFailed" class="tw-text-sm tw-text-[color:var(--danger-500)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_FAILED") }}
-        </p>
-        <p v-else-if="!previewRows.length" class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
-        </p>
-        <div v-else class="tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
-          <VcDataTable
-            :items="previewRows"
-            :loading="loadingPage"
-            :total-count="previewPagination.totalCount"
-            :pagination="previewPagination"
-            @pagination-click="previewPagination.goToPage"
-          >
-            <VcColumn id="name" field="name" :width="280" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.NAME')" always-visible />
-            <VcColumn id="email" field="email" :width="320" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.EMAIL')" />
-            <VcColumn id="login" field="login" :width="200" :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.COLUMN.LOGIN')" />
-          </VcDataTable>
-        </div>
-        </div>
-      </template>
-      <template #footer="{ close }">
-        <VcButton variant="secondary" @click="close">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.CLOSE") }}</VcButton>
-      </template>
-    </VcPopup>
-
-    <VcPopup
-      v-model="showQuery"
-      modal-width="tw-max-w-[600px]"
-      :title="$t('PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_TITLE')"
-    >
-      <template #content>
-        <div class="tw-w-full">
-        <p class="tw-mb-3 tw-text-sm tw-text-[color:var(--neutrals-600)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_LEAD") }}
-        </p>
-        <!-- A query is mostly ids with no spaces, so it breaks anywhere rather than scrolling sideways. -->
-        <pre
-          v-if="generatedQuery"
-          class="tw-p-3 tw-rounded tw-border tw-border-[color:var(--neutrals-200)] tw-bg-[color:var(--neutrals-50)] tw-text-sm tw-font-mono tw-whitespace-pre-wrap tw-break-all"
-        >{{ generatedQuery }}</pre>
-        <p v-else class="tw-text-sm tw-text-[color:var(--neutrals-500)]">
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_NONE") }}
-        </p>
-        <p
-          v-if="picked.length"
-          class="tw-mt-3 tw-text-sm tw-text-[color:var(--neutrals-600)]"
-        >
-          {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.QUERY_PLUS", { count: picked.length }) }}
-        </p>
-        </div>
-      </template>
-      <template #footer="{ close }">
-        <div class="tw-flex tw-gap-2">
-          <VcButton
-            v-if="generatedQuery && clipboardSupported"
-            variant="primary"
-            :icon="copied ? 'lucide-check' : 'lucide-copy'"
-            @click="copy(generatedQuery)"
-          >
-            {{ $t(`PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.${copied ? "COPIED" : "COPY"}`) }}
-          </VcButton>
-          <VcButton variant="secondary" @click="close">{{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.CLOSE") }}</VcButton>
-        </div>
-      </template>
-    </VcPopup>
+    <AudienceBreakdown
+      :estimate="estimate"
+      :source-line="sourceLine"
+      :audience="{ memberQuery: emittedQuery, memberIds: emittedIds }"
+      :generated-query="generatedQuery"
+      :picked-count="picked.length"
+      :load-members="loadMembers"
+      :readonly="disabled"
+      :sent-count="sentCount"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from "vue";
-import { useClipboard, useDebounceFn } from "@vueuse/core";
+import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient, useDataTablePagination } from "@vc-shell/framework";
-import { VcButton, VcHint, VcIcon, VcLabel, VcLoading, VcRadioButton, VcColumn, VcDataTable, VcPopup, VcSelect, VcStatus, VcTextarea } from "@vc-shell/framework/ui";
+import { RoleSearchCriteria, RoleSearchResult, SecurityClient, useApiClient } from "@vc-shell/framework";
+import { VcButton, VcCard, VcHint, VcTextarea } from "@vc-shell/framework/ui";
 
-// Member is referenced by the @vue-generic annotations on the pickers.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { CustomerModuleClient, Member, MemberSearchResult, MembersSearchCriteria } from "../../../api_client/virtocommerce.customer";
+import { CustomerModuleClient, MemberSearchResult, MembersSearchCriteria } from "../../../api_client/virtocommerce.customer";
 import { QueryBuilder, parsePhrase } from "../../../components/queryBuilder";
-import type { ConditionRow, DescriptionPart, QueryField, QueryStarter } from "../../../components/queryBuilder";
+import type { ConditionRow, QueryField, QueryStarter } from "../../../components/queryBuilder";
 import { useAudiencePreview } from "../composables/useAudiencePreview";
 import { AUDIENCE_FIELDS, AudienceField } from "../utils/audienceFields";
 import { AudienceMode, audiencePhrase, detectAudienceMode, MAX_QUERY_LENGTH } from "../utils/audienceQuery";
+import { conditionCount, formatSourceLine, sourceParts } from "../utils/audienceSummary";
+import type { AudienceEstimate } from "../utils/audienceSync";
+import AudienceBreakdown from "./AudienceBreakdown.vue";
+import AudienceModePicker from "./AudienceModePicker.vue";
+import SpecificRecipients from "./SpecificRecipients.vue";
 
 const props = defineProps<{
   memberQuery?: string;
   memberIds?: string[];
   disabled?: boolean;
+  /** A sent message: how many it actually went to. */
+  sentCount?: number;
 }>();
 
 const emit = defineEmits<{
   "update:memberQuery": [value: string | undefined];
   "update:memberIds": [value: string[] | undefined];
   "update:invalid": [value: boolean];
+  "update:estimate": [value: AudienceEstimate];
 }>();
 
 const { t } = useI18n({ useScope: "global" });
 const { getApiClient: getCustomerApiClient } = useApiClient(CustomerModuleClient);
 const { getApiClient: getSecurityApiClient } = useApiClient(SecurityClient);
-const { preview, failed: estimateFailed, refresh, countFor, fetchPage, loading: loadingPreview } = useAudiencePreview();
+const { preview, failed: estimateFailed, refresh, countFor, loading: loadingPreview } = useAudiencePreview();
 
 /** Recipient count per picked member, so a chip can say what a company actually brings in. */
 const memberCounts = ref<Record<string, number>>({});
 
-const showPreview = ref(false);
-const showQuery = ref(false);
-// legacy: fall back to execCommand where the page is not a secure context, as on plain-http stands.
-const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true });
-const loadingPage = ref(false);
-const previewFailed = ref(false);
-interface PreviewRow {
-  name: string;
-  email: string;
-  login: string;
-}
-
-const previewRows = ref<PreviewRow[]>([]);
-const previewTotal = ref(0);
-const previewPagination = useDataTablePagination({
-  totalCount: previewTotal,
-  onPageChange: ({ skip }) => loadPreviewPage(skip),
-});
-/** Names of the picked members, so the summary can spell them out. */
-const pickedMembers = ref<Member[]>([]);
 
 const A_PREFIX = "PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE";
-const MODE_PREFIX = `${A_PREFIX}.MODES`;
-const MODES: { mode: AudienceMode; key: string; icon: string }[] = [
-  { mode: "everyone", key: "EVERYONE", icon: "lucide-globe" },
-  { mode: "list", key: "LIST", icon: "lucide-users" },
-  { mode: "conditions", key: "CONDITIONS", icon: "lucide-filter" },
-  { mode: "query", key: "QUERY", icon: "lucide-code" },
-];
 
 /**
  * One-click starting points, from the design. Each contributes a single condition with the value
@@ -353,43 +134,30 @@ const picked = ref<string[]>([]);
 const rawQuery = ref("");
 const conditionQuery = ref("");
 const conditionsInvalid = ref(false);
-const conditionParts = ref<DescriptionPart[]>([]);
 
 /** What we last told the parent, so an echo of our own emit is not mistaken for an edit. */
-let emittedQuery: string | undefined;
-let emittedIds: string[] | undefined;
+const emittedQuery = ref<string>();
+const emittedIds = ref<string[]>();
 /** True while a stored audience is being read in, so that read is not mistaken for an edit. */
 let applying = false;
 
 /** The audience the builder hands over, whichever mode produced it. */
 const generatedQuery = computed(() => audiencePhrase(mode.value, conditionQuery.value, rawQuery.value));
 
-/**
- * Whether the audience is defined at all. An audience that matches nobody is still worth looking
- * at — seeing the query and the empty preview is how the author finds out why.
- */
-const hasAudience = computed(() => generatedQuery.value.trim().length > 0 || picked.value.length > 0);
+const estimate = computed<AudienceEstimate>(() => ({
+  result: preview.value,
+  failed: estimateFailed.value,
+  loading: loadingPreview.value,
+}));
 
-/** What each picked person or company reaches on its own, added up — once every count is in. */
-const pickedTotal = computed(() => {
-  const counts = picked.value.map((id) => memberCounts.value[id]);
+/** Where the recipients come from: "1 condition · 6 companies". */
+const sourceLine = computed(() =>
+  formatSourceLine(sourceParts(mode.value, conditionCount(generatedQuery.value), preview.value), (key, n) =>
+    n === undefined ? t(key) : t(key, n),
+  ),
+);
 
-  return counts.every((count) => count !== undefined) ? counts.reduce((sum, count) => sum + count, 0) : 0;
-});
-
-/**
- * Recipients that the picked counts include more than once — someone in two of the chosen
- * companies, or picked directly and again through a company. The total sends to them once, which
- * is why the chips can add up to more than it. Only a plain list compares like this: a query adds
- * recipients no chip accounts for.
- */
-const countedOnce = computed(() => {
-  if (generatedQuery.value || !preview.value || estimateFailed.value) {
-    return 0;
-  }
-
-  return Math.max(0, pickedTotal.value - (preview.value.totalCount ?? 0));
-});
+watch(estimate, (value) => emit("update:estimate", value), { immediate: true });
 
 /** The stored phrase has a length limit, and nothing in the conditions themselves shows it. */
 const queryTooLong = computed(() => generatedQuery.value.length > MAX_QUERY_LENGTH);
@@ -424,41 +192,7 @@ const starters = computed<QueryStarter[]>(() =>
   })),
 );
 
-const estimateLines = computed(() => {
-  const value = preview.value;
 
-  if (!value) {
-    return [];
-  }
-
-  const prefix = `${A_PREFIX}.ESTIMATE`;
-  const lines: { label: string; value: string }[] = [
-    { label: t(`${prefix}.MEMBERS_MATCHED`), value: `${value.membersMatched ?? 0}` },
-  ];
-
-  if (value.companiesExpanded) {
-    lines.push({
-      label: t(`${prefix}.COMPANIES_EXPANDED`, value.companiesExpanded),
-      value: `+${value.peopleFromCompanies ?? 0}`,
-    });
-  }
-
-  lines.push({ label: t(`${prefix}.PEOPLE_IN_SCOPE`), value: `${value.peopleInScope ?? 0}` });
-
-  if (value.extraLogins) {
-    lines.push({ label: t(`${prefix}.EXTRA_LOGINS`), value: `+${value.extraLogins}` });
-  }
-
-  return lines;
-});
-
-function isCompany(opt: Member): boolean {
-  return opt.memberType === "Organization";
-}
-
-function countOf(opt: Member): number | undefined {
-  return opt.id ? memberCounts.value[opt.id] : undefined;
-}
 
 /** A starter with no condition of its own; the only one is "everyone". */
 function onStarter() {
@@ -546,9 +280,9 @@ function applyIncoming(memberQuery?: string, memberIds?: string[]) {
   // The state watcher stands down while a stored audience is read in, so the estimate has to be
   // asked for here. Without this a saved message reads "0 recipients" until something is touched,
   // and the preview popup opens on an audience nobody defined.
-  emittedQuery = memberQuery || undefined;
-  emittedIds = memberIds?.length ? [...memberIds] : undefined;
-  refreshPreview(emittedQuery, emittedIds);
+  emittedQuery.value = memberQuery || undefined;
+  emittedIds.value = memberIds?.length ? [...memberIds] : undefined;
+  refreshPreview(emittedQuery.value, emittedIds.value);
 
   nextTick(() => {
     applying = false;
@@ -558,12 +292,6 @@ function applyIncoming(memberQuery?: string, memberIds?: string[]) {
 watch(
   picked,
   async (ids) => {
-    try {
-      pickedMembers.value = ids.length ? (await loadMembers(undefined, 0, ids)).results ?? [] : [];
-    } catch {
-      pickedMembers.value = [];
-    }
-
     for (const id of ids) {
       if (memberCounts.value[id] === undefined) {
         try {
@@ -577,88 +305,6 @@ watch(
   { immediate: true },
 );
 
-/**
- * Plain-language restatement of the audience, from the design. The conditions are described by the
- * builder that owns them; what the audience adds is everything around them.
- */
-const summaryParts = computed<DescriptionPart[]>(() => {
-  const prefix = `${A_PREFIX}.ESTIMATE.SUMMARY`;
-
-  if (mode.value === "everyone") {
-    return [{ text: t(`${prefix}.EVERYONE`) }];
-  }
-
-  if (mode.value === "list") {
-    return [{ text: t(`${prefix}.LIST`, picked.value.length) }];
-  }
-
-  if (mode.value === "query") {
-    return [{ text: rawQuery.value.trim() ? t(`${prefix}.QUERY`) : t(`${prefix}.QUERY_EMPTY`) }];
-  }
-
-  const described = conditionParts.value;
-
-  if (!described.length && !picked.value.length) {
-    return [{ text: t(`${prefix}.NO_CONDITIONS`) }];
-  }
-
-  const parts: DescriptionPart[] = [];
-
-  if (described.length) {
-    parts.push({ text: t(`${prefix}.CONDITIONS_PREFIX`) + " " });
-    parts.push(...described);
-  }
-
-  pickedMembers.value.forEach((member, index) => {
-    const opening = described.length ? t(`${prefix}.PLUS_PREFIX`) : t(`${prefix}.ONLY_PICKED_PREFIX`);
-
-    parts.push({ text: index === 0 ? opening + " " : ", " });
-    parts.push({ text: member.name ?? "", strong: true });
-
-    if (isCompany(member)) {
-      parts.push({ text: " " + t(`${prefix}.WHOLE_COMPANY_SUFFIX`) });
-    }
-  });
-
-  parts.push({ text: "." });
-
-  return parts;
-});
-
-function openPreview() {
-  showPreview.value = true;
-  previewRows.value = [];
-  previewPagination.reset();
-  loadPreviewPage(0);
-}
-
-async function loadPreviewPage(skip: number) {
-  loadingPage.value = true;
-  previewFailed.value = false;
-  try {
-    const page = await fetchPage({ memberQuery: emittedQuery, memberIds: emittedIds }, skip, previewPagination.pageSize);
-    const recipients = page.results ?? [];
-
-    previewTotal.value = page.totalCount ?? 0;
-
-    // The recipient row carries the name and login; the email lives on the member.
-    const ids = [...new Set(recipients.map((r) => r.memberId).filter(Boolean))] as string[];
-    const members = ids.length ? (await loadMembers(undefined, 0, ids)).results ?? [] : [];
-    const emailByMember = new Map(members.map((m) => [m.id, m.emails?.[0] ?? ""]));
-
-    previewRows.value = recipients.map((r) => ({
-      name: r.memberName ?? "",
-      email: emailByMember.get(r.memberId ?? "") ?? "",
-      login: r.userName ?? "",
-    }));
-  } catch {
-    previewRows.value = [];
-    previewFailed.value = true;
-  } finally {
-    loadingPage.value = false;
-  }
-}
-
 const refreshPreview = useDebounceFn((memberQuery?: string, memberIds?: string[]) => {
   refresh({ memberQuery, memberIds });
 }, 400);
@@ -666,8 +312,8 @@ const refreshPreview = useDebounceFn((memberQuery?: string, memberIds?: string[]
 watch(
   () => [props.memberQuery, props.memberIds] as const,
   ([incomingQuery, incomingIds]) => {
-    const sameQuery = (incomingQuery ?? "") === (emittedQuery ?? "");
-    const sameIds = JSON.stringify(incomingIds ?? []) === JSON.stringify(emittedIds ?? []);
+    const sameQuery = (incomingQuery ?? "") === (emittedQuery.value ?? "");
+    const sameIds = JSON.stringify(incomingIds ?? []) === JSON.stringify(emittedIds.value ?? []);
 
     if (sameQuery && sameIds) {
       return;
@@ -696,14 +342,14 @@ watch(
     // Everyone hides the picker, so anything left in it is not part of that audience.
     const ids = mode.value === "everyone" ? [] : [...picked.value];
 
-    emittedQuery = phrase || undefined;
-    emittedIds = ids.length ? ids : undefined;
+    emittedQuery.value = phrase || undefined;
+    emittedIds.value = ids.length ? ids : undefined;
 
-    emit("update:memberQuery", emittedQuery);
-    emit("update:memberIds", emittedIds);
+    emit("update:memberQuery", emittedQuery.value);
+    emit("update:memberIds", emittedIds.value);
     emit("update:invalid", invalid.value);
 
-    refreshPreview(emittedQuery, emittedIds);
+    refreshPreview(emittedQuery.value, emittedIds.value);
   },
   { deep: true },
 );
