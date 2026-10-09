@@ -23,10 +23,10 @@
         >
           {{ isCompany(opt) ? $t(`${PICKER}.COMPANY`) : $t(`${PICKER}.PERSON`) }}
         </VcStatus>
-        <span class="tw-min-w-[6rem] tw-max-w-full tw-truncate">{{ opt.name }}</span>
+        <span class="tw-min-w-0 tw-max-w-full tw-truncate">{{ opt.name }}</span>
         <span
           v-if="opt.emails?.[0]"
-          class="tw-min-w-[9rem] tw-max-w-full tw-flex-1 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]"
+          class="tw-min-w-0 tw-max-w-full tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]"
         >
           {{ opt.emails[0] }}
         </span>
@@ -45,7 +45,7 @@
           {{ isCompany(opt) ? $t(`${PICKER}.COMPANY`) : $t(`${PICKER}.PERSON`) }}
         </VcStatus>
         <span
-          class="tw-min-w-[5rem] tw-max-w-full tw-flex-1 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]"
+          class="tw-min-w-0 tw-max-w-full tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]"
           :title="opt.name"
           >{{ opt.name }}</span
         >
