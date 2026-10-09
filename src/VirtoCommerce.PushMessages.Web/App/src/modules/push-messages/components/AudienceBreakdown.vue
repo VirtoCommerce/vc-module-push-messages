@@ -144,12 +144,12 @@
           >
             {{ $t("PUSH_MESSAGES.PAGES.DETAILS.FORM.AUDIENCE.ESTIMATE.PREVIEW_EMPTY") }}
           </p>
-          <!-- The table's header, rows and pagination share one box that may shrink to nothing, and
-               its header is clipped rather than kept. Below a header, a row and the pagination there is
-               nothing left to scroll, so the table stops there and the popup scrolls instead. -->
+          <!-- The table's header and rows share one box that may shrink to nothing, and the header is
+               clipped rather than kept. Its header and pagination are the least it may shrink to: only
+               the rows between them scroll, and the popup itself never has to. -->
           <div
             v-else
-            class="tw-flex tw-flex-col tw-flex-1 tw-min-h-[11rem]"
+            class="tw-flex tw-flex-col tw-flex-1 tw-min-h-[7.25rem]"
           >
             <VcDataTable
               :items="previewRows"
