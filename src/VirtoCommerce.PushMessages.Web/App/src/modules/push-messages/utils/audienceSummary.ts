@@ -15,7 +15,7 @@ export interface SourcePart {
 export type Translate = (key: string, plural?: number) => string;
 
 /** Where the recipients come from, one part per type present: "1 condition · 6 companies". */
-export function sourceParts(mode: AudienceMode, conditionCount: number, result?: PushMessageAudienceResult): SourcePart[] {
+export function sourceParts(mode: AudienceMode, conditions: number, result?: PushMessageAudienceResult): SourcePart[] {
   if (mode === "everyone") {
     return [{ key: "EVERYONE" }];
   }
@@ -24,8 +24,8 @@ export function sourceParts(mode: AudienceMode, conditionCount: number, result?:
 
   if (mode === "query") {
     parts.push({ key: "QUERY" });
-  } else if (mode === "conditions" && conditionCount > 0) {
-    parts.push({ key: "CONDITIONS", count: conditionCount });
+  } else if (mode === "conditions" && conditions > 0) {
+    parts.push({ key: "CONDITIONS", count: conditions });
   }
 
   if (result?.pickedPeople) {

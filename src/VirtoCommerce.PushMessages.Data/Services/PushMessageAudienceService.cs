@@ -61,19 +61,9 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         {
             var members = await _memberService.GetByIdsAsync(criteria.MemberIds.ToArray(), searchCriteria.ResponseGroup);
 
-            foreach (var member in members)
-            {
-                if (member is IHasSecurityAccounts)
-                {
-                    result.PickedPeople++;
-                }
-                else
-                {
-                    result.PickedCompanies++;
-                }
-
-                EnqueueMember(member, fromCompany: false);
-            }
+            result.PickedPeople = members.Count(x => x is IHasSecurityAccounts);
+            result.PickedCompanies = members.Count() - result.PickedPeople;
+            members.Apply(x => EnqueueMember(x, fromCompany: false));
         }
 
         if (!string.IsNullOrEmpty(criteria.MemberQuery))
@@ -83,38 +73,18 @@ public class PushMessageAudienceService : IPushMessageAudienceService
 
         while (queue.TryDequeue(out var member))
         {
-            if (member is IHasSecurityAccounts hasSecurityAccounts)
-            {
-                var added = 0;
-
-                foreach (var user in hasSecurityAccounts.SecurityAccounts)
-                {
-                    if (userIds.Add(user.Id))
-                    {
-                        if (collect)
-                        {
-                            recipients.Add(GetRecipient(messageId, member, user));
-                        }
-
-                        added++;
-                    }
-                }
-
-                if (added > 0)
-                {
-                    result.TotalCount += added;
-                    result.PeopleInScope++;
-                    result.ExtraLogins += added - 1;
-                }
-                else if (excludedUserIds != null && hasSecurityAccounts.SecurityAccounts.Any(x => excludedUserIds.Contains(x.Id)))
-                {
-                    alreadySent++;
-                }
-            }
-            else
+            if (member is not IHasSecurityAccounts person)
             {
                 // A company found inside a company is expanded in its turn; it is not a person.
                 await EnqueueMembers(memberId: member.Id);
+                continue;
+            }
+
+            var counted = CountPerson(result, member, person, userIds, collect ? recipients : null, messageId);
+
+            if (!counted && excludedUserIds != null && person.SecurityAccounts.Any(x => excludedUserIds.Contains(x.Id)))
+            {
+                alreadySent++;
             }
         }
 
@@ -148,16 +118,13 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         // Overlaps reports.
         void EnqueueMember(Member member, bool fromCompany)
         {
-            if (member is IHasSecurityAccounts)
+            if (member is IHasSecurityAccounts && fromCompany)
             {
-                if (fromCompany)
-                {
-                    result.FoundInCompanies++;
-                }
-                else
-                {
-                    result.MatchedPeople++;
-                }
+                result.FoundInCompanies++;
+            }
+            else if (member is IHasSecurityAccounts)
+            {
+                result.MatchedPeople++;
             }
 
             if (memberIds.Add(member.Id))
@@ -165,6 +132,41 @@ public class PushMessageAudienceService : IPushMessageAudienceService
                 queue.Enqueue(member);
             }
         }
+    }
+
+    /// <summary>
+    /// Takes the person's logins not yet taken and counts them; returns whether there were any.
+    /// Recipients are built only when <paramref name="recipients"/> is given: the estimate counts alone.
+    /// </summary>
+    private static bool CountPerson(
+        PushMessageAudienceResult result,
+        Member member,
+        IHasSecurityAccounts person,
+        ISet<string> userIds,
+        List<PushMessageRecipient> recipients,
+        string messageId)
+    {
+        var added = 0;
+
+        foreach (var user in person.SecurityAccounts)
+        {
+            if (userIds.Add(user.Id))
+            {
+                recipients?.Add(GetRecipient(messageId, member, user));
+                added++;
+            }
+        }
+
+        if (added == 0)
+        {
+            return false;
+        }
+
+        result.TotalCount += added;
+        result.PeopleInScope++;
+        result.ExtraLogins += added - 1;
+
+        return true;
     }
 
     /// <summary>
