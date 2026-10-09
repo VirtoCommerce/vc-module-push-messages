@@ -191,6 +191,40 @@
               "WILDCARD_SINGLE_VALUE": "This operator takes a single value",
               "QUERY_TOO_LONG": "This audience is too long to store. Use fewer values, or pick the people directly.",
               "INCOMPLETE": "Pick a field and an operator for every condition."
+            },
+            "CONDITIONS_HEADER": "Set up the conditions",
+            "BREAKDOWN": {
+              "RECIPIENTS": "recipient | recipients",
+              "SOURCES": {
+                "EVERYONE": "All registered customers",
+                "QUERY": "Custom query",
+                "CONDITIONS": "{count} condition | {count} conditions",
+                "PEOPLE": "{count} person | {count} people",
+                "COMPANIES": "{count} company | {count} companies"
+              },
+              "STEPS": {
+                "MATCHED": "Matched by conditions",
+                "FOUND": "Found in companies",
+                "UNIQUE": "Unique people",
+                "RECIPIENTS": "Recipients"
+              },
+              "NOTE": {
+                "OVERLAPS": "{count} overlap | {count} overlaps",
+                "OVERLAPS_REASON": "removed (same person found twice)",
+                "EXTRA_LOGINS": "+{count} login | +{count} logins",
+                "EXTRA_LOGINS_REASON": ": some people have several accounts"
+              },
+              "STATUS": {
+                "READY": "Ready to send",
+                "EMPTY": "No recipients",
+                "INVALID": "Can't count"
+              },
+              "SENT_HINT": "Sent to {count} recipient. The numbers below show who matches the audience today. | Sent to {count} recipients. The numbers below show who matches the audience today."
+            },
+            "CARD": {
+              "SELECT": "Select recipients",
+              "VIEW": "View recipients",
+              "NONE": "No recipients selected yet"
             }
           },
           "TOPIC": {
@@ -231,6 +265,15 @@
         "DELETE_SELECTED_CONFIRMATION": {
           "MESSAGE": "Are you sure you want to delete {count} selected messages?"
         }
+      },
+      "SELECT_RECIPIENTS": {
+        "TITLE": "Select recipients",
+        "TITLE_READONLY": "Recipients",
+        "TOOLBAR": {
+          "APPLY": "Apply",
+          "CANCEL": "Cancel"
+        },
+        "DISCARD_CONFIRMATION": "Discard recipient changes?"
       }
     }
   }
