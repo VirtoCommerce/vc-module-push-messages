@@ -13,28 +13,30 @@
     :hint="$t(`${PICKER}.HINT`)"
     @update:model-value="onUpdate"
   >
-    <!-- Names repeat: the kind and the email are what tell two options apart before one is picked. -->
+    <!-- Names repeat: the kind and the email are what tell two options apart before one is picked.
+         Where the three do not fit on a line, the email wraps below instead of cutting the name. -->
     <template #option="{ opt }">
-      <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+      <span class="tw-flex tw-min-w-0 tw-flex-wrap tw-items-center tw-gap-x-2 tw-gap-y-0.5">
         <VcStatus
           class="tw-shrink-0"
           :variant="isCompany(opt) ? 'primary' : 'info'"
         >
           {{ isCompany(opt) ? $t(`${PICKER}.COMPANY`) : $t(`${PICKER}.PERSON`) }}
         </VcStatus>
-        <span class="tw-min-w-0 tw-truncate">{{ opt.name }}</span>
+        <span class="tw-min-w-[6rem] tw-max-w-full tw-truncate">{{ opt.name }}</span>
         <span
           v-if="opt.emails?.[0]"
-          class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]"
+          class="tw-min-w-[9rem] tw-max-w-full tw-flex-1 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-500)]"
         >
           {{ opt.emails[0] }}
         </span>
       </span>
     </template>
     <template #selected-item="{ opt, index, removeAtIndex }">
-      <!-- A long name gives way first: the kind, the count and the remove button always stay whole. -->
+      <!-- A long name gives way first: the kind, the count and the remove button always stay whole,
+           and where they do not fit beside the name the count wraps below it. -->
       <span
-        class="tw-inline-flex tw-max-w-full tw-min-w-0 tw-items-center tw-gap-2 tw-mr-2 tw-mb-1 tw-pl-2 tw-pr-1 tw-py-1 tw-rounded tw-border tw-border-[color:var(--primary-300)] tw-bg-[color:var(--primary-50)]"
+        class="tw-inline-flex tw-max-w-full tw-min-w-0 tw-flex-wrap tw-items-center tw-gap-x-2 tw-gap-y-1 tw-mr-2 tw-mb-1 tw-pl-2 tw-pr-1 tw-py-1 tw-rounded tw-border tw-border-[color:var(--primary-300)] tw-bg-[color:var(--primary-50)]"
       >
         <VcStatus
           class="tw-shrink-0"
@@ -43,7 +45,7 @@
           {{ isCompany(opt) ? $t(`${PICKER}.COMPANY`) : $t(`${PICKER}.PERSON`) }}
         </VcStatus>
         <span
-          class="tw-min-w-0 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]"
+          class="tw-min-w-[5rem] tw-max-w-full tw-flex-1 tw-truncate tw-text-sm tw-text-[color:var(--neutrals-800)]"
           :title="opt.name"
           >{{ opt.name }}</span
         >
