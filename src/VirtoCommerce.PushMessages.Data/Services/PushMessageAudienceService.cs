@@ -49,7 +49,6 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         var recipients = new List<PushMessageRecipient>();
         var userIds = new HashSet<string>(excludedUserIds ?? new HashSet<string>());
         var memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var people = 0;
 
         var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
         searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
@@ -59,15 +58,26 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         if (!criteria.MemberIds.IsNullOrEmpty())
         {
             var members = await _memberService.GetByIdsAsync(criteria.MemberIds.ToArray(), searchCriteria.ResponseGroup);
-            members.Apply(EnqueueMember);
+
+            foreach (var member in members)
+            {
+                if (member is IHasSecurityAccounts)
+                {
+                    result.PickedPeople++;
+                }
+                else
+                {
+                    result.PickedCompanies++;
+                }
+
+                EnqueueMember(member, fromCompany: false);
+            }
         }
 
         if (!string.IsNullOrEmpty(criteria.MemberQuery))
         {
             await EnqueueMembers(keyword: criteria.MemberQuery);
         }
-
-        result.MembersMatched = memberIds.Count;
 
         while (queue.TryDequeue(out var member))
         {
@@ -98,13 +108,12 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             else
             {
                 // A company found inside a company is expanded in its turn; it is not a person.
-                var before = people;
                 await EnqueueMembers(memberId: member.Id);
-
-                result.CompaniesExpanded++;
-                result.PeopleFromCompanies += people - before;
             }
         }
+
+        // Derived, so the breakdown the UI renders always adds up.
+        result.Overlaps = result.MatchedPeople + result.FoundInCompanies - result.PeopleInScope;
 
         result.Results = collect
             ? recipients.Skip(criteria.Skip).Take(criteria.Take).ToList()
@@ -118,22 +127,36 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             searchCriteria.MemberId = memberId;
             searchCriteria.DeepSearch = !string.IsNullOrEmpty(keyword);
 
+            var fromCompany = memberId != null;
+
             await foreach (var searchResult in _memberSearchService.SearchBatchesAsync(searchCriteria))
             {
-                searchResult.Results.Apply(EnqueueMember);
+                foreach (var member in searchResult.Results)
+                {
+                    EnqueueMember(member, fromCompany);
+                }
             }
         }
 
-        void EnqueueMember(Member member)
+        // People are counted before the de-duplication check: a person reached twice is what
+        // Overlaps reports.
+        void EnqueueMember(Member member, bool fromCompany)
         {
+            if (member is IHasSecurityAccounts)
+            {
+                if (fromCompany)
+                {
+                    result.FoundInCompanies++;
+                }
+                else
+                {
+                    result.MatchedPeople++;
+                }
+            }
+
             if (memberIds.Add(member.Id))
             {
                 queue.Enqueue(member);
-
-                if (member is IHasSecurityAccounts)
-                {
-                    people++;
-                }
             }
         }
     }

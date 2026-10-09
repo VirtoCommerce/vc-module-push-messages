@@ -69,7 +69,7 @@ public class AudienceResolutionTests
     }
 
     [Fact]
-    public async Task Counters_ExplainTheArithmetic_VCST5944()
+    public async Task Counters_ExplainTheArithmetic_VCST6224()
     {
         // One organization and one standalone contact are matched by the query.
         // The organization expands into seven contacts; one holds two logins, one holds none.
@@ -85,27 +85,22 @@ public class AudienceResolutionTests
             childrenByParentId: new Dictionary<string, IList<Member>> { ["org1"] = orgContacts },
             membersByKeyword: new Dictionary<string, IList<Member>> { ["role:Purchaser"] = [org, loner] });
 
-        var criteria = new PushMessageAudienceCriteria
-        {
-            MemberQuery = "role:Purchaser",
-            Take = int.MaxValue,
-        };
+        var result = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberQuery = "role:Purchaser", Take = int.MaxValue });
 
-        var result = await service.ResolveAsync(criteria);
-
-        Assert.Equal(2, result.MembersMatched);        // org1 + solo
-        Assert.Equal(1, result.CompaniesExpanded);     // org1 has no accounts
-        Assert.Equal(7, result.PeopleFromCompanies);   // c1..c7
+        Assert.Equal(1, result.MatchedPeople);         // solo
+        Assert.Equal(7, result.FoundInCompanies);      // c1..c7
         Assert.Equal(7, result.PeopleInScope);         // solo + c1..c6; c7 has no account
+        Assert.Equal(1, result.Overlaps);              // c7, absorbed (spec D1)
         Assert.Equal(1, result.ExtraLogins);           // c1 holds two
         Assert.Equal(8, result.TotalCount);
+        Assert.Equal(0, result.PickedPeople);
+        Assert.Equal(0, result.PickedCompanies);
 
-        // The identity the estimate panel renders must hold.
-        Assert.Equal(result.PeopleInScope + result.ExtraLogins, result.TotalCount);
+        AssertIdentitiesHold(result);
     }
 
     [Fact]
-    public async Task CompanyInsideCompany_IsExpandedButNotCountedAsAPerson_VCST5944()
+    public async Task CompanyInsideCompany_IsExpandedButNotCountedAsAPerson_VCST6224()
     {
         // org1 holds c1 and the company org2; org2 holds c2 and c3.
         var org1 = new Organization { Id = "org1", Name = "Parent" };
@@ -121,10 +116,69 @@ public class AudienceResolutionTests
 
         var result = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["org1"], Take = 0 });
 
-        Assert.Equal(2, result.CompaniesExpanded);
-        Assert.Equal(3, result.PeopleFromCompanies);   // c1, c2, c3 — not org2
+        Assert.Equal(0, result.MatchedPeople);
+        Assert.Equal(3, result.FoundInCompanies);      // c1, c2, c3 — not org2
+        Assert.Equal(0, result.Overlaps);
         Assert.Equal(3, result.PeopleInScope);
         Assert.Equal(3, result.TotalCount);
+        Assert.Equal(1, result.PickedCompanies);
+
+        AssertIdentitiesHold(result);
+    }
+
+    [Fact]
+    public async Task PersonPickedAndFoundInCompany_IsAnOverlap_VCST6224()
+    {
+        // c1 is picked by hand and also sits in the picked company together with c2.
+        var c1 = NewContact("c1", loginCount: 1);
+
+        var service = NewService(
+            members: new Dictionary<string, Member>
+            {
+                ["c1"] = c1,
+                ["org1"] = new Organization { Id = "org1", Name = "Acme" },
+            },
+            childrenByParentId: new Dictionary<string, IList<Member>>
+            {
+                ["org1"] = [c1, NewContact("c2", loginCount: 1)],
+            });
+
+        var result = await service.ResolveAsync(new PushMessageAudienceCriteria { MemberIds = ["c1", "org1"], Take = 0 });
+
+        Assert.Equal(1, result.MatchedPeople);
+        Assert.Equal(2, result.FoundInCompanies);
+        Assert.Equal(1, result.Overlaps);
+        Assert.Equal(2, result.PeopleInScope);
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(1, result.PickedPeople);
+        Assert.Equal(1, result.PickedCompanies);
+
+        AssertIdentitiesHold(result);
+    }
+
+    [Fact]
+    public async Task PersonMatchedByQueryAndPicked_IsAnOverlap_VCST6224()
+    {
+        var c1 = NewContact("c1", loginCount: 3);
+
+        var service = NewService(
+            members: new Dictionary<string, Member> { ["c1"] = c1 },
+            membersByKeyword: new Dictionary<string, IList<Member>> { ["role:Buyer"] = [c1] });
+
+        var result = await service.ResolveAsync(new PushMessageAudienceCriteria
+        {
+            MemberIds = ["c1"],
+            MemberQuery = "role:Buyer",
+            Take = 0,
+        });
+
+        Assert.Equal(2, result.MatchedPeople);
+        Assert.Equal(1, result.Overlaps);
+        Assert.Equal(1, result.PeopleInScope);
+        Assert.Equal(2, result.ExtraLogins);
+        Assert.Equal(3, result.TotalCount);
+
+        AssertIdentitiesHold(result);
     }
 
     [Fact]
@@ -205,6 +259,13 @@ public class AudienceResolutionTests
         var criteria = new PushMessageAudienceCriteria { MemberQuery = query, Take = int.MaxValue };
 
         await Assert.ThrowsAsync<ArgumentException>(() => service.ResolveAsync(criteria));
+    }
+
+    /// <summary>The widget renders both identities; they must hold for every audience.</summary>
+    private static void AssertIdentitiesHold(PushMessageAudienceResult result)
+    {
+        Assert.Equal(result.PeopleInScope, result.MatchedPeople + result.FoundInCompanies - result.Overlaps);
+        Assert.Equal(result.TotalCount, result.PeopleInScope + result.ExtraLogins);
     }
 
     private static PushMessageAudienceService NewService(
