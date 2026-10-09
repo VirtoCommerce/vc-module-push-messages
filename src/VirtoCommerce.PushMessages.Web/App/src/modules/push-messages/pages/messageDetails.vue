@@ -32,11 +32,14 @@
           />
         </Field>
 
-        <AudienceBuilder
-          v-model:member-query="item.memberQuery"
-          v-model:member-ids="item.memberIds"
-          v-model:invalid="audienceInvalid"
-          :disabled="isReadOnly"
+        <AudienceSummaryCard
+          :total="cardTotal"
+          :failed="estimate.failed"
+          :loading="estimate.loading"
+          :source-line="sourceLine"
+          :readonly="isReadOnly"
+          :disabled="missing || recipientsOpen"
+          @open="openRecipients"
         />
 
         <!-- Track New Recipients -->
@@ -82,10 +85,14 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBlade, useBladeForm, IBladeToolbar, usePopup } from "@vc-shell/framework";
+import { useAudiencePreview } from "../composables/useAudiencePreview";
+import { AudienceSummaryCard } from "../components";
+import { detectAudienceMode } from "../utils/audienceQuery";
+import { conditionCount, formatSourceLine, sourceParts } from "../utils/audienceSummary";
+import { AudienceEstimate, SelectRecipientsOptions, SET_AUDIENCE, SetAudiencePayload } from "../utils/audienceSync";
 import { useMessageDetails } from "../composables/useMessageDetails";
 import { useRecipientsWidgets } from "../widgets/useRecipientsWidgets";
 import { PushMessage } from "../../../api_client/virtocommerce.pushmessages";
-import { AudienceBuilder } from "../components";
 import { Field } from "vee-validate";
 
 import { VcBlade, VcEditor, VcForm, VcHint, VcInput, VcSwitch } from "@vc-shell/framework/ui";
@@ -95,7 +102,7 @@ defineBlade({
 });
 
 const { t } = useI18n({ useScope: "global" });
-const { param, options, callParent, closeSelf } = useBlade<{ sourceMessage?: PushMessage }>();
+const { param, options, callParent, closeSelf, openBlade, exposeToChildren } = useBlade<{ sourceMessage?: PushMessage }>();
 const { showConfirmation } = usePopup();
 
 // Initialize composable
@@ -129,6 +136,70 @@ const isEditable = computed(() => {
 /** A link can outlive the message it points at; there is nothing to edit then. */
 const missing = computed(() => !!param.value && !loading.value && !item.value?.id);
 
+const { preview, failed: previewFailed, loading: previewLoading, refresh } = useAudiencePreview();
+
+/** Set by the recipients blade while it is open; otherwise this blade's own estimate stands. */
+const childEstimate = ref<AudienceEstimate>();
+
+const estimate = computed<AudienceEstimate>(
+  () => childEstimate.value ?? { result: preview.value, failed: previewFailed.value, loading: previewLoading.value },
+);
+
+/** While the recipients blade is open, saving would leave its Cancel snapshot behind. */
+const recipientsOpen = ref(false);
+
+const sourceLine = computed(() =>
+  formatSourceLine(
+    sourceParts(
+      detectAudienceMode(item.value?.memberQuery, item.value?.memberIds),
+      conditionCount(item.value?.memberQuery),
+      estimate.value.result,
+    ),
+    (key, n) => (n === undefined ? t(key) : t(key, n)),
+  ),
+);
+
+/** A sent message shows whom it went to; anything else shows the live estimate. */
+const cardTotal = computed(() =>
+  isReadOnly.value ? (item.value?.recipientsTotalCount ?? 0) : estimate.value.result?.totalCount,
+);
+
+async function loadEstimate() {
+  childEstimate.value = undefined;
+  await refresh({ memberQuery: item.value?.memberQuery, memberIds: item.value?.memberIds });
+  audienceInvalid.value = previewFailed.value;
+}
+
+function openRecipients() {
+  recipientsOpen.value = true;
+
+  openBlade({
+    name: "PushMessageSelectRecipients",
+    options: {
+      audience: {
+        memberQuery: item.value.memberQuery,
+        memberIds: item.value.memberIds ? [...item.value.memberIds] : undefined,
+      },
+      invalid: audienceInvalid.value,
+      estimate: estimate.value,
+      readonly: isReadOnly.value,
+      sentCount: item.value.recipientsTotalCount,
+    } satisfies SelectRecipientsOptions,
+    onClose: () => {
+      recipientsOpen.value = false;
+    },
+  });
+}
+
+exposeToChildren({
+  [SET_AUDIENCE]: (payload: SetAudiencePayload) => {
+    item.value.memberQuery = payload.audience.memberQuery;
+    item.value.memberIds = payload.audience.memberIds;
+    audienceInvalid.value = payload.invalid;
+    childEstimate.value = payload.estimate;
+  },
+});
+
 const bladeTitle = computed(() => {
   return !param.value ? "New push message" : "Push message details";
 });
@@ -139,7 +210,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     id: "save",
     icon: "lucide-save",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE"),
-    disabled: !canSave.value || audienceInvalid.value,
+    disabled: !canSave.value || audienceInvalid.value || recipientsOpen.value,
     clickHandler: async () => {
       await handleSave();
     },
@@ -149,6 +220,7 @@ const toolbarItems = computed((): IBladeToolbar[] => [
     icon: "lucide-send",
     title: t("PUSH_MESSAGES.PAGES.DETAILS.TOOLBAR.SAVE_AND_PUBLISH"),
     disabled:
+      recipientsOpen.value ||
       !formMeta.value.valid ||
       audienceInvalid.value ||
       item.value == null ||
@@ -212,6 +284,7 @@ watch(
   async (newParam) => {
     if (newParam) {
       await loadMessage();
+      await loadEstimate();
       setBaseline();
       refreshAll();
     }
@@ -221,6 +294,7 @@ watch(
 // Lifecycle
 onMounted(async () => {
   await loadMessage();
+  await loadEstimate();
   setBaseline();
   refreshAll();
 });
