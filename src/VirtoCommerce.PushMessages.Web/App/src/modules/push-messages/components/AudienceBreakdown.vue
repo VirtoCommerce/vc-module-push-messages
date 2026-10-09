@@ -6,7 +6,7 @@
       class="tw-inset-0 tw-rounded"
     />
 
-    <div class="tw-flex tw-items-center tw-justify-between tw-gap-3">
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
       <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
         <span class="tw-flex tw-h-12 tw-w-12 tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-bg-[color:var(--primary-50)] tw-text-[color:var(--primary-600)]">
           <VcIcon
@@ -16,7 +16,7 @@
         </span>
         <div class="tw-min-w-0">
           <div
-            class="tw-text-xl tw-font-semibold"
+            class="tw-whitespace-nowrap tw-text-xl tw-font-semibold"
             :class="{ 'tw-invisible': estimate.loading && !estimate.result }"
           >
             {{ estimate.failed ? "—" : total }} {{ $t(`${P}.RECIPIENTS`, total) }}
@@ -43,21 +43,20 @@
     </VcHint>
 
     <template v-else-if="estimate.result && addsUp(estimate.result)">
-      <div class="tw-flex tw-items-stretch tw-gap-1 tw-rounded tw-bg-[color:var(--neutrals-50)] tw-p-2">
-        <template
-          v-for="(step, i) in steps"
-          :key="step.key"
-        >
-          <VcIcon
-            v-if="i > 0"
-            icon="lucide-chevron-right"
-            size="xs"
-            class="tw-self-center tw-shrink-0 tw-text-[color:var(--neutrals-400)]"
-          />
+      <div class="audience-flow tw-rounded tw-bg-[color:var(--neutrals-50)] tw-p-2">
+        <div class="audience-flow__steps">
           <div
-            class="tw-flex-1 tw-min-w-0 tw-rounded tw-px-1 tw-py-2 tw-text-center"
+            v-for="(step, i) in steps"
+            :key="step.key"
+            class="tw-relative tw-min-w-0 tw-rounded tw-px-1 tw-py-2 tw-text-center"
             :class="i === steps.length - 1 ? 'tw-bg-[color:var(--primary-500)] tw-text-white' : ''"
           >
+            <VcIcon
+              v-if="i > 0"
+              icon="lucide-chevron-right"
+              size="xs"
+              class="audience-flow__arrow tw-text-[color:var(--neutrals-400)]"
+            />
             <div
               class="tw-text-2xl tw-font-semibold"
               :class="{ 'tw-text-[color:var(--primary-500)]': step.signed }"
@@ -71,7 +70,7 @@
               {{ $t(`${P}.STEPS.${step.key}`) }}
             </div>
           </div>
-        </template>
+        </div>
       </div>
 
       <p
@@ -350,5 +349,34 @@ async function loadPreviewPage(skip: number) {
 
 .audience-preview-popup .vc-popup__content-wrapper {
   align-self: stretch;
+}
+
+/* Four steps in a row while they fit; in a narrow blade or on a phone, two by two without arrows. */
+.audience-flow {
+  container-type: inline-size;
+}
+
+.audience-flow__steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.audience-flow__arrow {
+  position: absolute;
+  top: 50%;
+  left: -0.875rem;
+  transform: translateY(-50%);
+}
+
+@container (max-width: 20rem) {
+  .audience-flow__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .audience-flow .audience-flow__arrow {
+    display: none;
+  }
 }
 </style>
