@@ -20,9 +20,9 @@ public class PreviewRecipientsEndpointTests
         var resolved = new PushMessageAudienceResult
         {
             TotalCount = 15,
-            MembersMatched = 8,
-            CompaniesExpanded = 1,
-            PeopleFromCompanies = 6,
+            MatchedPeople = 8,
+            FoundInCompanies = 6,
+            Overlaps = 1,
             PeopleInScope = 13,
             ExtraLogins = 2,
         };

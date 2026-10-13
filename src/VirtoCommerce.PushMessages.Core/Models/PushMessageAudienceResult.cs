@@ -6,20 +6,26 @@ public class PushMessageAudienceResult
 {
     public int TotalCount { get; set; }
 
-    /// <summary>Distinct members seeded from MemberIds and MemberQuery, before any expansion.</summary>
-    public int MembersMatched { get; set; }
+    /// <summary>People reached from MemberIds and MemberQuery, counted before de-duplication.</summary>
+    public int MatchedPeople { get; set; }
 
-    /// <summary>Members with no security accounts that were replaced by their children.</summary>
-    public int CompaniesExpanded { get; set; }
+    /// <summary>People reached by expanding companies, counted before de-duplication.</summary>
+    public int FoundInCompanies { get; set; }
 
-    /// <summary>Distinct members queued as a result of those expansions.</summary>
-    public int PeopleFromCompanies { get; set; }
+    /// <summary>People reached more than once: MatchedPeople + FoundInCompanies - PeopleInScope, less anyone excluded as already sent to.</summary>
+    public int Overlaps { get; set; }
 
     /// <summary>Distinct members that produced at least one recipient.</summary>
     public int PeopleInScope { get; set; }
 
     /// <summary>Recipients beyond the first for members holding more than one login.</summary>
     public int ExtraLogins { get; set; }
+
+    /// <summary>MemberIds entries that are people.</summary>
+    public int PickedPeople { get; set; }
+
+    /// <summary>MemberIds entries that are companies.</summary>
+    public int PickedCompanies { get; set; }
 
     public IList<PushMessageRecipient> Results { get; set; } = [];
 }
