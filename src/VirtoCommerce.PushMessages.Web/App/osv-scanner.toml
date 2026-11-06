@@ -1,0 +1,32 @@
+# osv-scanner exceptions for yarn.lock (osv-scanner reads this file only from the lockfile's directory).
+# Only findings without a non-breaking fix are listed here. Revisit when the upstream packages update.
+
+# swiper 11.2.10 comes from @vc-shell/framework (^11.2.10, unchanged up to framework 2.11.0); the fix is only in swiper 12.
+# The module's built bundle contains no swiper code (only framework CSS). To be fixed in vc-shell.
+[[IgnoredVulns]]
+id = "GHSA-hmx5-qpq5-p643"
+ignoreUntil = 2027-07-16
+reason = "swiper 11 via @vc-shell/framework; swiper JS is not in the module bundle. Fix (swiper 12) must come from vc-shell."
+
+# Build-time only: vite-plugin-dts 3.x (via @vc-shell/api-client-generator) -> @vue/language-core 1.x. No fixed version published.
+[[IgnoredVulns]]
+id = "GHSA-g3ch-rx76-35fx"
+ignoreUntil = 2027-07-16
+reason = "vue-template-compiler 2.7.16: build-time type generation only (vite-plugin-dts), not in the bundle; no fix published."
+
+# Build-time only: vite-plugin-pwa -> workbox-build -> @rollup/plugin-node-resolve. No fixed version published.
+[[IgnoredVulns]]
+id = "GHSA-gcqx-w48m-w2h4"
+ignoreUntil = 2027-07-16
+reason = "deepmerge 4.3.1: build-time only (workbox-build), not in the bundle; no fix published."
+
+# Build-time only (eslint, typescript-eslint, workbox-build, js-beautify); fixes exist only in new majors (glob 14, minimatch 11).
+[[IgnoredVulns]]
+id = "GHSA-3g3m-2fjr-6pw4"
+ignoreUntil = 2027-07-16
+reason = "glob 10/11: build tooling only, not in the bundle; fix only in glob 14 (breaking for the parent tools)."
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2027-07-16
+reason = "minimatch 9/10: build tooling only, not in the bundle; fix only in minimatch 11 (breaking for the parent tools)."
