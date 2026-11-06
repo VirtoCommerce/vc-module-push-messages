@@ -49,7 +49,8 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         var recipients = new List<PushMessageRecipient>();
         var userIds = new HashSet<string>(excludedUserIds ?? new HashSet<string>());
         var memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var people = 0;
+        // People whose every login already has the message: excluded, not reached twice.
+        var alreadySent = 0;
 
         var searchCriteria = AbstractTypeFactory<MembersSearchCriteria>.TryCreateInstance();
         searchCriteria.ResponseGroup = MemberResponseGroup.WithSecurityAccounts.ToString();
@@ -59,7 +60,10 @@ public class PushMessageAudienceService : IPushMessageAudienceService
         if (!criteria.MemberIds.IsNullOrEmpty())
         {
             var members = await _memberService.GetByIdsAsync(criteria.MemberIds.ToArray(), searchCriteria.ResponseGroup);
-            members.Apply(EnqueueMember);
+
+            result.PickedPeople = members.Count(x => x is IHasSecurityAccounts);
+            result.PickedCompanies = members.Length - result.PickedPeople;
+            members.Apply(x => EnqueueMember(x, fromCompany: false));
         }
 
         if (!string.IsNullOrEmpty(criteria.MemberQuery))
@@ -67,44 +71,25 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             await EnqueueMembers(keyword: criteria.MemberQuery);
         }
 
-        result.MembersMatched = memberIds.Count;
-
         while (queue.TryDequeue(out var member))
         {
-            if (member is IHasSecurityAccounts hasSecurityAccounts)
-            {
-                var added = 0;
-
-                foreach (var user in hasSecurityAccounts.SecurityAccounts)
-                {
-                    if (userIds.Add(user.Id))
-                    {
-                        if (collect)
-                        {
-                            recipients.Add(GetRecipient(messageId, member, user));
-                        }
-
-                        added++;
-                    }
-                }
-
-                if (added > 0)
-                {
-                    result.TotalCount += added;
-                    result.PeopleInScope++;
-                    result.ExtraLogins += added - 1;
-                }
-            }
-            else
+            if (member is not IHasSecurityAccounts person)
             {
                 // A company found inside a company is expanded in its turn; it is not a person.
-                var before = people;
                 await EnqueueMembers(memberId: member.Id);
+                continue;
+            }
 
-                result.CompaniesExpanded++;
-                result.PeopleFromCompanies += people - before;
+            var counted = CountPerson(result, member, person, userIds, collect ? recipients : null, messageId);
+
+            if (!counted && excludedUserIds != null && person.SecurityAccounts.Any(x => excludedUserIds.Contains(x.Id)))
+            {
+                alreadySent++;
             }
         }
+
+        // Derived, so the breakdown the UI renders always adds up.
+        result.Overlaps = result.MatchedPeople + result.FoundInCompanies - result.PeopleInScope - alreadySent;
 
         result.Results = collect
             ? recipients.Skip(criteria.Skip).Take(criteria.Take).ToList()
@@ -118,24 +103,68 @@ public class PushMessageAudienceService : IPushMessageAudienceService
             searchCriteria.MemberId = memberId;
             searchCriteria.DeepSearch = !string.IsNullOrEmpty(keyword);
 
+            var fromCompany = memberId != null;
+
             await foreach (var searchResult in _memberSearchService.SearchBatchesAsync(searchCriteria))
             {
-                searchResult.Results.Apply(EnqueueMember);
-            }
-        }
-
-        void EnqueueMember(Member member)
-        {
-            if (memberIds.Add(member.Id))
-            {
-                queue.Enqueue(member);
-
-                if (member is IHasSecurityAccounts)
+                foreach (var member in searchResult.Results)
                 {
-                    people++;
+                    EnqueueMember(member, fromCompany);
                 }
             }
         }
+
+        // People are counted before the de-duplication check: a person reached twice is what
+        // Overlaps reports.
+        void EnqueueMember(Member member, bool fromCompany)
+        {
+            if (member is IHasSecurityAccounts && fromCompany)
+            {
+                result.FoundInCompanies++;
+            }
+            else if (member is IHasSecurityAccounts)
+            {
+                result.MatchedPeople++;
+            }
+
+            if (memberIds.Add(member.Id))
+            {
+                queue.Enqueue(member);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Takes the person's logins not yet taken and counts them; returns whether there were any.
+    /// Recipients are built only when <paramref name="recipients"/> is given: the estimate counts alone.
+    /// </summary>
+    private static bool CountPerson(
+        PushMessageAudienceResult result,
+        Member member,
+        IHasSecurityAccounts person,
+        HashSet<string> userIds,
+        List<PushMessageRecipient> recipients,
+        string messageId)
+    {
+        var added = 0;
+
+        // A login another person already brought in is not taken twice.
+        foreach (var user in person.SecurityAccounts.Where(x => userIds.Add(x.Id)))
+        {
+            recipients?.Add(GetRecipient(messageId, member, user));
+            added++;
+        }
+
+        if (added == 0)
+        {
+            return false;
+        }
+
+        result.TotalCount += added;
+        result.PeopleInScope++;
+        result.ExtraLogins += added - 1;
+
+        return true;
     }
 
     /// <summary>
