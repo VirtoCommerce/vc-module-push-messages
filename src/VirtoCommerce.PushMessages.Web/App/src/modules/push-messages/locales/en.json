@@ -111,7 +111,6 @@
             "BACK_TO_CONDITIONS": "Back to conditions",
             "RECIPIENTS_PICKER": {
               "LABEL": "Add specific recipients (people or whole companies)",
-              "LABEL_ALSO": "Also add specific recipients (people or whole companies)",
               "PLACEHOLDER": "Add a person or company...",
               "HINT": "Adding a company includes everyone in it, and in the companies under it.",
               "COMPANY": "Company",
@@ -123,29 +122,11 @@
               "VALID": "Query is valid — {count} recipients."
             },
             "ESTIMATE": {
-              "RECIPIENTS": "recipient | recipients",
-              "MEMBERS_MATCHED": "members matched",
-              "COMPANIES_EXPANDED": "{count} company expanded | {count} companies expanded",
-              "PEOPLE_IN_SCOPE": "people in scope",
-              "EXTRA_LOGINS": "extra logins",
               "PREVIEW": "Preview recipients",
-              "SHOW_QUERY": "Show generated query",
+              "SHOW_QUERY": "Show query",
               "PREVIEW_TITLE": "Recipients",
               "PREVIEW_EMPTY": "Nobody matches this audience yet.",
               "QUERY_TITLE": "Generated query",
-              "SUMMARY": {
-                "EVERYONE": "Everyone — all registered customers",
-                "LIST": "The one selected, plus everyone in any company chosen | The {count} selected, plus everyone in any company chosen",
-                "QUERY": "Custom query",
-                "QUERY_EMPTY": "No query written yet",
-                "NO_CONDITIONS": "No conditions set",
-                "AND": "and",
-                "OR": "or",
-                "CONDITIONS_PREFIX": "Customers where",
-                "PLUS_PREFIX": ", plus",
-                "ONLY_PICKED_PREFIX": "Sending to",
-                "WHOLE_COMPANY_SUFFIX": "(whole company)"
-              },
               "PREVIEW_LEAD": "Resolved from the audience as it stands — {count} recipient. | Resolved from the audience as it stands — {count} recipients.",
               "COLUMN": {
                 "NAME": "Name",
@@ -159,8 +140,7 @@
               "COPY": "Copy query",
               "COPIED": "Copied",
               "PREVIEW_FAILED": "Could not load the recipients. Try again.",
-              "FAILED": "Recipients can't be counted for this audience — the search index rejected the query. Check it in Show generated query.",
-              "COUNTED_ONCE": "The counts above add up to {sum}: {count} recipient belongs to more than one selection and gets the message once. | The counts above add up to {sum}: {count} recipients belong to more than one selection and get the message once."
+              "FAILED": "Recipients can't be counted for this audience — the search index rejected the query. Check it in Show generated query."
             },
             "FIELDS": {
               "NAME": "Name",
@@ -191,6 +171,40 @@
               "WILDCARD_SINGLE_VALUE": "This operator takes a single value",
               "QUERY_TOO_LONG": "This audience is too long to store. Use fewer values, or pick the people directly.",
               "INCOMPLETE": "Pick a field and an operator for every condition."
+            },
+            "CONDITIONS_HEADER": "Set up the conditions",
+            "BREAKDOWN": {
+              "RECIPIENTS": "recipient | recipients",
+              "SOURCES": {
+                "EVERYONE": "All registered customers",
+                "QUERY": "Custom query",
+                "CONDITIONS": "{count} condition | {count} conditions",
+                "PEOPLE": "{count} person | {count} people",
+                "COMPANIES": "{count} company | {count} companies"
+              },
+              "STEPS": {
+                "MATCHED": "Matched by conditions",
+                "FOUND": "Found in companies",
+                "UNIQUE": "Unique people",
+                "RECIPIENTS": "Recipients"
+              },
+              "NOTE": {
+                "OVERLAPS": "{count} overlap | {count} overlaps",
+                "OVERLAPS_REASON": "removed (same person found twice)",
+                "EXTRA_LOGINS": "+{count} login | +{count} logins",
+                "EXTRA_LOGINS_REASON": ": some people have several accounts"
+              },
+              "STATUS": {
+                "READY": "Ready to send",
+                "EMPTY": "No recipients",
+                "INVALID": "Can't count"
+              },
+              "SENT_HINT": "Sent to {count} recipient. The numbers below show who matches the audience today. | Sent to {count} recipients. The numbers below show who matches the audience today."
+            },
+            "CARD": {
+              "SELECT": "Select recipients",
+              "VIEW": "View recipients",
+              "NONE": "No recipients selected yet"
             }
           },
           "TOPIC": {
@@ -231,6 +245,15 @@
         "DELETE_SELECTED_CONFIRMATION": {
           "MESSAGE": "Are you sure you want to delete {count} selected messages?"
         }
+      },
+      "SELECT_RECIPIENTS": {
+        "TITLE": "Select recipients",
+        "TITLE_READONLY": "Recipients",
+        "TOOLBAR": {
+          "APPLY": "Apply",
+          "CANCEL": "Cancel"
+        },
+        "DISCARD_CONFIRMATION": "Discard recipient changes?"
       }
     }
   }

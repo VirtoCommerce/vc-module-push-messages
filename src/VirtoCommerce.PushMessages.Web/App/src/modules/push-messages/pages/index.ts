@@ -5,3 +5,4 @@ export { default as TrackingList } from "./trackingList.vue";
 export { default as SentList } from "./sentList.vue";
 export { default as MessageDetails } from "./messageDetails.vue";
 export { default as RecipientList } from "./recipientList.vue";
+export { default as SelectRecipients } from "./selectRecipients.vue";
